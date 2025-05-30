@@ -1,4 +1,4 @@
-import { Form, Input, Button, Checkbox } from "antd";
+import { Form, Input, Button, Checkbox, Divider } from "antd";
 import FormItem from "antd/es/form/FormItem";
 import AuthenTemplate from "../../components/authen-template/authen-template";
 
@@ -53,9 +53,9 @@ function Login() {
             Sign in
           </Button>
 
-          <div className="or-divider">
-            <span>or</span>
-          </div>
+          <Divider plain style={{ borderColor: "#ccc" }} className="divider">
+            or
+          </Divider>
 
           <Button className="google-login_btn" color="default" variant="filled">
             <img

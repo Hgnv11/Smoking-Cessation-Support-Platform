@@ -1,8 +1,14 @@
+.quitlt_logo {
+    width: 110px;
+    margin-left: 25px;
+    padding-top: 20px;
+}
+
 .authen-template {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    min-height: 90vh;
 }
 
 .authen-template__form h1 {
@@ -52,24 +58,6 @@
     width: 40%;
 }
 
-.or-divider {
-    display: flex;
-    align-items: center;
-    margin: 20px 0;
-}
-.or-divider::before,
-.or-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: #ccc;
-}
-.or-divider span {
-    padding: 0 15px;
-    color: #666;
-    font-size: 14px;
-}
-
 .google-login_btn {
     width: 100%;
     height: 40px;
@@ -107,4 +95,3 @@
     font-size: 14px;
     width: 100%;
 }
-
