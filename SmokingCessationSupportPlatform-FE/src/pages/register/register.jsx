@@ -1,5 +1,5 @@
 import AuthenTemplate from "../../components/authen-template/authen-template";
-import { Button, Form, Input } from "antd";
+import { Button, Divider, Form, Input } from "antd";
 import FormItem from "antd/es/form/FormItem";
 
 function Register() {
@@ -86,9 +86,9 @@ function Register() {
             Sign Up
           </Button>
 
-          <div className="or-divider">
-            <span>or</span>
-          </div>
+          <Divider plain style={{ borderColor: "#ccc" }} className="divider">
+            or
+          </Divider>
 
           <Button className="google-login_btn" color="default" variant="filled">
             <img
