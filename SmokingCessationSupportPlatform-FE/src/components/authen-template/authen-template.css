@@ -26,13 +26,20 @@
 .authen-template__form .input-box input {
     height: 40px;
     width: 100%;
-    border: none;
     border-radius: 5px;
     outline: none;
     font-size: 16px;
-    background-color: #f4f4f4;
     padding-right: 150px;
     margin-top: -5px
+}
+
+.authen-template__form .input-box-otp input {
+    height: 100px;
+    width: 100px;
+    border-radius: 10px;
+    outline: none;
+    margin-top: -5px;
+    font-size: 24px;
 }
 
 .remember-forgot {

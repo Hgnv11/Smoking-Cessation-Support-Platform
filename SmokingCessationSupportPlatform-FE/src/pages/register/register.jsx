@@ -26,6 +26,7 @@ function Register() {
             ]}
           >
             <Input
+              variant="filled"
               className="input"
               type="text"
               placeholder="Enter your full name"
@@ -44,6 +45,7 @@ function Register() {
             ]}
           >
             <Input
+              variant="filled"
               className="input"
               type="text"
               placeholder="Enter your email address"
@@ -61,7 +63,11 @@ function Register() {
               },
             ]}
           >
-            <Input type="password" placeholder="Enter your password" />
+            <Input.Password
+              variant="filled"
+              type="password"
+              placeholder="Enter your password"
+            />
           </FormItem>
 
           <FormItem
@@ -75,7 +81,11 @@ function Register() {
               },
             ]}
           >
-            <Input type="password" placeholder="Enter your password" />
+            <Input.Password
+              variant="filled"
+              type="password"
+              placeholder="Enter your password"
+            />
           </FormItem>
 
           <Button

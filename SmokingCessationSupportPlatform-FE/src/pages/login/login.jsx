@@ -24,6 +24,7 @@ function Login() {
             ]}
           >
             <Input
+              variant="filled"
               className="input"
               type="text"
               placeholder="Enter your email address"
@@ -35,7 +36,11 @@ function Login() {
             name="password"
             rules={[{ required: true, message: "Please enter your password." }]}
           >
-            <Input type="password" placeholder="Enter your password" />
+            <Input.Password
+              variant="filled"
+              type="password"
+              placeholder="Enter your password"
+            />
           </FormItem>
 
           <div className="remember-forgot">
