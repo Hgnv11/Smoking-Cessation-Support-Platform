@@ -112,4 +112,21 @@ public class AuthService {
         otpToken.setExpiresAt(LocalDateTime.now().plusMinutes(10));
         otpTokenRepository.save(otpToken);
     }
+    public void resendOtp(String email, OtpToken.Purpose purpose) throws MessagingException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Vô hiệu hóa các OTP cũ cho mục đích này
+        otpTokenRepository.findByUserAndPurposeAndIsUsedFalse(user, purpose)
+                .forEach(otp -> {
+                    otp.setIsUsed(true);
+                    otpTokenRepository.save(otp);
+                });
+
+        // Tạo và gửi OTP mới
+        String otpCode = generateOtp();
+        saveOtp(user, otpCode, purpose);
+
+        emailService.sendOtpEmail(email, otpCode, "Registration Verification");
+    }
 }

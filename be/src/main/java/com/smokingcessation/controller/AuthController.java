@@ -49,4 +49,11 @@ public class AuthController {
         authService.verifyOtp(otpCode, OtpToken.Purpose.valueOf(purpose));
         return ResponseEntity.ok("OTP verified successfully.");
     }
+    @PostMapping("/resend-otp")
+    public ResponseEntity<String> resendOtp(@RequestParam @Email String email, @RequestParam String purpose) throws Exception {
+        authService.resendOtp(email, OtpToken.Purpose.valueOf(purpose));
+        return ResponseEntity.ok("OTP resent successfully.");
+    }
+
+
 }
