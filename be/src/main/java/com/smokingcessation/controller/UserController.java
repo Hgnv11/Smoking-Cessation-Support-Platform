@@ -28,4 +28,9 @@ public class UserController {
         UserDTO updatedProfile = userService.updateUserByEmail(email, userDTO);
         return ResponseEntity.ok(updatedProfile);
     }
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDTO> viewOtherUserProfile(@PathVariable Integer userId) {
+        UserDTO userDTO = userService.getUserById(userId);
+        return ResponseEntity.ok(userDTO);
+    }
 }

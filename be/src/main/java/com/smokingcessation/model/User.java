@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer userId;
+    private int userId;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -41,6 +41,9 @@ public class User {
     private String type_login;
 
     private Boolean isVerified = false;
+
+
+    private boolean isBlock = false;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 

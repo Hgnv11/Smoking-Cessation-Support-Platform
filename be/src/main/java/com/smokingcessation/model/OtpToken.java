@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class OtpToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer otpId;
+    private int otpId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

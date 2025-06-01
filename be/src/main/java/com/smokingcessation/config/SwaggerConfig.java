@@ -19,7 +19,7 @@ public class SwaggerConfig {
                         .description("Tài liệu API cho nền tảng hỗ trợ cai thuốc lá - The Lights Team")
                         .contact(new Contact()
                                 .name("The Lights Team")
-                                .email("support@smokingcessation.com")
+                                .email("Hoangnvse172524@fpt.edu.com")
                                 .url("https://yourproject-url.com"))
                         .license(new License()
                                 .name("Apache 2.0")

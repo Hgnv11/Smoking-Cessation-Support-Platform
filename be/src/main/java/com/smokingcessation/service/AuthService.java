@@ -8,8 +8,10 @@ import com.smokingcessation.repository.OtpTokenRepository;
 import com.smokingcessation.repository.UserRepository;
 import com.smokingcessation.util.JwtUtil;
 import jakarta.mail.MessagingException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -55,9 +57,12 @@ public class AuthService {
 
     public String login(String email, String password) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Incorrect username or password"));
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
-            throw new RuntimeException("Invalid password");
+            throw new RuntimeException("Incorrect username or password");
+        }
+        if (user.isBlock()) {
+            throw new RuntimeException("Your account has been locked");
         }
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);

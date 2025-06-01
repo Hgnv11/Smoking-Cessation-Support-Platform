@@ -20,11 +20,12 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("User with email " + email + " not found"));
 
         return new UserDTO(
+                user.getUserId(),
                 user.getFullName(),
                 user.getProfileName(),
                 user.getEmail(),
                 user.getBirthDate(),
-                user.getGender() != null ? user.getGender().name() : "null"
+                user.getGender() != null ? user.getGender().name() : "OTHER"
         );
     }
     public UserDTO updateUserByEmail(String email, UserDTO userDTO) {
@@ -57,12 +58,28 @@ public class UserService {
         userRepository.save(user);
 
         return new UserDTO(
+                user.getUserId(),
                 user.getFullName(),
                 user.getProfileName(),
                 user.getEmail(),
                 user.getBirthDate(),
-                user.getGender() != null ? user.getGender().name() : "UNKNOWN"
+                user.getGender() != null ? user.getGender().name() : "OTHER"
         );
     }
+
+    public UserDTO getUserById(int userId) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User with ID " + userId + " not found"));
+
+        return new UserDTO(
+                user.getUserId(),
+                user.getFullName(),
+                user.getProfileName(),
+                user.getEmail(),
+                user.getBirthDate(),
+                user.getGender() != null ? user.getGender().name() : "OTHER"
+        );
+    }
+
 
 }
