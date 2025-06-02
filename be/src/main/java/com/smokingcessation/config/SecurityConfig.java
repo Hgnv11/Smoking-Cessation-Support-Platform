@@ -38,13 +38,18 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers( "/api/auth/**",
+                        .requestMatchers(  "/api/auth/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
+                                "/v3/api-docs/swagger-config",
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/swagger-ui.html").permitAll()
+                        .requestMatchers("/api/profile").hasRole("ADMIN")
                         .requestMatchers("/api/profile/**").hasAnyRole("USER", "MENTOR", "ADMIN")
+                        .requestMatchers("/api/user-smoking-profile").hasRole("ADMIN")
+                        .requestMatchers("/api/user-smoking-profile/**").hasAnyRole("USER", "MENTOR")
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

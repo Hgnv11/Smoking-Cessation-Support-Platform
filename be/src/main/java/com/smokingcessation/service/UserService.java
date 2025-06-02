@@ -7,7 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +25,7 @@ public class UserService {
         return new UserDTO(
                 user.getUserId(),
                 user.getFullName(),
-                user.getProfileName(),
+                user.getProfileName()!=null?user.getProfileName(): user.getFullName(),
                 user.getEmail(),
                 user.getBirthDate(),
                 user.getGender() != null ? user.getGender().name() : "OTHER"
@@ -60,26 +63,59 @@ public class UserService {
         return new UserDTO(
                 user.getUserId(),
                 user.getFullName(),
-                user.getProfileName(),
+                user.getProfileName()!=null?user.getProfileName(): user.getFullName(),
                 user.getEmail(),
                 user.getBirthDate(),
                 user.getGender() != null ? user.getGender().name() : "OTHER"
         );
     }
 
-    public UserDTO getUserById(int userId) {
+    public UserDTO getUserById(Integer userId) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("User with ID " + userId + " not found"));
 
         return new UserDTO(
                 user.getUserId(),
                 user.getFullName(),
-                user.getProfileName(),
+                user.getProfileName()!=null?user.getProfileName(): user.getFullName(),
                 user.getEmail(),
                 user.getBirthDate(),
                 user.getGender() != null ? user.getGender().name() : "OTHER"
         );
     }
+
+    public UserDTO getUserByProfileName(String profileName) {
+        User user = userRepository.findByProfileName(profileName)
+                .orElseThrow(() -> new RuntimeException("User not found with profile name: " + profileName));
+        return new UserDTO(
+                user.getUserId(),
+                user.getFullName(),
+                user.getProfileName()!=null?user.getProfileName(): user.getFullName(),
+                user.getEmail(),
+                user.getBirthDate(),
+                user.getGender() != null ? user.getGender().name() : "OTHER"
+        );
+    }
+
+
+    public List<UserDTO> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        List<UserDTO> userDTOs = new ArrayList<>();
+
+        for (User user : users) {
+            UserDTO dto = new UserDTO();
+            dto.setUserId(user.getUserId());
+            dto.setFullName(user.getFullName());
+            dto.setProfileName(user.getProfileName()!=null?user.getProfileName(): user.getFullName());
+            dto.setEmail(user.getEmail());
+            dto.setBirthDate(user.getBirthDate());
+            dto.setGender(user.getGender() != null ? user.getGender().name() : "OTHER");
+            userDTOs.add(dto);
+        }
+
+        return userDTOs;
+    }
+
 
 
 }

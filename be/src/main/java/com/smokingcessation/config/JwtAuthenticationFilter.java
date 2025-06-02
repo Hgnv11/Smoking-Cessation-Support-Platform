@@ -35,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
             if (jwtUtil.validateToken(token)) {
                 String email = jwtUtil.getEmailFromToken(token);
-                System.out.println("Email from token: " + email);
+
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
                 System.out.println("Authorities: " + userDetails.getAuthorities());
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -56,8 +56,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/swagger-ui/")
                 || path.startsWith("/v3/api-docs")
                 || path.startsWith("/swagger-resources")
+                || path.startsWith("/swagger-config")
                 || path.startsWith("/webjars")
-                || path.equals("/swagger-ui.html");
-
+                || path.equals("/swagger-ui.html")
+                || path.equals("/v3/api-docs/swagger-config");
     }
 }

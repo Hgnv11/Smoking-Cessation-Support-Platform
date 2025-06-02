@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/profile")
@@ -15,22 +16,29 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping
+    @GetMapping("/my")
     public ResponseEntity<UserDTO> getProfile(Principal principal) {
         String email = principal.getName(); // Lấy email từ token
+        System.out.println(email);
         UserDTO profile = userService.getProfileByEmail(email);
         return ResponseEntity.ok(profile);
     }
 
-    @PostMapping
+    @PutMapping("/my")
     public ResponseEntity<UserDTO> updateProfile(@RequestBody UserDTO userDTO, Principal principal) {
         String email = principal.getName(); // Lấy email từ token
         UserDTO updatedProfile = userService.updateUserByEmail(email, userDTO);
         return ResponseEntity.ok(updatedProfile);
     }
-    @GetMapping("/{userId}")
-    public ResponseEntity<UserDTO> viewOtherUserProfile(@PathVariable Integer userId) {
-        UserDTO userDTO = userService.getUserById(userId);
+
+    @GetMapping("/by-name/{profileName}")
+    public ResponseEntity<UserDTO> viewUserByProfileName(@PathVariable String profileName) {
+        UserDTO userDTO = userService.getUserByProfileName(profileName);
         return ResponseEntity.ok(userDTO);
+    }
+    @GetMapping()
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
     }
 }
