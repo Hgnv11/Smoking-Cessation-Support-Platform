@@ -6,11 +6,10 @@ function AuthenTemplate({ children }) {
   const navigate = useNavigate();
   return (
     <>
-      <div>
-        <img
+      <div>        <img
           onClick={() => navigate("/")}
           className="quitlt_logo"
-          src="../src/components/images/Quitlt-logo.png"
+          src="/src/components/images/Quitlt-logo.png"
           alt="quitlt-logo"
         />
       </div>

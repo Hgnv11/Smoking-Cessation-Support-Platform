@@ -55,12 +55,10 @@ function Login() {
 
           <Divider plain style={{ borderColor: "#ccc" }} className="divider">
             or
-          </Divider>
-
-          <Button className="google-login_btn" color="default" variant="filled">
+          </Divider>          <Button className="google-login_btn" color="default" variant="filled">
             <img
               className="google-logo"
-              src="../src/components/images/google-logo.png"
+              src="/src/components/images/google-logo.png"
               alt="google-logo"
             />
             <p>

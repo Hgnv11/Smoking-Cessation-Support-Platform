@@ -1,31 +1,30 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import "./App.css";
-import Home from "./pages/home/home";
-import Login from "./pages/login/login";
-import Register from "./pages/register/register";
-import ForgotPass from "./pages/forgotPass/forgotPass";
+import React from 'react';
+import { Layout } from 'antd';
+import Header from './components/Header';
+import HeroSection from './components/HeroSection';
+import ExploreSection from './components/ExploreSection';
+import ArticleSection from './components/ArticleSection';
+import LeaderboardSection from './components/LeaderboardSection';
+import TestimonialsSection from './components/TestimonialsSection';
+import Footer from './components/Footer';
+import './App.css';
 
-function App() {
-  const router = createBrowserRouter([
-    {
-      path: "",
-      element: <Home />,
-    },
-    {
-      path: "login",
-      element: <Login />,
-    },
-    {
-      path: "register",
-      element: <Register />,
-    },
-    {
-      path: "forgot-password",
-      element: <ForgotPass />,
-    },
-  ]);
+const { Content } = Layout;
 
-  return <RouterProvider router={router} />;
-}
+const App = () => {
+  return (
+    <Layout className="layout">
+      <Header />
+      <Content>
+        <HeroSection />
+        <ExploreSection />
+        <ArticleSection />
+        <LeaderboardSection />
+        <TestimonialsSection />
+      </Content>
+      <Footer />
+    </Layout>
+  );
+};
 
 export default App;
