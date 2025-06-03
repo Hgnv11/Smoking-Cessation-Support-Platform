@@ -43,20 +43,12 @@ public class UserSmokingProfileService {
             profile = new UserSmokingProfile();
             profile.setUser(user);
         }
-
-        // form cho enum
-        UserSmokingProfile.SmokingStatus smokingStatusEnum = UserSmokingProfile.SmokingStatus.valueOf(request.getSmokingStatus().toLowerCase());
-        UserSmokingProfile.MotivationLevel motivationLevelEnum = UserSmokingProfile.MotivationLevel.valueOf(request.getMotivationLevel().toLowerCase());
-        // Cập nhật các trường từ request
-
-        profile.setSmokingStatus(smokingStatusEnum);
         profile.setCigarettesPerDay(request.getCigarettesPerDay());
-        profile.setYearsSmoking(request.getYearsSmoking());
-        profile.setCigaretteCost(request.getCigaretteCost());
+        profile.setCigarettesPerPack(request.getCigarettesPerPack());
+        profile.setCigarettePackCost(request.getCigarettePackCost());
         profile.setQuitDate(request.getQuitDate());
-        profile.setMotivationLevel(motivationLevelEnum);
-        profile.setHealthConcerns(request.getHealthConcerns());
         profile.setUpdatedAt(LocalDateTime.now());
+
 
         UserSmokingProfile savedProfile = userSmokingProfileRepository.save(profile);
         return mapper.toDto(savedProfile);

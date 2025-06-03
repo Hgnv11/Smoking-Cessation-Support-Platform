@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,29 +24,18 @@ public class UserSmokingProfile {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Enumerated(EnumType.STRING)
-    private SmokingStatus smokingStatus;
-
     private Integer cigarettesPerDay;
-    private Integer yearsSmoking;
-    private BigDecimal cigaretteCost;
+
+    private Integer cigarettesPerPack;  // Số điếu trong một gói thuốc
+
+    private BigDecimal cigarettePackCost;
+
     private LocalDate quitDate;
-
-    @Enumerated(EnumType.STRING)
-    private MotivationLevel motivationLevel;
-
-    private String healthConcerns;
 
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    private LocalDateTime updatedAt = LocalDateTime.now();
-    public enum SmokingStatus {
-        active, quitting, quit
-    }
-
-    public enum MotivationLevel {
-        low, medium, high
-    }
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
 }

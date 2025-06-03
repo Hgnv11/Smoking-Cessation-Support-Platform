@@ -10,7 +10,7 @@ import org.mapstruct.factory.Mappers;
 public interface UserSmokingProfileMapper {
 
 
-
+    @Mapping(target = "userId", expression = "java(profile.getUser().getUserId())")
     UserSmokingProfileRequest toDto(UserSmokingProfile profile);
 
     UserSmokingProfile toEntity(UserSmokingProfileRequest dto);
