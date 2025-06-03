@@ -14,7 +14,7 @@ public class PostDTO {
     private UserDTO user;
     @NotBlank
     private String title;
-;
+
     @NotBlank
     private String content;
 
