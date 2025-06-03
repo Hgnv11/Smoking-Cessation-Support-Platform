@@ -75,6 +75,19 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    public List<PostDTO> getAllPosts(Boolean isApproved) {
+        List<CommunityPost> posts;
+        if (isApproved == null) {
+            posts = postRepository.findAll();
+        } else {
+            posts = postRepository.findByIsApproved(isApproved);
+        }
+        return posts.stream()
+                .map(postMapper::toDto)
+                .toList();
+    }
+
+
 
 
 

@@ -60,6 +60,13 @@ public class PostController {
         return ResponseEntity.ok().body("Post deleted successfully");
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<PostDTO>> getAllPosts(
+            @RequestParam(required = false) Boolean approved) {
+        List<PostDTO> posts = postService.getAllPosts(approved);
+        return ResponseEntity.ok(posts);
+    }
+
 
 
 }
