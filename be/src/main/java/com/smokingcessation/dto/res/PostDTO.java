@@ -11,9 +11,10 @@ import lombok.Data;
 public class PostDTO {
 
     private Integer postId;
+    private UserDTO user;
     @NotBlank
     private String title;
-
+;
     @NotBlank
     private String content;
 

@@ -27,15 +27,11 @@ public class PostService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        CommunityPost post = new CommunityPost();
+        CommunityPost post = postMapper.toEntity(request);
         post.setUser(user);
-        post.setTitle(request.getTitle());
-        post.setContent(request.getContent());
-        post.setPostType(request.getPostType());
         post.setIsApproved(false);
         post.setCreatedAt(LocalDateTime.now());
         post.setUpdatedAt(LocalDateTime.now());
-
 
         CommunityPost savedPost = postRepository.save(post);
         return postMapper.toDto(savedPost);

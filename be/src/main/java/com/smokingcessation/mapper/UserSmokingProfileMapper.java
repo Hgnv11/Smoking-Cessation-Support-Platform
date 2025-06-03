@@ -6,12 +6,12 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface UserSmokingProfileMapper {
 
+    @Mapping(source = "user", target = "user")
+    UserSmokingProfileRequest toDto(UserSmokingProfile entity);
 
-    @Mapping(target = "userId", expression = "java(profile.getUser().getUserId())")
-    UserSmokingProfileRequest toDto(UserSmokingProfile profile);
-
+    @Mapping(source = "user", target = "user")
     UserSmokingProfile toEntity(UserSmokingProfileRequest dto);
 }
