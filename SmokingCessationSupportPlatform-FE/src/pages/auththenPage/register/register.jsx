@@ -1,4 +1,4 @@
-import AuthenTemplate from "../../components/authen-template/authen-template";
+import AuthenTemplate from "../../../components/authen-template/authen-template";
 import { Button, Divider, Form, Input } from "antd";
 import FormItem from "antd/es/form/FormItem";
 
