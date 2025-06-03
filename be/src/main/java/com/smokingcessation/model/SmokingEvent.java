@@ -32,13 +32,9 @@ public class SmokingEvent {
     @Max(value = 10, message = "Craving level must be between 0 and 10")
     private Integer cravingLevel;
 
-    @Enumerated(EnumType.STRING)
-    private Mood mood;
 
     private String notes;
 
-    public enum Mood {
-        excellent, good, neutral, bad, terrible
-    }
+
 
 }

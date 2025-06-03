@@ -15,6 +15,5 @@ public class SmokingEventDTO {
     private LocalDateTime eventTime;
     private Integer cigarettesSmoked;
     private Integer cravingLevel;
-    private String mood;
     private String notes;
 }
