@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class CommunityPost {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int postId;
+    private Integer postId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

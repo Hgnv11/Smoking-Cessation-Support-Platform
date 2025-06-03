@@ -6,6 +6,7 @@ import com.smokingcessation.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -50,6 +51,15 @@ public class PostController {
         PostDTO approvedPost = postService.approvePost(postId);
         return ResponseEntity.ok(approvedPost);
     }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<?> deletePost(@PathVariable int postId,Principal principal
+                                        ) {
+        String userEmail = principal.getName();
+        postService.deletePost(postId, userEmail);
+        return ResponseEntity.ok().body("Post deleted successfully");
+    }
+
 
 
 }

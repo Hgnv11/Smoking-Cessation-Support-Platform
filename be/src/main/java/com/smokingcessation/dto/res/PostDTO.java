@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 public class PostDTO {
 
-    private int postId;
+    private Integer postId;
     @NotBlank
     private String title;
 

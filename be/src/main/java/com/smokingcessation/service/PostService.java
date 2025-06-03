@@ -64,4 +64,18 @@ public class PostService {
         post.setUpdatedAt(LocalDateTime.now());
         CommunityPost savedPost = postRepository.save(post);
         return postMapper.toDto(savedPost);
-    }}
+    }
+
+    public void deletePost(int postId, String userEmail) {
+        CommunityPost post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+        if (!post.getUser().getEmail().equals(userEmail)) {
+            throw new RuntimeException("You do not have permission to delete this post");
+        }
+        postRepository.delete(post);
+    }
+
+
+
+
+}
