@@ -12,7 +12,7 @@ public class SmokingcessationApplication {
 	public static void main(String[] args) {
 		Dotenv dotenv = Dotenv.configure()
 				.directory("./be") // Đường dẫn đến thư mục chứa .env (thư mục gốc)
-				.ignoreIfMissing() // Bỏ qua nếu không tìm thấy .env
+				.ignoreIfMissing()
 				.load();
 
 		// Chuyển các biến từ .env vào System properties

@@ -24,7 +24,7 @@ public class UserController {
         return ResponseEntity.ok(profile);
     }
 
-    @PutMapping("/my")
+    @PostMapping("/my")
     public ResponseEntity<UserDTO> updateProfile(@RequestBody UserDTO userDTO, Principal principal) {
         String email = principal.getName(); // Lấy email từ token
         UserDTO updatedProfile = userService.updateUserByEmail(email, userDTO);

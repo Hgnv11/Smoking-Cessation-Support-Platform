@@ -8,7 +8,7 @@ import java.time.LocalDate;
 public class UserSmokingProfileRequest {
     private Integer userId;
     private Integer cigarettesPerDay;
-    private Integer cigarettesPerPack;   // thêm trường này
+    private Integer cigarettesPerPack;   
     private BigDecimal cigarettePackCost;
     private LocalDate quitDate;
 }

@@ -3,6 +3,7 @@ package com.smokingcessation.controller;
 import com.smokingcessation.dto.UserSmokingProfileRequest;
 import com.smokingcessation.service.UserSmokingProfileService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -17,7 +18,7 @@ public class UserSmokingProfileController {
         this.userSmokingProfileService = userSmokingProfileService;
     }
 
-    // Lấy profile của user đang đăng nhập
+    // Lấy profile smoker của user đang đăng nhập
     @GetMapping("/my")
     public ResponseEntity<UserSmokingProfileRequest> getMyProfile(Principal principal) {
         String email = principal.getName();
@@ -34,4 +35,12 @@ public class UserSmokingProfileController {
         UserSmokingProfileRequest updatedProfile = userSmokingProfileService.AddOrUpdateProfileByEmail(email, request);
         return ResponseEntity.ok(updatedProfile);
     }
+
+    @PreAuthorize("hasRole('MENTOR')")
+    @GetMapping("/{profileName}")
+    public ResponseEntity<UserSmokingProfileRequest> getUserProfileByProfileName(@PathVariable String profileName) {
+        UserSmokingProfileRequest profile = userSmokingProfileService.getProfileByProfileName(profileName);
+        return ResponseEntity.ok(profile);
+    }
+
 }

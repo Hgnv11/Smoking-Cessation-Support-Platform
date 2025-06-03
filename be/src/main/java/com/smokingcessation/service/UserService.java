@@ -21,13 +21,13 @@ public class UserService {
     public UserDTO getProfileByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User with email " + email + " not found"));
-
         return new UserDTO(
                 user.getUserId(),
                 user.getFullName(),
                 user.getProfileName()!=null?user.getProfileName(): user.getFullName(),
                 user.getEmail(),
                 user.getBirthDate(),
+                user.getAvatarUrl(),
                 user.getGender() != null ? user.getGender().name() : "OTHER"
         );
     }
@@ -36,18 +36,25 @@ public class UserService {
         if (!optionalUser.isPresent()) {
             throw new RuntimeException("User not found with email: " + email);
         }
-
         User user = optionalUser.get();
 
         if (userDTO.getFullName() != null) {
             user.setFullName(userDTO.getFullName());
         }
         if (userDTO.getProfileName() != null) {
-            user.setProfileName(userDTO.getProfileName());
+            Optional<User> userWithProfileName = userRepository.findByProfileName(userDTO.getProfileName());
+            if (!userWithProfileName.isPresent() || userWithProfileName.get().getUserId().equals(user.getUserId())) {
+                user.setProfileName(userDTO.getProfileName());
+            } else {
+                throw new RuntimeException("ProfileName used");
+            }
         }
 
         if (userDTO.getBirthDate() != null) {
             user.setBirthDate(userDTO.getBirthDate());
+        }
+        if (userDTO.getAvatarUrl() != null) {
+            user.setAvatarUrl(userDTO.getAvatarUrl());
         }
         if (userDTO.getGender() != null) {
             try {
@@ -66,6 +73,7 @@ public class UserService {
                 user.getProfileName()!=null?user.getProfileName(): user.getFullName(),
                 user.getEmail(),
                 user.getBirthDate(),
+                user.getAvatarUrl(),
                 user.getGender() != null ? user.getGender().name() : "OTHER"
         );
     }
@@ -80,6 +88,7 @@ public class UserService {
                 user.getProfileName()!=null?user.getProfileName(): user.getFullName(),
                 user.getEmail(),
                 user.getBirthDate(),
+                user.getAvatarUrl(),
                 user.getGender() != null ? user.getGender().name() : "OTHER"
         );
     }
@@ -93,6 +102,7 @@ public class UserService {
                 user.getProfileName()!=null?user.getProfileName(): user.getFullName(),
                 user.getEmail(),
                 user.getBirthDate(),
+                user.getAvatarUrl(),
                 user.getGender() != null ? user.getGender().name() : "OTHER"
         );
     }

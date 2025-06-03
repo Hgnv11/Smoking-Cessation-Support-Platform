@@ -53,5 +53,16 @@ public class UserSmokingProfileService {
         UserSmokingProfile savedProfile = userSmokingProfileRepository.save(profile);
         return mapper.toDto(savedProfile);
     }
+    public UserSmokingProfileRequest getProfileByProfileName(String profileName) {
+        User user = userRepository.findByProfileName(profileName)
+                .orElseThrow(() -> new RuntimeException("User not found with profile name: " + profileName));
+
+        UserSmokingProfile profile = userSmokingProfileRepository.findByUser(user)
+                .orElse(null);
+
+        return mapper.toDto(profile);
+    }
+
+
 
 }

@@ -47,7 +47,6 @@ public class SecurityConfig {
                                 "/swagger-ui.html").permitAll()
                         .requestMatchers("/api/profile").hasRole("ADMIN")
                         .requestMatchers("/api/profile/**").hasAnyRole("USER", "MENTOR", "ADMIN")
-                        .requestMatchers("/api/user-smoking-profile").hasRole("ADMIN")
                         .requestMatchers("/api/user-smoking-profile/**").hasAnyRole("USER", "MENTOR")
 
                         .anyRequest().authenticated()
