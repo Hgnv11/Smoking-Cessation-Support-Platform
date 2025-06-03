@@ -1,10 +1,10 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
 import Home from "./pages/home/home";
-import Login from "./pages/login/login";
-import Register from "./pages/register/register";
-import ForgotPass from "./pages/forgotPass/forgotPass";
-import ForgotPassCode from "./pages/forgotPass-code/forgotPass-code";
+import Login from "./pages/auththenPage/login/login";
+import Register from "./pages/auththenPage/register/register";
+import ForgotPass from "./pages/auththenPage/forgotPass/forgotPass";
+import ForgotPassCode from "./pages/auththenPage/forgotPass-code/forgotPass-code";
 
 function App() {
   const router = createBrowserRouter([

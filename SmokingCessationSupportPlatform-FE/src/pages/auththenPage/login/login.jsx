@@ -1,6 +1,6 @@
 import { Form, Input, Button, Checkbox, Divider } from "antd";
 import FormItem from "antd/es/form/FormItem";
-import AuthenTemplate from "../../components/authen-template/authen-template";
+import AuthenTemplate from "../../../components/authen-template/authen-template";
 
 function Login() {
   const handleLogin = () => {};

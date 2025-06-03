@@ -1,6 +1,6 @@
 import { Form, Input, Button } from "antd";
 import FormItem from "antd/es/form/FormItem";
-import AuthenTemplate from "../../components/authen-template/authen-template";
+import AuthenTemplate from "../../../components/authen-template/authen-template";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 
 function ForgotPass() {
