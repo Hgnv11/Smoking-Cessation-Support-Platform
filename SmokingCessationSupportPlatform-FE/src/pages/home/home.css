@@ -31,4 +31,51 @@
 .wrapper__card-des {
     padding-top: 10px;
     color: #7D7987;
+    font-weight: lighter;
+}
+
+
+.wrapper__card-user {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-top: 20px;
+}
+
+.wrapper__card-user-img {
+    width: 60px;
+    height: 60px;
+    margin-right: 20px;
+}
+
+.wrapper__card-user-name {
+    color: #0A52B5;
+}
+
+.wrapper__card-user-role {
+    color: #7D7987;
+    font-size: 14px;
+}
+
+.custom-divider {
+    width: 40%;
+    height: 0.5px;
+    background-color: #D6D1D1;
+    margin: 40px auto;
+    border: none;
+}
+
+.divider {
+    border-color: #D6D1D1;
+    margin: 40px 0;
+}
+
+.wrapper__btn {
+    display: block;
+    margin: auto;
+    width: 15%;
+    height: 35px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 50px;
 }
