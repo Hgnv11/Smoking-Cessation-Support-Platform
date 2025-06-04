@@ -64,11 +64,4 @@ public class UserSmokingProfileService {
 
         return mapper.toDto(profile);
     }
-
-
-
-
-
-
-
 }
