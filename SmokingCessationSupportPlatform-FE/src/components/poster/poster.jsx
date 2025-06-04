@@ -17,7 +17,7 @@ function Poster() {
             supportive community to achieve your smoke-free goals.
           </p>
           <Button
-            onClick={() => navigate("/#")}
+            onClick={() => navigate("/make-plan")}
             type="primary"
             className="poster__content-button"
           >

@@ -1,0 +1,81 @@
+.wrapper__content-des {
+  border: 2px solid #f0eeee;
+  border-radius: 20px;
+  padding: 30px;
+}
+
+.wrapper__content p {
+    color: #7D7987;
+    font-size: 16px;
+    line-height: 1.5;
+    padding-top: 10px;
+
+}
+
+.wrapper__content-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    border: 2px solid #f0eeee;
+    border-radius: 20px;
+    padding: 30px 70px;
+    margin-bottom: 50px;
+}
+
+.wrapper__content-step-title {
+    color: #0A52B5;
+    padding: 10px 0;
+    font-size: 30px;
+}
+
+.ant-radio-wrapper {
+    font-size: 18px;
+    color: #6D6E76;
+    padding: 20px 100px;
+}
+
+.ant-picker {
+    width: 200px;
+    height: 50px;
+}
+
+.wrapper__content-step-datetimepicker {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    align-items: center;
+}
+
+.wrapper__content-step-cost {
+    padding-top: 10px;
+}
+
+.wrapper__content-step-cost-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    padding-top: 20px;
+}
+
+.wrapper__content-step-cost-input {
+    width: 100px;
+    height: 40px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.wrapper__content-step-reason {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.wrapper__content-step-reason-checkbox {
+    padding-top: 10px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
