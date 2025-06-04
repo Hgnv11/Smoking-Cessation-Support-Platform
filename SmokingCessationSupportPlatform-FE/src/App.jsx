@@ -11,6 +11,7 @@ import UserCoach from "./pages/userCoach/userCoach";
 import Layout from "./components/layout/layout";
 
 function App() {
+  const ProtectAuth = () => {};
   const router = createBrowserRouter([
     {
       path: "/",
