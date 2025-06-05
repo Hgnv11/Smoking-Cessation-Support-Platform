@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-import React from "react";
-import Header from "../../components/Header";
-=======
 import Header from "../../components/header/header";
->>>>>>> origin/MinhThien
 import Poster from "../../components/poster/poster";
 import Footer from "../../components/footer/footer";
 import "./home.css";

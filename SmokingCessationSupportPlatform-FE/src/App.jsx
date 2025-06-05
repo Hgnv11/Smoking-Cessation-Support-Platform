@@ -1,17 +1,3 @@
-<<<<<<< HEAD
-import React from 'react';
-import { Layout } from 'antd';
-import Header from './components/Header';
-import HeroSection from './components/HeroSection';
-import ExploreSection from './components/ExploreSection';
-import ArticleSection from './components/ArticleSection';
-import LeaderboardSection from './components/LeaderboardSection';
-import TestimonialsSection from './components/TestimonialsSection';
-import Footer from './components/Footer';
-import './App.css';
-
-const { Content } = Layout;
-=======
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
 import Home from "./pages/home/home";
@@ -42,22 +28,8 @@ function App() {
       ],
     },
   ]);
->>>>>>> origin/MinhThien
 
-const App = () => {
-  return (
-    <Layout className="layout">
-      <Header />
-      <Content>
-        <HeroSection />
-        <ExploreSection />
-        <ArticleSection />
-        <LeaderboardSection />
-        <TestimonialsSection />
-      </Content>
-      <Footer />
-    </Layout>
-  );
-};
+  return <RouterProvider router={router} />;
+}
 
 export default App;

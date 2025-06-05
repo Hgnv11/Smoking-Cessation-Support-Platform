@@ -71,9 +71,6 @@ function Login() {
 
           <Divider plain style={{ borderColor: "#ccc" }} className="divider">
             or
-<<<<<<< HEAD:SmokingCessationSupportPlatform-FE/src/pages/login/login.jsx
-          </Divider>          <Button className="google-login_btn" color="default" variant="filled">
-=======
           </Divider>
 
           <Button
@@ -82,10 +79,9 @@ function Login() {
             color="default"
             variant="filled"
           >
->>>>>>> origin/MinhThien:SmokingCessationSupportPlatform-FE/src/pages/auththenPage/login/login.jsx
             <img
               className="google-logo"
-              src="/src/components/images/google-logo.png"
+              src="../src/components/images/google-logo.png"
               alt="google-logo"
             />
             <p>
