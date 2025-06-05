@@ -3,6 +3,7 @@ package com.smokingcessation.controller;
 import com.smokingcessation.dto.res.PostDTO;
 import com.smokingcessation.model.CommunityPost;
 import com.smokingcessation.service.PostService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +21,9 @@ public class PostController {
     private final PostService postService;
 
     // Xem bài viết của chính mình
+    @Operation(
+            summary = "Xem bài viết của chính mình"
+    )
     @GetMapping("/my")
     public ResponseEntity<List<PostDTO>> getMyPosts(Principal principal) {
         String email = principal.getName();
@@ -28,6 +32,9 @@ public class PostController {
     }
 
     //Xem bai viet của người khác qua profile name
+    @Operation(
+            summary = "Xem bài viết của người khác qua profile name"
+    )
     @GetMapping("/{profileName}")
     public ResponseEntity<List<PostDTO>> getPostsByUser(@PathVariable String profileName) {
         List<PostDTO> posts = postService.getPostsByUserProfileName(profileName);
@@ -35,6 +42,9 @@ public class PostController {
     }
 
     // Thêm bài viết mới
+    @Operation(
+            summary = "Thêm bài viết mới"
+    )
     @PostMapping
     public ResponseEntity<PostDTO> addNewPost(
             Principal principal,
@@ -45,6 +55,9 @@ public class PostController {
     }
 
     // API admin duyệt bài viết
+    @Operation(
+            summary = "duyệt bài role admin"
+    )
     @PatchMapping("/{postId}/approve")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostDTO> approvePost(@PathVariable int postId) {
@@ -52,6 +65,9 @@ public class PostController {
         return ResponseEntity.ok(approvedPost);
     }
 
+    @Operation(
+            summary = "xóa post"
+    )
     @DeleteMapping("/{postId}")
     public ResponseEntity<?> deletePost(@PathVariable int postId,Principal principal
                                         ) {
@@ -60,6 +76,9 @@ public class PostController {
         return ResponseEntity.ok().body("Post deleted successfully");
     }
 
+    @Operation(
+            summary = "lấy các bài post theo approved "
+    )
     @GetMapping("/all")
     public ResponseEntity<List<PostDTO>> getAllPosts(
             @RequestParam(required = false) Boolean approved) {
