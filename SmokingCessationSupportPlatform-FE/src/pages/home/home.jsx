@@ -59,7 +59,11 @@ function Home() {
               future
             </p>
           </Card>
-          <Card hoverable className="wrapper__card-card">
+          <Card
+            hoverable
+            className="wrapper__card-card"
+            onClick={() => navigate("/community")}
+          >
             <img
               alt="example"
               className="wrapper__card-img"

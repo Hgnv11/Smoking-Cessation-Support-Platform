@@ -1,9 +1,20 @@
 import { Form, Input, Button, Checkbox, Divider } from "antd";
 import FormItem from "antd/es/form/FormItem";
 import AuthenTemplate from "../../../components/authen-template/authen-template";
+import api from "../../../config/axios";
+import { toast } from "react-toastify";
 
 function Login() {
-  const handleLogin = () => {};
+  const handleLogin = async (values) => {
+    try {
+      const response = await api.post("auth/login", values);
+      toast.success("Đăng nhập thành công");
+      console.log(response.data);
+    } catch (err) {
+      toast.error("Đăng nhập thất bại");
+      console.log(err);
+    }
+  };
 
   return (
     <>
@@ -18,7 +29,7 @@ function Login() {
           <FormItem
             label="Email Address"
             className="input-box custom-label"
-            name="username"
+            name="email"
             rules={[
               { required: true, message: "Please enter your email address." },
             ]}
@@ -62,7 +73,12 @@ function Login() {
             or
           </Divider>
 
-          <Button className="google-login_btn" color="default" variant="filled">
+          <Button
+            htmlType="submit"
+            className="google-login_btn"
+            color="default"
+            variant="filled"
+          >
             <img
               className="google-logo"
               src="../src/components/images/google-logo.png"
