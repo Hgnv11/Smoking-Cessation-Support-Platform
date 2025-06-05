@@ -4,11 +4,8 @@
     justify-content: space-between;
     align-items: center;
     min-height: 450px;
-    padding: 0 180px;
-}
-
-.poster__content {
-    padding-right: 150px;
+    padding: 0 10%;
+    width: 100%;
 }
 
 .poster__content-title {
@@ -21,6 +18,8 @@
     margin-top: 20px;
     color: #7D7987;
     font-size: 18px;
+    padding-right: 25%;
+    line-height: 1.5;
 }
 
 .poster__content-button {

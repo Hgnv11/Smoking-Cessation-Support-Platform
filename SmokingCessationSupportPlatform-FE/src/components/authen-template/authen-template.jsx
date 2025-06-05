@@ -1,17 +1,26 @@
 import React from "react";
 import "./authen-template.css";
-import { useNavigate } from "react-router-dom";
 
 function AuthenTemplate({ children }) {
-  const navigate = useNavigate();
   return (
     <>
+<<<<<<< HEAD
       <div>        <img
           onClick={() => navigate("/")}
           className="quitlt_logo"
           src="/src/components/images/Quitlt-logo.png"
           alt="quitlt-logo"
         />
+=======
+      <div>
+        <a href="/">
+          <img
+            className="quitlt_logo"
+            src="../src/components/images/Quitlt-logo.png"
+            alt="quitlt-logo"
+          />
+        </a>
+>>>>>>> origin/MinhThien
       </div>
       <div className="authen-template">
         <div className="authen-template__form">{children}</div>
