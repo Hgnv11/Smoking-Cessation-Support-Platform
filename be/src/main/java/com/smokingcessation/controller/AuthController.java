@@ -2,6 +2,7 @@ package com.smokingcessation.controller;
 
 import com.smokingcessation.dto.LoginRequest;
 import com.smokingcessation.dto.RegisterRequest;
+import com.smokingcessation.dto.res.LoginDTO;
 import com.smokingcessation.model.OtpToken;
 import com.smokingcessation.service.AuthService;
 import jakarta.validation.Valid;
@@ -27,9 +28,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest request) {
-        String token = authService.login(request.getEmail(), request.getPassword());
-        return ResponseEntity.ok(token);
+    public ResponseEntity<LoginDTO> login(@Valid @RequestBody LoginRequest request) {
+        LoginDTO loginDTO = authService.login(request.getEmail(), request.getPassword());
+        return ResponseEntity.ok(loginDTO);
     }
 
     @PostMapping("/forgot-password")

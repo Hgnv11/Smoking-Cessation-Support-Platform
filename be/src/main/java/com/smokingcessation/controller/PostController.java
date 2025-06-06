@@ -86,6 +86,18 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
+    @PutMapping("/{postId}")
+    public ResponseEntity<PostDTO> updatePost(
+            @PathVariable int postId,
+            @RequestBody PostDTO postDTO,
+            Principal principal) {
+
+        String userEmail = principal.getName();
+
+        PostDTO updatedPost = postService.updatePost(postId, userEmail, postDTO);
+        return ResponseEntity.ok(updatedPost);
+    }
+
 
 
 }

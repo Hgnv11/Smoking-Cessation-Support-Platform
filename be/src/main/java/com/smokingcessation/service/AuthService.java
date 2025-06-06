@@ -1,5 +1,6 @@
 package com.smokingcessation.service;
 
+import com.smokingcessation.dto.res.LoginDTO;
 import com.smokingcessation.model.OtpToken;
 import com.smokingcessation.model.User;
 import com.smokingcessation.model.OtpToken;
@@ -55,7 +56,7 @@ public class AuthService {
         emailService.sendOtpEmail(email, otpCode, "Registration Verification");
     }
 
-    public String login(String email, String password) {
+    public LoginDTO login(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Incorrect username or password"));
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
@@ -66,7 +67,15 @@ public class AuthService {
         }
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
-        return jwtUtil.generateToken(email, user.getRole().name());
+        String token = jwtUtil.generateToken(email, user.getRole().name());
+        return new LoginDTO(
+                token,
+                user.getUserId(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getProfileName(),
+                user.getAvatarUrl()
+        );
     }
 
     public void forgotPassword(String email) throws MessagingException {

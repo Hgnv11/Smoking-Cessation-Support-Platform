@@ -19,9 +19,11 @@ public class PostDTO {
 
     @NotBlank
     private String content;
+    private String imageUrl;
 
     @NotNull
     private PostType postType;
+
 
 
 }
