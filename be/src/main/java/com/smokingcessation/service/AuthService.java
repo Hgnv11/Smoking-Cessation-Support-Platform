@@ -127,6 +127,7 @@ public class AuthService {
         otpToken.setExpiresAt(LocalDateTime.now().plusMinutes(10));
         otpTokenRepository.save(otpToken);
     }
+
     public void resendOtp(String email, OtpToken.Purpose purpose) throws MessagingException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -143,5 +144,17 @@ public class AuthService {
         saveOtp(user, otpCode, purpose);
 
         emailService.sendOtpEmail(email, otpCode, "Registration Verification");
+    }
+
+    public void softDeleteUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getIsDelete() != null && user.getIsDelete()) {
+            throw new RuntimeException("User already deleted");
+        }
+
+        user.setIsDelete(true);
+        userRepository.save(user);
     }
 }

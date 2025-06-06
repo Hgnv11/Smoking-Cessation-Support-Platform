@@ -9,7 +9,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -55,6 +58,12 @@ public class AuthController {
         authService.resendOtp(email, OtpToken.Purpose.valueOf(purpose));
         return ResponseEntity.ok("OTP resent successfully.");
     }
-
+    
+    @DeleteMapping("/me")
+    public ResponseEntity<String> deleteUser(Principal principal) {
+        String email = principal.getName();
+        authService.softDeleteUser(email);
+        return ResponseEntity.ok("User deleted successfully");
+    }
 
 }
