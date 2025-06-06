@@ -65,6 +65,10 @@ public class AuthService {
         if (user.isBlock()) {
             throw new RuntimeException("Your account has been locked");
         }
+        if (user.getIsDelete()) {
+            throw new RuntimeException("Your account has been delete");
+        }
+
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
         String token = jwtUtil.generateToken(email, user.getRole().name());
@@ -144,17 +148,5 @@ public class AuthService {
         saveOtp(user, otpCode, purpose);
 
         emailService.sendOtpEmail(email, otpCode, "Registration Verification");
-    }
-
-    public void softDeleteUser(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (user.getIsDelete() != null && user.getIsDelete()) {
-            throw new RuntimeException("User already deleted");
-        }
-
-        user.setIsDelete(true);
-        userRepository.save(user);
     }
 }

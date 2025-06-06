@@ -5,6 +5,7 @@ import com.smokingcessation.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -27,6 +28,7 @@ public class UserController {
         UserDTO profile = userService.getProfileByEmail(email);
         return ResponseEntity.ok(profile);
     }
+
     @Operation(
             summary = "Update profile user "
     )
@@ -53,5 +55,24 @@ public class UserController {
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<UserDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
+    }
+
+    @Operation(
+            summary = "set status user is_delete(xóa trên web), user role=admin"
+    )
+    @DeleteMapping("/me")
+    public ResponseEntity<String> deleteUser(Principal principal) {
+        String email = principal.getName();
+        userService.softDeleteUser(email);
+        return ResponseEntity.ok("User deleted successfully");
+    }
+
+    @PutMapping("/{userId}/role")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> updateUserRole(
+            @PathVariable Long userId,
+            @RequestParam String newRole) {
+        userService.updateUserRoleByUserId(userId, newRole);
+        return ResponseEntity.ok("User role updated successfully");
     }
 }

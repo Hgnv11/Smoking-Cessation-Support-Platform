@@ -58,12 +58,4 @@ public class AuthController {
         authService.resendOtp(email, OtpToken.Purpose.valueOf(purpose));
         return ResponseEntity.ok("OTP resent successfully.");
     }
-    
-    @DeleteMapping("/me")
-    public ResponseEntity<String> deleteUser(Principal principal) {
-        String email = principal.getName();
-        authService.softDeleteUser(email);
-        return ResponseEntity.ok("User deleted successfully");
-    }
-
 }
