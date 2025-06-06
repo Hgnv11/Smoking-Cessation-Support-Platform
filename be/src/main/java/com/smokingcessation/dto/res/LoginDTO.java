@@ -10,6 +10,7 @@ public class LoginDTO {
     private int userId;
     private String email;
     private String role;
+    private Boolean is_verified;
     private String profileName;
     private String avatarUrl;
 }
