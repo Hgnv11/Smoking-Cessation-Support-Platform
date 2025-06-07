@@ -126,6 +126,33 @@ public class UserService {
         return userDTOs;
     }
 
+    public void softDeleteUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getIsDelete() != null && user.getIsDelete()) {
+            throw new RuntimeException("User already deleted");
+        }
+
+        user.setIsDelete(true);
+        userRepository.save(user);
+    }
+
+    public void updateUserRoleByUserId(Long userId, String newRoleStr) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        User.Role newRole;
+        try {
+            newRole = User.Role.valueOf(newRoleStr.toLowerCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid role: " + newRoleStr);
+        }
+
+        user.setRole(newRole);
+        userRepository.save(user);
+    }
+
 
 
 }

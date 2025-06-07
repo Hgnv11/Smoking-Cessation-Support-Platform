@@ -89,6 +89,11 @@ function Home() {
           </Card>
         </div>
         <div className="custom-divider"></div>
+
+        <div className="wrapper__title">
+          <p>Article & Information</p>
+        </div>
+
         <div className="wrapper__title">
           <p>What other users say about Quitlt</p>
         </div>

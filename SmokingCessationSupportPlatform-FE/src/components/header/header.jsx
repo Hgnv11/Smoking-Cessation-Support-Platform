@@ -46,7 +46,7 @@ function Header() {
               </a>
 
               <a href="/#" className={isActivePage("/#") ? "active" : ""}>
-                About Us
+                Article & Information
               </a>
             </nav>
           </div>

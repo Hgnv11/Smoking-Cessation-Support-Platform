@@ -102,3 +102,22 @@
     font-size: 14px;
     width: 100%;
 }
+
+.resend-otp {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.resend-otp p {
+    color: #458FF6;
+    font-size: 18px;
+}
+
+.resend-otp-link {
+    color: #458FF6;
+    font-weight: 600;
+    margin-left: 5px;
+    font-size: 18px;
+}

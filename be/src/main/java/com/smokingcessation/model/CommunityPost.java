@@ -32,9 +32,12 @@ public class CommunityPost {
 
     @Column(name = "is_approved", nullable = false)
     private Boolean isApproved = false;
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();

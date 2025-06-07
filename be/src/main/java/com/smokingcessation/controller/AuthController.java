@@ -2,13 +2,17 @@ package com.smokingcessation.controller;
 
 import com.smokingcessation.dto.LoginRequest;
 import com.smokingcessation.dto.RegisterRequest;
+import com.smokingcessation.dto.res.LoginDTO;
 import com.smokingcessation.model.OtpToken;
 import com.smokingcessation.service.AuthService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,9 +31,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest request) {
-        String token = authService.login(request.getEmail(), request.getPassword());
-        return ResponseEntity.ok(token);
+    public ResponseEntity<LoginDTO> login(@Valid @RequestBody LoginRequest request) {
+        LoginDTO loginDTO = authService.login(request.getEmail(), request.getPassword());
+        return ResponseEntity.ok(loginDTO);
     }
 
     @PostMapping("/forgot-password")
@@ -54,6 +58,4 @@ public class AuthController {
         authService.resendOtp(email, OtpToken.Purpose.valueOf(purpose));
         return ResponseEntity.ok("OTP resent successfully.");
     }
-
-
 }

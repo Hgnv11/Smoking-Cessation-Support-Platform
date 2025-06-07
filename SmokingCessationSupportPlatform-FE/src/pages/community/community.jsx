@@ -1,11 +1,24 @@
 import Footer from "../../components/footer/footer";
 import Header from "../../components/header/header";
 import { Affix, Card, Divider } from "antd";
+import { useState } from "react";
 import "./community.css";
 import CommunityPosts from "../../config/communityPost";
 
 function Community() {
+  const [selectedCategory, setSelectedCategory] = useState("tips");
+
   const allPosts = CommunityPosts.filter((post) => post.is_approved);
+
+  // Filter posts based on selected category
+  const filteredPosts = allPosts.filter(
+    (post) => post.post_type.toLowerCase() === selectedCategory.toLowerCase()
+  );
+
+  const handleCategoryClick = (category) => {
+    setSelectedCategory(category);
+  };
+
   return (
     <>
       <Affix offsetTop={0}>
@@ -19,7 +32,13 @@ function Community() {
         <div className="wrapper__community">
           <h2>Categories</h2>
           <div className="wrapper__community-categories">
-            <Card hoverable className="wrapper__community-categories-card">
+            <Card
+              hoverable
+              className={`wrapper__community-categories-card ${
+                selectedCategory === "tips" ? "active" : ""
+              }`}
+              onClick={() => handleCategoryClick("tips")}
+            >
               <img
                 alt="asset"
                 className="wrapper__community-categories-card-img"
@@ -28,7 +47,13 @@ function Community() {
               <h3>Tips</h3>
               <p>Share and discover tips for quitting smoking.</p>
             </Card>
-            <Card hoverable className="wrapper__community-categories-card">
+            <Card
+              hoverable
+              className={`wrapper__community-categories-card ${
+                selectedCategory === "stories" ? "active" : ""
+              }`}
+              onClick={() => handleCategoryClick("stories")}
+            >
               <img
                 alt="asset"
                 className="wrapper__community-categories-card-img"
@@ -37,7 +62,13 @@ function Community() {
               <h3>Stories</h3>
               <p>Read inspiring stories from those who have quit.</p>
             </Card>
-            <Card hoverable className="wrapper__community-categories-card">
+            <Card
+              hoverable
+              className={`wrapper__community-categories-card ${
+                selectedCategory === "others" ? "active" : ""
+              }`}
+              onClick={() => handleCategoryClick("others")}
+            >
               <img
                 alt="asset"
                 className="wrapper__community-categories-card-img"
@@ -51,7 +82,7 @@ function Community() {
           </div>
           <Divider className="divider" />
           <div className="wrapper__community-posts">
-            {allPosts.map((post) => (
+            {filteredPosts.map((post) => (
               <div key={post.post_id} className="wrapper__community-posts-card">
                 <img
                   alt="post"
@@ -66,6 +97,11 @@ function Community() {
               </div>
             ))}
           </div>
+          {filteredPosts.length === 0 && (
+            <div className="no-posts-message">
+              <p>No posts found for this category.</p>
+            </div>
+          )}
         </div>
       </div>
       <Footer />

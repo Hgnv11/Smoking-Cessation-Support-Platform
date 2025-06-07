@@ -30,6 +30,7 @@ public class PostService {
         CommunityPost post = postMapper.toEntity(request);
         post.setUser(user);
         post.setIsApproved(false);
+        post.setImageUrl(request.getImageUrl());
         post.setCreatedAt(LocalDateTime.now());
         post.setUpdatedAt(LocalDateTime.now());
 
@@ -82,6 +83,26 @@ public class PostService {
                 .map(postMapper::toDto)
                 .toList();
     }
+
+    public PostDTO updatePost(int postId, String userEmail, PostDTO request) {
+        CommunityPost post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        if (!post.getUser().getEmail().equals(userEmail)) {
+            throw new RuntimeException("You do not have permission to update this post");
+        }
+
+        post.setTitle(request.getTitle());
+        post.setContent(request.getContent());
+        post.setPostType(request.getPostType());
+        post.setImageUrl(request.getImageUrl());
+        post.setIsApproved(false); // chuyển trạng thái duyệt về false
+        post.setUpdatedAt(LocalDateTime.now());
+
+        CommunityPost updatedPost = postRepository.save(post);
+        return postMapper.toDto(updatedPost);
+    }
+
 
 
 

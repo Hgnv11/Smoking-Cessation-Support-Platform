@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SmokingEventRepository extends JpaRepository<SmokingEvent, Integer> {
@@ -18,4 +19,5 @@ public interface SmokingEventRepository extends JpaRepository<SmokingEvent, Inte
     int sumCigarettesSmokedSince(@Param("userId") int userId, @Param("since") LocalDateTime since);
 
     List<SmokingEvent> findByUser(User user);
+    Optional<SmokingEvent> findTopByUserOrderByEventTimeDesc(User user);
 }

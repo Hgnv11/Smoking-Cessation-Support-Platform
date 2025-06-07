@@ -3,15 +3,19 @@ import FormItem from "antd/es/form/FormItem";
 import AuthenTemplate from "../../../components/authen-template/authen-template";
 import api from "../../../config/axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
+  const navigate = useNavigate();
+
   const handleLogin = async (values) => {
     try {
       const response = await api.post("auth/login", values);
-      toast.success("Đăng nhập thành công");
+      toast.success("Login successfully!");
       console.log(response.data);
+      navigate("/");
     } catch (err) {
-      toast.error("Đăng nhập thất bại");
+      toast.error("Login failed! Please check your email and password.");
       console.log(err);
     }
   };

@@ -2,9 +2,30 @@ import { Form, Input, Button } from "antd";
 import FormItem from "antd/es/form/FormItem";
 import AuthenTemplate from "../../../components/authen-template/authen-template";
 import { ArrowLeftOutlined } from "@ant-design/icons";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import api from "../../../config/axios";
 
 function ForgotPass() {
-  const handleForgotPass = () => {};
+  const navigate = useNavigate();
+
+  const handleForgotPass = async (values) => {
+    try {
+      const response = await api.post(
+        `auth/forgot-password?email=${encodeURIComponent(values.email)}`
+      );
+      console.log(response.data);
+      toast.success("Reset code sent to your email!");
+      navigate(
+        `/forgot-password-code?email=${encodeURIComponent(values.email)}`
+      );
+    } catch (err) {
+      console.log(err.response?.data);
+      toast.error(
+        "Failed to send reset code. Please check your email address."
+      );
+    }
+  };
   return (
     <>
       <AuthenTemplate>
@@ -22,7 +43,7 @@ function ForgotPass() {
           <FormItem
             label="Email Address"
             className="input-box custom-label"
-            name="username"
+            name="email"
             rules={[
               { required: true, message: "Please enter your email address." },
             ]}

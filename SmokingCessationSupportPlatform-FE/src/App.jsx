@@ -5,10 +5,13 @@ import Login from "./pages/auththenPage/login/login";
 import Register from "./pages/auththenPage/register/register";
 import ForgotPass from "./pages/auththenPage/forgotPass/forgotPass";
 import ForgotPassCode from "./pages/auththenPage/forgotPass-code/forgotPass-code";
+import VerifyCode from "./pages/auththenPage/verifyCode/verifyCode";
 import MakePlan from "./pages/quitPlan/makePlan";
 import Community from "./pages/community/community";
 import UserCoach from "./pages/userCoach/userCoach";
 import Layout from "./components/layout/layout";
+import UserProfile from "./pages/profile/userProfile/profile/userProfile";
+import ChangePass from "./pages/profile/userProfile/changePass/changePass";
 
 function App() {
   const ProtectAuth = () => {};
@@ -22,9 +25,12 @@ function App() {
         { path: "register", element: <Register /> },
         { path: "forgot-password", element: <ForgotPass /> },
         { path: "forgot-password-code", element: <ForgotPassCode /> },
+        { path: "verify-code", element: <VerifyCode /> },
         { path: "make-plan", element: <MakePlan /> },
         { path: "community", element: <Community /> },
         { path: "user-coach", element: <UserCoach /> },
+        { path: "user-profile", element: <UserProfile /> },
+        { path: "user-profile/change-pass", element: <ChangePass /> },
       ],
     },
   ]);

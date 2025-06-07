@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class PostDTO {
 
@@ -17,7 +19,11 @@ public class PostDTO {
 
     @NotBlank
     private String content;
+    private String imageUrl;
 
     @NotNull
     private PostType postType;
+
+
+
 }
