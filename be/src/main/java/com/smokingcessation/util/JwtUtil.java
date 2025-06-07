@@ -58,4 +58,23 @@ public class JwtUtil {
             return false;
         }
     }
+
+    public String generateTemporaryToken(String email, int minutes) {
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000L * 60 * minutes))
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    public boolean validateToken(String token, String email) {
+        try {
+            Claims claims = getClaimsFromToken(token);
+            String extractedEmail = claims.getSubject();
+            return extractedEmail.equals(email) && !claims.getExpiration().before(new Date());
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

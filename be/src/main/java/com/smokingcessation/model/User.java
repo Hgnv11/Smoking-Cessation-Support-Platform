@@ -41,7 +41,7 @@ public class User {
 
     private Boolean hasActive = false;
     private Boolean isDelete=false;
-    private String type_login;
+    private String typeLogin;
 
     private Boolean isVerified = false;
 
