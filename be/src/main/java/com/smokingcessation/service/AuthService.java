@@ -90,7 +90,7 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         String otpCode = generateOtp();
-        saveOtp(user, otpCode, OtpToken.Purpose.reset_password);
+        saveOtp(user, otpCode, OtpToken.Purpose.change_password);
         emailService.sendOtpEmail(email, otpCode, "Password Reset");
     }
 
