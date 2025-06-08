@@ -61,7 +61,7 @@ public class AuthController {
     @PostMapping("/verify-otp")
     public ResponseEntity<String> verifyOtp(@RequestParam String otpCode, @RequestParam String purpose) {
         String tempToken = authService.verifyOtp(otpCode, OtpToken.Purpose.valueOf(purpose));
-        return ResponseEntity.ok("TempToken: " + tempToken);
+        return ResponseEntity.ok(tempToken);
     }
     @Operation(
             summary = "truyền token tạm thời đó, và new pass để đổi mk"
