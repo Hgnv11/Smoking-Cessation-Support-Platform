@@ -44,27 +44,43 @@ public class UserSmokingProfileService {
 
     }
 
-    public UserSmokingProfileRequest AddOrUpdateProfileByEmail(String email, UserSmokingProfileRequest request) {
+    public UserSmokingProfileRequest AddProfileByEmail(String email, UserSmokingProfileRequest request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        if (userSmokingProfileRepository.findByUser(user).isPresent()) {
+            throw new RuntimeException("The profile already exists.");
+        } else {
+            UserSmokingProfile profile = new UserSmokingProfile();
+            profile.setUser(user);
+            profile.setCigarettesPerDay(request.getCigarettesPerDay());
+            profile.setCigarettesPerPack(request.getCigarettesPerPack());
+            profile.setCigarettePackCost(request.getCigarettePackCost());
+            profile.setQuitDate(request.getQuitDate());
+            profile.setUpdatedAt(LocalDateTime.now());
+
+            UserSmokingProfile savedProfile = userSmokingProfileRepository.save(profile);
+            return mapper.toDto(savedProfile);
+        }
+    }
+
+    public UserSmokingProfileRequest UpdateProfileByEmail(String email, UserSmokingProfileRequest request) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
 
         UserSmokingProfile profile = userSmokingProfileRepository.findByUser(user)
-                .orElse(null);
+                .orElseThrow(() -> new RuntimeException("The profile does not exist."));
 
-        if (profile == null) {
-            profile = new UserSmokingProfile();
-            profile.setUser(user);
-        }
         profile.setCigarettesPerDay(request.getCigarettesPerDay());
         profile.setCigarettesPerPack(request.getCigarettesPerPack());
         profile.setCigarettePackCost(request.getCigarettePackCost());
-        profile.setQuitDate(request.getQuitDate());
         profile.setUpdatedAt(LocalDateTime.now());
-
 
         UserSmokingProfile savedProfile = userSmokingProfileRepository.save(profile);
         return mapper.toDto(savedProfile);
     }
+
+
     public UserSmokingProfileRequest getProfileByProfileName(String profileName) {
         User user = userRepository.findByProfileName(profileName)
                 .orElseThrow(() -> new RuntimeException("User not found with profile name: " + profileName));
@@ -169,9 +185,6 @@ public class UserSmokingProfileService {
                 actualSaving.doubleValue()
         );
     }
-
-
-
 
 
 }

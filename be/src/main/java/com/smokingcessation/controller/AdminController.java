@@ -2,6 +2,7 @@ package com.smokingcessation.controller;
 
 import com.smokingcessation.dto.res.PostDTO;
 import com.smokingcessation.dto.res.UserDTO;
+import com.smokingcessation.model.User;
 import com.smokingcessation.service.PostService;
 import com.smokingcessation.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,8 +40,8 @@ public class AdminController {
 
     @Operation(summary = "Lấy danh sách tất cả người dùng")
     @GetMapping("/users")
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<UserDTO> users = userService.getAllUsers();
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 }

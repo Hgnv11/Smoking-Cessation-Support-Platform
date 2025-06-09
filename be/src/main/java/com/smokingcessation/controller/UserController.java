@@ -48,14 +48,7 @@ public class UserController {
         return ResponseEntity.ok(userDTO);
     }
 
-    @Operation(
-            summary = "get all user role=admin"
-    )
-    @GetMapping()
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<UserDTO> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
-    }
+
 
     @Operation(
             summary = "set status user is_delete(xóa trên web), user role=admin"

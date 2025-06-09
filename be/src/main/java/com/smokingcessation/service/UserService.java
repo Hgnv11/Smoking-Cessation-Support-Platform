@@ -108,23 +108,10 @@ public class UserService {
     }
 
 
-    public List<UserDTO> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        List<UserDTO> userDTOs = new ArrayList<>();
-
-        for (User user : users) {
-            UserDTO dto = new UserDTO();
-            dto.setUserId(user.getUserId());
-            dto.setFullName(user.getFullName());
-            dto.setProfileName(user.getProfileName()!=null?user.getProfileName(): user.getFullName());
-            dto.setEmail(user.getEmail());
-            dto.setBirthDate(user.getBirthDate());
-            dto.setGender(user.getGender() != null ? user.getGender().name() : "OTHER");
-            userDTOs.add(dto);
-        }
-
-        return userDTOs;
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
+
 
     public void softDeleteUser(String email) {
         User user = userRepository.findByEmail(email)
