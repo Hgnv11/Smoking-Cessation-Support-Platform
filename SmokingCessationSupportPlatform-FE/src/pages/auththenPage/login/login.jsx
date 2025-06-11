@@ -4,15 +4,22 @@ import AuthenTemplate from "../../../components/authen-template/authen-template"
 import api from "../../../config/axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { login } from "../../../store/redux/features/userSlice";
 
 function Login() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [form] = Form.useForm();
 
   const handleLogin = async (values) => {
     try {
       const response = await api.post("auth/login", values);
       toast.success("Login successfully!");
       console.log(response.data);
+      dispatch(login(response.data));
+      const { token } = response.data.token;
+      localStorage.setItem("token", token);
       navigate("/");
     } catch (err) {
       toast.error("Login failed! Please check your email and password.");
@@ -24,6 +31,7 @@ function Login() {
     <>
       <AuthenTemplate>
         <Form
+          form={form}
           labelCol={{
             span: 24,
           }}

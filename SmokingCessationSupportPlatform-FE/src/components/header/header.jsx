@@ -1,11 +1,14 @@
-import { Button } from "antd";
+import { Button, Avatar } from "antd";
 import "./header.css";
-import { SearchOutlined } from "@ant-design/icons";
-import { useNavigate, useLocation } from "react-router-dom";
+import { SearchOutlined, UserOutlined } from "@ant-design/icons";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 function Header() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const user = useSelector((store) => store.user);
 
   const isActivePage = (path) => {
     if (path === "/") {
@@ -52,21 +55,52 @@ function Header() {
           </div>
           <div className="header__login-register">
             <SearchOutlined className="search" />
-            <Button
-              type="primary"
-              onClick={() => navigate("/login")}
-              className="login-btn"
-            >
-              Login
-            </Button>
-            <Button
-              color="primary"
-              variant="filled"
-              onClick={() => navigate("/register")}
-              className="register-btn"
-            >
-              Sign Up
-            </Button>
+            {user ? (
+              // Hiển thị khi user đã đăng nhập
+              <div className="user-info">
+                {user.avatar ? (
+                  <Avatar
+                    onClick={() => navigate("/user-profile")}
+                    className="user-avatar"
+                    size="large"
+                    src={user.avatar}
+                  />
+                ) : (
+                  <Avatar
+                    onClick={() => navigate("/user-profile")}
+                    className="user-avatar"
+                    size="large"
+                    icon={<UserOutlined />}
+                  />
+                )}
+                <Button
+                  type="link"
+                  onClick={() => navigate("/user-profile")}
+                  className="user-name"
+                >
+                  {user.profileName}
+                </Button>
+              </div>
+            ) : (
+              // Hiển thị khi user chưa đăng nhập
+              <>
+                <Button
+                  type="primary"
+                  onClick={() => navigate("/login")}
+                  className="login-btn"
+                >
+                  Login
+                </Button>
+                <Button
+                  color="primary"
+                  variant="filled"
+                  onClick={() => navigate("/register")}
+                  className="register-btn"
+                >
+                  Sign Up
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>

@@ -33,14 +33,14 @@ public class UserSmokingProfileController {
 
     // Cập nhật profile của user đang đăng nhập
     @Operation(
-            summary = "Cập nhật profile của user đang đăng nhập"
+            summary = "Thêm profile của user đang đăng nhập"
     )
     @PostMapping("/my")
     public ResponseEntity<UserSmokingProfileRequest> updateMyProfile(
             Principal principal,
             @RequestBody UserSmokingProfileRequest request) {
         String email = principal.getName();
-        UserSmokingProfileRequest updatedProfile = userSmokingProfileService.AddOrUpdateProfileByEmail(email, request);
+        UserSmokingProfileRequest updatedProfile = userSmokingProfileService.AddProfileByEmail(email, request);
         return ResponseEntity.ok(updatedProfile);
     }
 
@@ -65,13 +65,11 @@ public class UserSmokingProfileController {
     }
 
     @Operation(
-            summary = "Tính toán số tiền giả sua được khi người dùng add user smoker profile, kèm theo số tiền thực tế đã tiết kiệm được"
+            summary = "Tính toán số tiền tiết kiệm được 7n/1t/1n khi người dùng add user smoker profile, kèm theo số tiền thực tế đã tiết kiệm được( đã trừ tiền số điếu thuốc mà user đã hút) "
     )
     @GetMapping("/calculate")
     public SavingDTO calculateSavings(Principal principal){
         return userSmokingProfileService.calculateSavings(principal.getName());
     }
-
-
 
 }

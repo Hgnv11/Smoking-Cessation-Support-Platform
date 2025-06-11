@@ -2,9 +2,41 @@ import { Form, Input, Button } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import FormItem from "antd/es/form/FormItem";
 import AuthenTemplate from "../../../components/authen-template/authen-template";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import api from "../../../config/axios";
 
 function ForgotPassCode() {
-  const handleForgotPassCode = () => {};
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const email = searchParams.get("email");
+
+  const handleVerifyCode = async (values) => {
+    try {
+      const response = await api.post(
+        `auth/verify-otp?otpCode=${values.otpCode}&purpose=reset_password`
+      );
+      console.log(response.data);
+      toast.success("Verify code successfully!");
+      navigate(`/new-pass?token=${encodeURIComponent(response.data)}`);
+    } catch (err) {
+      console.log(err.response?.data);
+      toast.error("The verify code is incorrect or has expired!");
+    }
+  };
+
+  const handleResendOTP = async () => {
+    try {
+      const response = await api.post(
+        `auth/resend-otp?email=${email}&purpose=register`
+      );
+      console.log(response.data);
+      toast.success("OTP code resent successfully!");
+    } catch (err) {
+      console.log(err.response?.data);
+      toast.error("OTP code resend failed! Please try again later");
+    }
+  };
 
   return (
     <>
@@ -13,10 +45,12 @@ function ForgotPassCode() {
           labelCol={{
             span: 24,
           }}
-          onFinish={handleForgotPassCode}
+          onFinish={handleVerifyCode}
         >
           <h1>Enter Your Code</h1>
-          <p className="description">Enter your code we sent to your email</p>
+          <p className="description">
+            Enter your code we sent to your email {email}
+          </p>
           <FormItem
             className="input-box-otp"
             name="otpCode"
@@ -30,9 +64,14 @@ function ForgotPassCode() {
             htmlType="submit"
             className="register-login__btn reset"
           >
-            Next
+            Submit
           </Button>
-
+          <div className="resend-otp">
+            <p className="resend-otp-des">Haven't received your code?</p>
+            <a className="resend-otp-link" onClick={handleResendOTP}>
+              Resend OTP
+            </a>
+          </div>
           <div className="register-login__link">
             <ArrowLeftOutlined />
             <a href="/login"> Back to Login</a>

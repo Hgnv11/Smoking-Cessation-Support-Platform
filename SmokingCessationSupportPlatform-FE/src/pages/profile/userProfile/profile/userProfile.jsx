@@ -5,10 +5,33 @@ import "./userProfile.css";
 import { CameraOutlined } from "@ant-design/icons";
 import FormItem from "antd/es/form/FormItem";
 import MyAccountNav from "../../../../components/myAccount-nav/myAccount-nav";
+import { useState } from "react";
 
 function UserProfile() {
   const dateFormat = "DD/MM/YYYY";
+
+  // State để quản lý trạng thái enable/disable của từng field
+  const [fieldStates, setFieldStates] = useState({
+    fullName: true,
+    profileName: true,
+    birthDate: true,
+    gender: true,
+  });
+
   const handleChange = () => {};
+
+  // Hàm xử lý khi nhấn nút Update
+  const handleUpdateClick = (fieldName) => {
+    setFieldStates((prev) => ({
+      ...prev,
+      [fieldName]: false,
+    }));
+  };
+
+  // Kiểm tra xem có field nào đang được edit không
+  const hasActiveEdits = Object.values(fieldStates).some(
+    (disabled) => !disabled
+  );
 
   return (
     <>
@@ -61,7 +84,7 @@ function UserProfile() {
                     ]}
                   >
                     <Input
-                      disabled
+                      disabled={fieldStates.fullName}
                       variant="filled"
                       className="wrapper__profile-detail-info-form-input"
                       placeholder="Full Name"
@@ -71,6 +94,8 @@ function UserProfile() {
                     color="default"
                     variant="filled"
                     className="update-button"
+                    disabled={!fieldStates.fullName}
+                    onClick={() => handleUpdateClick("fullName")}
                   >
                     Update
                   </Button>
@@ -90,7 +115,7 @@ function UserProfile() {
                     ]}
                   >
                     <Input
-                      disabled
+                      disabled={fieldStates.profileName}
                       variant="filled"
                       className="wrapper__profile-detail-info-form-input"
                       placeholder="Profile Name"
@@ -100,6 +125,8 @@ function UserProfile() {
                     color="default"
                     variant="filled"
                     className="update-button"
+                    disabled={!fieldStates.profileName}
+                    onClick={() => handleUpdateClick("profileName")}
                   >
                     Update
                   </Button>
@@ -131,7 +158,7 @@ function UserProfile() {
                     ]}
                   >
                     <DatePicker
-                      disabled
+                      disabled={fieldStates.birthDate}
                       variant="filled"
                       className="date-picker-form"
                       format={dateFormat}
@@ -141,6 +168,8 @@ function UserProfile() {
                     color="default"
                     variant="filled"
                     className="update-button"
+                    disabled={!fieldStates.birthDate}
+                    onClick={() => handleUpdateClick("birthDate")}
                   >
                     Update
                   </Button>
@@ -150,13 +179,12 @@ function UserProfile() {
                 <div className="wrapper__profile-detail-info-form">
                   <FormItem name="gender">
                     <Select
-                      disabled
+                      disabled={fieldStates.gender}
                       variant="filled"
-                      defaultValue="Male"
                       style={{ height: 40 }}
                       options={[
                         { value: "Male", label: "Male" },
-                        { value: "Female", label: "Femail" },
+                        { value: "Female", label: "Female" },
                       ]}
                     />
                   </FormItem>
@@ -164,19 +192,22 @@ function UserProfile() {
                     color="default"
                     variant="filled"
                     className="update-button"
+                    disabled={!fieldStates.gender}
+                    onClick={() => handleUpdateClick("gender")}
                   >
                     Update
                   </Button>
                 </div>
+                <Button
+                  htmlType="submit"
+                  disabled={!hasActiveEdits}
+                  className="save-change-btn"
+                  type="primary"
+                >
+                  Save Changes
+                </Button>
               </Form>
             </div>
-            <Button
-              htmlType="submit"
-              className="save-change-btn"
-              type="primary"
-            >
-              Save Changes
-            </Button>
           </div>
         </div>
       </div>

@@ -1,9 +1,12 @@
 import { Button, Popconfirm } from "antd";
 import "./myAccount-nav.css";
 import { useLocation } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logout } from "../../store/redux/features/userSlice";
 
 function MyAccountNav() {
   const location = useLocation();
+  const dispatch = useDispatch();
 
   const isActivePage = (path) => {
     if (path === "/user-profile") {
@@ -27,15 +30,20 @@ function MyAccountNav() {
         Change Password
       </a>
       <a href="/#" className={isActivePage("/#") ? "active" : ""}>
-        Plan
+        Posts
       </a>
       <a href="/#" className={isActivePage("/#") ? "active" : ""}>
-        Posts
+        Plan
       </a>
       <a href="/#" className={isActivePage("/#") ? "active" : ""}>
         Badges
       </a>
-      <Popconfirm title="Do you want to Log Out ?" okText="Yes" cancelText="No">
+      <Popconfirm
+        onConfirm={() => dispatch(logout())}
+        title="Do you want to Log Out ?"
+        okText="Yes"
+        cancelText="No"
+      >
         <Button className="logout-btn" type="primary" danger>
           Log out
         </Button>

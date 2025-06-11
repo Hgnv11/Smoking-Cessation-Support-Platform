@@ -1,16 +1,18 @@
-import Footer from "../../components/footer/footer";
-import Header from "../../components/header/header";
-import { Affix, Card, Divider } from "antd";
+import Footer from "../../../components/footer/footer";
+import Header from "../../../components/header/header";
+import { Affix, Card, Divider, Empty } from "antd";
 import { useState } from "react";
 import "./community.css";
-import CommunityPosts from "../../config/communityPost";
+import CommunityPosts from "../../../config/communityPost";
+import { useNavigate } from "react-router-dom";
 
 function Community() {
   const [selectedCategory, setSelectedCategory] = useState("tips");
 
+  const navigate = useNavigate();
+
   const allPosts = CommunityPosts.filter((post) => post.is_approved);
 
-  // Filter posts based on selected category
   const filteredPosts = allPosts.filter(
     (post) => post.post_type.toLowerCase() === selectedCategory.toLowerCase()
   );
@@ -88,18 +90,23 @@ function Community() {
                   alt="post"
                   className="wrapper__community-posts-card-img"
                   src={post.image}
+                  onClick={() => navigate(`/community/${post.post_id}`)}
                 />
                 <div className="wrapper__community-posts-card-content">
                   <h3>{post.post_type}</h3>
-                  <h2>{post.title}</h2>
-                  <p>{post.content}</p>
+                  <h2 onClick={() => navigate(`/community/${post.post_id}`)}>
+                    {post.title}
+                  </h2>
+                  <p onClick={() => navigate(`/community/${post.post_id}`)}>
+                    {post.content}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
           {filteredPosts.length === 0 && (
             <div className="no-posts-message">
-              <p>No posts found for this category.</p>
+              <Empty description="No posts found for this Category." />
             </div>
           )}
         </div>

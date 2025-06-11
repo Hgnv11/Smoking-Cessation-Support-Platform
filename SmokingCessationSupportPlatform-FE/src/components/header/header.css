@@ -38,6 +38,11 @@
     opacity: 0.6;
 }
 
+.header__login-register {
+    display: flex;
+    align-items: center;
+}
+
 .header__login-register .login-btn {
     margin-right: 10px;
 }
@@ -50,3 +55,13 @@
     font-weight: bold;
     color: #000;
 }
+
+.user-name {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.user-avatar {
+    cursor: pointer;
+}
+
