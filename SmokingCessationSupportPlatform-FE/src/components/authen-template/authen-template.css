@@ -50,7 +50,7 @@
 }
 
 .register-login__btn {
-    display: block;
+    display: flex;
     margin: auto;
     width: 30%;
     height: 35px;

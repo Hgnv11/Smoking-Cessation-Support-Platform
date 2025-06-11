@@ -5,9 +5,11 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import api from "../../../config/axios";
+import { useState } from "react";
 
 function ForgotPass() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleForgotPass = async (values) => {
     try {
@@ -24,8 +26,15 @@ function ForgotPass() {
       toast.error(
         "Failed to send reset code. Please check your email address."
       );
+    } finally {
+      setLoading(false);
     }
   };
+
+  const handleFinishFailed = () => {
+    setLoading(false);
+  };
+
   return (
     <>
       <AuthenTemplate>
@@ -34,6 +43,7 @@ function ForgotPass() {
             span: 24,
           }}
           onFinish={handleForgotPass}
+          onFinishFailed={handleFinishFailed}
         >
           <h1>Reset Password</h1>
           <p className="description">
@@ -60,6 +70,8 @@ function ForgotPass() {
             type="primary"
             htmlType="submit"
             className="register-login__btn reset"
+            loading={loading}
+            onClick={() => setLoading(true)}
           >
             Send Reset Code
           </Button>
