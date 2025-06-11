@@ -1,49 +1,52 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import "./App.css";
-import Home from "./pages/home/home";
-import Login from "./pages/auththenPage/login/login";
-import Register from "./pages/auththenPage/register/register";
-import ForgotPass from "./pages/auththenPage/forgotPass/forgotPass";
-import ForgotPassCode from "./pages/auththenPage/forgotPass-code/forgotPass-code";
-import MakePlan from "./pages/quitPlan/makePlan";
-import Community from "./pages/community/community";
-import UserCoach from "./pages/userCoach/userCoach";
-import Layout from "./components/layout/layout";
-import ProtectedRoute from "./components/ProtectedRoute";
-import AdminLayout from "./pages/admin/AdminLayout";
-import AdminDashboard from "./pages/admin/AdminDashboard";
+import './App.css'
+import Header from './components/Header/Header.jsx'
+import Sidebar from './components/Sidebar/Sidebar.jsx'
+import Overview from './pages/Dashboard/Overview.jsx'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import UserManagement from './pages/UserManagement/UserManagement.jsx'
+import BlogManagement from './pages/BlogManagement/BlogManagement.jsx'
+import MembershipPayment from './pages/MembershipPayment/MembershipPayment.jsx'
+import CoachManagement from './pages/CoachManagement/CoachManagement.jsx'
 
 function App() {
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: <Layout />,
-      children: [
-        { index: true, element: <Home /> },
-        { path: "login", element: <Login /> },
-        { path: "register", element: <Register /> },
-        { path: "forgot-password", element: <ForgotPass /> },
-        { path: "forgot-password-code", element: <ForgotPassCode /> },
-        { path: "make-plan", element: <MakePlan /> },
-        { path: "community", element: <Community /> },
-        { path: "user-coach", element: <UserCoach /> },
-      ],
-    },
-    {
-      path: "/admin",
-      element: (
-        <ProtectedRoute requiredRole="admin">
-          <AdminLayout />
-        </ProtectedRoute>
-      ),
-      children: [
-        { index: true, element: <AdminDashboard /> },
-        // Add other admin routes here
-      ],
-    },
-  ]);
-
-  return <RouterProvider router={router} />;
+  return (
+    <Router>
+      <div className="app-layout">
+        <Sidebar />
+        <div className="main-area">
+          <Header />
+          <Routes>
+            <Route path="/" element={
+              <div className="main-content">
+                <Overview />
+              </div>
+            } />
+            {/* -------- Admin Management -------- */}
+            <Route path="/user-management" element={
+              <div className="main-content">
+                <UserManagement />
+              </div>
+            } />
+            <Route path="/blog-management" element={
+              <div className="main-content">
+                <BlogManagement />
+              </div>
+            } />
+            <Route path="/membership-payment" element={
+              <div className="main-content">
+                <MembershipPayment />
+              </div>
+            } />
+            <Route path="/coach-management" element={
+              <div className="main-content">
+                <CoachManagement />
+              </div>
+            } />
+          </Routes>
+        </div>
+      </div>
+    </Router>
+  )
 }
 
-export default App;
+export default App
