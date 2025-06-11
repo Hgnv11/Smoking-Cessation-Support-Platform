@@ -3,13 +3,31 @@ import FormItem from "antd/es/form/FormItem";
 import AuthenTemplate from "../../../components/authen-template/authen-template";
 import api from "../../../config/axios";
 import { toast } from "react-toastify";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function Login() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const handleLogin = async (values) => {
     try {
       const response = await api.post("auth/login", values);
+      const { user, token } = response.data;
+      
+      // Store user data and token in localStorage
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('token', token);
+      
       toast.success("Đăng nhập thành công");
-      console.log(response.data);
+      
+      // Redirect based on role
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        // If there's a redirect path in location state, use it
+        const from = location.state?.from?.pathname || '/';
+        navigate(from);
+      }
     } catch (err) {
       toast.error("Đăng nhập thất bại");
       console.log(err);
