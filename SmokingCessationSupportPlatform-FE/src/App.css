@@ -11,4 +11,8 @@
     max-width: 960px;
 }
 
+.app-layout {
+  display: flex;
+  background: #f4f7fe;
+}
 

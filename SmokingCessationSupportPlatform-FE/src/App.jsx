@@ -19,6 +19,11 @@ import UserProfile from "./pages/profile/userProfile/profile/userProfile";
 import ChangePass from "./pages/profile/userProfile/changePass/changePass";
 import NewPass from "./pages/auththenPage/newPass/newPass";
 import PostDetail from "./pages/community/postDetail/postDetail";
+import UserManagement from "./pages/admin/UserManagement/UserManagement.jsx";
+import BlogManagement from "./pages/admin/BlogManagement/BlogManagement.jsx";
+import MembershipPayment from "./pages/admin/MembershipPayment/MembershipPayment.jsx";
+import CoachManagement from "./pages/admin/CoachManagement/CoachManagement.jsx";
+import Overview from "./pages/admin/Dashboard/Overview.jsx";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -161,6 +166,11 @@ function App() {
         { path: "community", element: <Community /> },
         { path: "community/:postId", element: <PostDetail /> },
         { path: "user-coach", element: <UserCoach /> },
+        { path: "admin", element: <Overview /> },
+        { path: "admin/user-management", element: <UserManagement /> },
+        { path: "admin/blog-management", element: <BlogManagement /> },
+        { path: "admin/membership-payment", element: <MembershipPayment /> },
+        { path: "admin/coach-management", element: <CoachManagement /> },
       ],
     },
   ]);
