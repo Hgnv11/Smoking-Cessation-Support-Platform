@@ -108,22 +108,36 @@ public class UserService {
     }
 
 
-    public List<UserDTO> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        List<UserDTO> userDTOs = new ArrayList<>();
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
 
-        for (User user : users) {
-            UserDTO dto = new UserDTO();
-            dto.setUserId(user.getUserId());
-            dto.setFullName(user.getFullName());
-            dto.setProfileName(user.getProfileName()!=null?user.getProfileName(): user.getFullName());
-            dto.setEmail(user.getEmail());
-            dto.setBirthDate(user.getBirthDate());
-            dto.setGender(user.getGender() != null ? user.getGender().name() : "OTHER");
-            userDTOs.add(dto);
+
+    public void softDeleteUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getIsDelete() != null && user.getIsDelete()) {
+            throw new RuntimeException("User already deleted");
         }
 
-        return userDTOs;
+        user.setIsDelete(true);
+        userRepository.save(user);
+    }
+
+    public void updateUserRoleByUserId(Long userId, String newRoleStr) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        User.Role newRole;
+        try {
+            newRole = User.Role.valueOf(newRoleStr.toLowerCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid role: " + newRoleStr);
+        }
+
+        user.setRole(newRole);
+        userRepository.save(user);
     }
 
 

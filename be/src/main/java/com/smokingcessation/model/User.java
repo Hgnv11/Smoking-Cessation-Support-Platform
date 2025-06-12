@@ -40,7 +40,8 @@ public class User {
     private Role role = Role.guest;
 
     private Boolean hasActive = false;
-    private String type_login;
+    private Boolean isDelete=false;
+    private String typeLogin;
 
     private Boolean isVerified = false;
 

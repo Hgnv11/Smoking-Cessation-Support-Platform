@@ -1,17 +1,14 @@
 package com.smokingcessation.service;
 
-import com.smokingcessation.model.OtpToken;
-import com.smokingcessation.model.User;
+import com.smokingcessation.dto.res.LoginDTO;
 import com.smokingcessation.model.OtpToken;
 import com.smokingcessation.model.User;
 import com.smokingcessation.repository.OtpTokenRepository;
 import com.smokingcessation.repository.UserRepository;
 import com.smokingcessation.util.JwtUtil;
 import jakarta.mail.MessagingException;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -39,14 +36,13 @@ public class AuthService {
             throw new Exception("Email already exists");
         }
 
-
         User user = new User();
         user.setEmail(email);
         user.setPasswordHash(passwordEncoder.encode(password));
         user.setFullName(fullName);
         user.setRole(User.Role.user);
         user.setHasActive(false);
-        user.setType_login("LOCAL");
+        user.setTypeLogin("LOCAL");
         user.setIsVerified(false);
         userRepository.save(user);
 
@@ -55,7 +51,7 @@ public class AuthService {
         emailService.sendOtpEmail(email, otpCode, "Registration Verification");
     }
 
-    public String login(String email, String password) {
+    public LoginDTO login(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Incorrect username or password"));
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
@@ -64,9 +60,22 @@ public class AuthService {
         if (user.isBlock()) {
             throw new RuntimeException("Your account has been locked");
         }
+        if (user.getIsDelete()) {
+            throw new RuntimeException("Your account has been delete");
+        }
+
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
-        return jwtUtil.generateToken(email, user.getRole().name());
+        String token = jwtUtil.generateToken(email, user.getRole().name());
+        return new LoginDTO(
+                token,
+                user.getUserId(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getIsVerified(),
+                user.getProfileName(),
+                user.getAvatarUrl()
+        );
     }
 
     public void forgotPassword(String email) throws MessagingException {
@@ -77,20 +86,26 @@ public class AuthService {
         emailService.sendOtpEmail(email, otpCode, "Password Reset");
     }
 
-    public void resetPassword(String otpCode, String newPassword) {
-        OtpToken otpToken = otpTokenRepository.findByOtpCodeAndPurposeAndIsUsedFalse(otpCode, OtpToken.Purpose.reset_password)
-                .orElseThrow(() -> new RuntimeException("Invalid or expired OTP"));
-        if (otpToken.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("OTP has expired");
-        }
-        User user = otpToken.getUser();
-        user.setPasswordHash(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
-        otpToken.setIsUsed(true);
-        otpTokenRepository.save(otpToken);
+    public void resetPassword(String email) throws MessagingException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        String otpCode = generateOtp();
+        saveOtp(user, otpCode, OtpToken.Purpose.change_password);
+        emailService.sendOtpEmail(email, otpCode, "Password Reset");
     }
 
-    public void verifyOtp(String otpCode, OtpToken.Purpose purpose) {
+    public void changePassword(String token, String newPassword) {
+        String email = jwtUtil.getEmailFromToken(token);
+        if (!jwtUtil.validateToken(token, email)) {
+            throw new RuntimeException("Invalid or expired token");
+        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    public String verifyOtp(String otpCode, OtpToken.Purpose purpose) {
         OtpToken otpToken = otpTokenRepository.findByOtpCodeAndPurposeAndIsUsedFalse(otpCode, purpose)
                 .orElseThrow(() -> new RuntimeException("Invalid or expired OTP"));
         if (otpToken.getExpiresAt().isBefore(LocalDateTime.now())) {
@@ -103,6 +118,9 @@ public class AuthService {
         }
         otpToken.setIsUsed(true);
         otpTokenRepository.save(otpToken);
+
+        // Generate temporary token
+        return jwtUtil.generateTemporaryToken(user.getEmail(), 10); // 10 minutes expiry
     }
 
     private String generateOtp() {
@@ -117,6 +135,7 @@ public class AuthService {
         otpToken.setExpiresAt(LocalDateTime.now().plusMinutes(10));
         otpTokenRepository.save(otpToken);
     }
+
     public void resendOtp(String email, OtpToken.Purpose purpose) throws MessagingException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -131,7 +150,6 @@ public class AuthService {
         // Tạo và gửi OTP mới
         String otpCode = generateOtp();
         saveOtp(user, otpCode, purpose);
-
-        emailService.sendOtpEmail(email, otpCode, "Registration Verification");
+        emailService.sendOtpEmail(email, otpCode, purpose == OtpToken.Purpose.register ? "Registration Verification" : "Password Reset");
     }
 }
