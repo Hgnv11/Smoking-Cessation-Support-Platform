@@ -9,7 +9,6 @@ function Register() {
   const navigate = useNavigate();
 
   const handleRegister = async (values) => {
-    //submit xuống back-end
     try {
       const response = await api.post("auth/register", values);
       console.log(response.data);

@@ -9,8 +9,13 @@ import {
   LogoutOutlined,
 } from "@ant-design/icons";
 import "./Sidebar.css";
+import { useDispatch } from "react-redux";
+import { logout } from "../../../store/redux/features/userSlice";
+import { Popconfirm } from "antd";
 
 const Sidebar = () => {
+  const dispatch = useDispatch();
+
   return (
     <aside className="sidebar">
       <div>
@@ -96,8 +101,15 @@ const Sidebar = () => {
       </div>
       <div className="sidebar__logout">
         <button className="sidebar__logout-btn">
-          <LogoutOutlined className="sidebar__icon" />
-          Log out
+          <Popconfirm
+            onConfirm={() => dispatch(logout())}
+            title="Do you want to Log Out ?"
+            okText="Yes"
+            cancelText="No"
+          >
+            <LogoutOutlined className="sidebar__icon" />
+            Log out
+          </Popconfirm>
         </button>
       </div>
     </aside>

@@ -18,9 +18,13 @@ function Login() {
       toast.success("Login successfully!");
       console.log(response.data);
       dispatch(login(response.data));
-      const { token } = response.data.token;
+      const { role, token } = response.data;
       localStorage.setItem("token", token);
-      navigate("/");
+      if (role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       toast.error("Login failed! Please check your email and password.");
       console.log(err);

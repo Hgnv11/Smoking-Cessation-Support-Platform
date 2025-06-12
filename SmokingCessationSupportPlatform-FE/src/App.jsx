@@ -26,13 +26,17 @@ import CoachManagement from "./pages/admin/CoachManagement/CoachManagement.jsx";
 import Overview from "./pages/admin/Dashboard/Overview.jsx";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import ChangePassCode from "./pages/auththenPage/changePass-code/changePass-code.jsx";
 
 const ProtectRouteAuth = ({ children }) => {
   const user = useSelector((store) => store.user);
   if (user == null) {
     return children;
+  } else if (user && user.role === "admin") {
+    return <Navigate to="/admin" />;
+  } else {
+    return <Navigate to="/" />;
   }
-  return <Navigate to="/" />;
 };
 
 const ProtectUserProfile = ({ children }) => {
@@ -91,6 +95,18 @@ const ProtectNewPassword = ({ children }) => {
   return children;
 };
 
+const ProtectAdminRoute = ({ children }) => {
+  const user = useSelector((store) => store.user);
+  if (user == null) {
+    return <Navigate to="/" />;
+  }
+  if (user.role !== "admin") {
+    toast.error("Access denied! Admin privileges required.");
+    return <Navigate to="/" />;
+  }
+  return children;
+};
+
 function App() {
   const router = createBrowserRouter([
     {
@@ -131,12 +147,12 @@ function App() {
           ),
         },
         {
+          path: "change-password-code",
+          element: <ChangePassCode />,
+        },
+        {
           path: "new-pass",
-          element: (
-            <ProtectNewPassword>
-              <NewPass />
-            </ProtectNewPassword>
-          ),
+          element: <NewPass />,
         },
         {
           path: "verify-code",
@@ -166,11 +182,46 @@ function App() {
         { path: "community", element: <Community /> },
         { path: "community/:postId", element: <PostDetail /> },
         { path: "user-coach", element: <UserCoach /> },
-        { path: "admin", element: <Overview /> },
-        { path: "admin/user-management", element: <UserManagement /> },
-        { path: "admin/blog-management", element: <BlogManagement /> },
-        { path: "admin/membership-payment", element: <MembershipPayment /> },
-        { path: "admin/coach-management", element: <CoachManagement /> },
+        {
+          path: "admin",
+          element: (
+            <ProtectAdminRoute>
+              <Overview />
+            </ProtectAdminRoute>
+          ),
+        },
+        {
+          path: "admin/user-management",
+          element: (
+            <ProtectAdminRoute>
+              <UserManagement />
+            </ProtectAdminRoute>
+          ),
+        },
+        {
+          path: "admin/blog-management",
+          element: (
+            <ProtectAdminRoute>
+              <BlogManagement />
+            </ProtectAdminRoute>
+          ),
+        },
+        {
+          path: "admin/membership-payment",
+          element: (
+            <ProtectAdminRoute>
+              <MembershipPayment />
+            </ProtectAdminRoute>
+          ),
+        },
+        {
+          path: "admin/coach-management",
+          element: (
+            <ProtectAdminRoute>
+              <CoachManagement />
+            </ProtectAdminRoute>
+          ),
+        },
       ],
     },
   ]);

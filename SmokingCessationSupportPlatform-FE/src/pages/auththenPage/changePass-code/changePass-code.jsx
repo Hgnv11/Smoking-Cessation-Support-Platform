@@ -3,10 +3,10 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 import FormItem from "antd/es/form/FormItem";
 import AuthenTemplate from "../../../components/authen-template/authen-template";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { toast } from "react-toastify";
 import api from "../../../config/axios";
+import { toast } from "react-toastify";
 
-function ForgotPassCode() {
+function ChangePassCode() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const email = searchParams.get("email");
@@ -14,7 +14,7 @@ function ForgotPassCode() {
   const handleVerifyCode = async (values) => {
     try {
       const response = await api.post(
-        `auth/verify-otp?otpCode=${values.otpCode}&purpose=reset_password`
+        `auth/verify-otp?otpCode=${values.otpCode}&purpose=change_password`
       );
       console.log(response.data);
       toast.success("Verify code successfully!");
@@ -28,7 +28,7 @@ function ForgotPassCode() {
   const handleResendOTP = async () => {
     try {
       const response = await api.post(
-        `auth/resend-otp?email=${email}&purpose=reset_password`
+        `auth/resend-otp?email=${email}&purpose=change_password`
       );
       console.log(response.data);
       toast.success("OTP code resent successfully!");
@@ -74,7 +74,7 @@ function ForgotPassCode() {
           </div>
           <div className="register-login__link">
             <ArrowLeftOutlined />
-            <a href="/login"> Back to Login</a>
+            <a href="/user-profile/change-pass"> Back to Profile</a>
           </div>
         </Form>
       </AuthenTemplate>
@@ -82,4 +82,4 @@ function ForgotPassCode() {
   );
 }
 
-export default ForgotPassCode;
+export default ChangePassCode;

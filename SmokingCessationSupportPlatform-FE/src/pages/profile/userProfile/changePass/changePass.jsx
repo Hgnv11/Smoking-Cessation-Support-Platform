@@ -3,8 +3,35 @@ import MyAccountNav from "../../../../components/myAccount-nav/myAccount-nav";
 import { Affix, Button, Input } from "antd";
 import Header from "../../../../components/header/header";
 import Footer from "../../../../components/footer/footer";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import api from "../../../../config/axios";
+import { toast } from "react-toastify";
+import { useState } from "react";
 
 function ChangePass() {
+  const navigate = useNavigate();
+  const user = useSelector((store) => store.user);
+  const [loading, setLoading] = useState(false);
+
+  const handleChangePass = async () => {
+    try {
+      const response = await api.post(
+        `auth/reset-password?email=${encodeURIComponent(user.email)}`
+      );
+      console.log(response.data);
+      toast.success("Reset code sent to your email!");
+      navigate(`/change-password-code?email=${encodeURIComponent(user.email)}`);
+    } catch (err) {
+      console.log(err.response?.data);
+      toast.error(
+        "Failed to send reset code. Please check your email address."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <Affix offsetTop={0}>
@@ -31,9 +58,17 @@ function ChangePass() {
               disabled
               variant="filled"
               className="wrapper__profile-detail-info-form-input"
-              placeholder="Email"
+              defaultValue={user.email}
             />
-            <Button className="send-reset-code" type="primary">
+            <Button
+              className="send-reset-code"
+              type="primary"
+              loading={loading}
+              onClick={() => {
+                setLoading(true);
+                handleChangePass();
+              }}
+            >
               Send Reset Code
             </Button>
           </div>
