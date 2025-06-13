@@ -1,34 +1,29 @@
-.dashboard-header {
-  background: #fff;
-  padding: 24px 0 0 0;
-  border-bottom: 1px solid #f0f0f0;
-  width: 100%;
-  box-sizing: border-box;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+.header {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0eeee;
+    background-color: #ffff;
 }
 
-.app-layout {
-  display: flex;
-  min-height: 100vh;
-  background: #f4f7fe;
-  margin-top: 64px;
+.header__container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0px 50px;
 }
 
-.dashboard-breadcrumb {
-  font-size: 17px;
-  color: #b0b3b8;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-left: 40px;
+.header__inner {
+    display: flex;
+    align-items: center;
 }
 
-.dashboard-breadcrumb__section {
-  color: #b0b3b8;
+.header__inner-logo {
+    width: 100px;
+    margin-right: 50px;
 }
 
-.dashboard-breadcrumb__divider {
-  color: #b0b3b8;
+.header__inner-logo:hover {
+    cursor: pointer;
 }
 
 .header__nav a{
@@ -36,16 +31,6 @@
     font-size: 17px;
     margin-right: 30px;
     color: #adacac;
-    transition: opacity 0.3s ease, color 0.3s ease;
-}
-
-.header__nav a:hover {
-    opacity: 0.6;
-}
-
-.header__login-register {
-    display: flex;
-    align-items: center;
 }
 
 .header__login-register .login-btn {
@@ -55,18 +40,3 @@
 .header__login-register .search {
     margin-right: 20px;
 }
-
-.header__nav a.active {
-    font-weight: bold;
-    color: #000;
-}
-
-.user-name {
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.user-avatar {
-    cursor: pointer;
-}
-
