@@ -11,7 +11,7 @@ import {
   message,
 } from "antd";
 import { coachService } from "../../../services/coachService.js";
-import Sidebar from "../../../components/admin/Sidebar/Sidebar.jsx";
+import AdminLayout from "../../../components/layout/AdminLayout.jsx";
 import ReusableTable from "../../../components/admin/ReusableTable/ReusableTable.jsx";
 
 const statusColors = {
@@ -223,8 +223,7 @@ const CoachManagement = () => {
   }, [sortedCoaches, page, pageSize]);
 
   return (
-    <div className="app-layout">
-      <Sidebar />
+    <AdminLayout title="Coach Management">
       <div className="coach-management-page">
         <h2>Coach Management</h2>
         <div className="summary-cards-row">
@@ -440,7 +439,7 @@ const CoachManagement = () => {
           </div>
         </Modal>
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 

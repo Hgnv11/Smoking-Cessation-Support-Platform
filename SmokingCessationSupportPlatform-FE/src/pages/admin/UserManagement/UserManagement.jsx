@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./UserManagement.css";
+import styles from "./UserManagement.module.css";
 import ReusableTable from "../../../components/admin/ReusableTable/ReusableTable.jsx";
 import SearchFilterRow from "../../../components/admin/SearchFilterRow/SearchFilterRow.jsx";
 import {
@@ -25,29 +25,23 @@ const UserManagement = () => {
     startDate: "",
     endDate: "",
   });
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [users] = useState([
+    {
+      id: "U001",
+      name: "Emma Sarah",
+      author: "emma.jack@example.com",
+      profile: "Emma158",
+      role: "Customer",
+      membership: "Premium",
+      joinDate: "16/1/2023",
+      lastActivity: "2024-10-15",
+      status: "locked",
+    },
+    
+  ]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
-
-  // Fetch users data
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const response = await userService.getUsers(filters);
-      setUsers(response.data);
-    } catch (error) {
-      message.error("Failed to fetch users data");
-      console.error("Error fetching users:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers();
-  }, [filters]);
 
   // const handleFilterChange = (key, value) => {
   //   setFilters((prev) => ({ ...prev, [key]: value }));
@@ -68,7 +62,6 @@ const UserManagement = () => {
     try {
       await userService.updateUser(selectedUser.id, values);
       message.success("Plan updated successfully");
-      fetchUsers(); // Refresh the list
     } catch (error) {
       message.error("Failed to update plan");
       console.error("Error updating plan:", error);
@@ -79,7 +72,6 @@ const UserManagement = () => {
     try {
       await userService.deleteUser(userId);
       message.success("User deleted successfully");
-      fetchUsers(); // Refresh the list
     } catch (error) {
       message.error("Failed to delete user");
       console.error("Error deleting user:", error);
@@ -226,14 +218,14 @@ const UserManagement = () => {
   return (
     <div className="app-layout">
       <Sidebar />
-      <div className="user-management-page">
+      <div className={styles["user-management-page"]}>
         <h2>User Management</h2>
-        <div className="search-filter-header">Search and Filter</div>
+        <div className={styles["search-filter-header"]}>Search and Filter</div>
         <SearchFilterRow filters={filterConfig} filterConfig={filterConfig}>
-          <button className="add-user-btn">+ Add user</button>
+          <button className={styles["add-user-btn"]}>+ Add user</button>
         </SearchFilterRow>
         <div className="user-table-wrapper">
-          <ReusableTable columns={columns} data={users} loading={loading} />
+          <ReusableTable columns={columns} data={users} />
         </div>
 
         <Modal

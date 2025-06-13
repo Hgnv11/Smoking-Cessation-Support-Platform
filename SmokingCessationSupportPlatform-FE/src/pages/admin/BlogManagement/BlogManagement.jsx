@@ -1,324 +1,127 @@
-import React, { useState, useEffect } from "react";
-import "./BlogManagement.css";
-import ReusableTable from "../../../components/admin/ReusableTable/ReusableTable.jsx";
-import { message, Modal, Form, Input, Select, Button } from "antd";
-import { blogService } from "../../../services/blogService.js";
-import Sidebar from "../../../components/admin/Sidebar/Sidebar.jsx";
-import Header from "../../../components/admin/Header/Header.jsx";
-
-const statusColors = {
-  PUBLISHED: "status-published",
-  "UNDER REVIEW": "status-review",
-  REJECTED: "status-rejected",
-  DRAFT: "status-draft",
-};
+import React, { useState } from "react";
+import styles from "./BlogManagement.module.css";
+import AdminLayout from "../../../components/layout/AdminLayout.jsx";
 
 const BlogManagement = () => {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingPost, setEditingPost] = useState(null);
-  const [form] = Form.useForm();
-  const [filters, setFilters] = useState({
-    search: "",
-    status: "",
-    author: "",
-    article: "",
-    startDate: "",
-    endDate: "",
-  });
-
-  // Fetch posts data
-  const fetchPosts = async () => {
-    try {
-      setLoading(true);
-      const response = await blogService.getPosts(filters);
-      setPosts(response.data);
-    } catch (error) {
-      message.error("Failed to fetch posts");
-      console.error("Error fetching posts:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPosts();
-  }, [filters]);
-
-  const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleDeletePost = async (id) => {
-    try {
-      await blogService.deletePost(id);
-      message.success("Post deleted successfully");
-      fetchPosts();
-    } catch (error) {
-      message.error("Failed to delete post");
-      console.error("Error deleting post:", error);
-    }
-  };
-
-  const handleUpdateStatus = async (id, status) => {
-    try {
-      await blogService.updatePostStatus(id, status);
-      message.success("Post status updated successfully");
-      fetchPosts();
-    } catch (error) {
-      message.error("Failed to update post status");
-      console.error("Error updating post status:", error);
-    }
-  };
-
-  const handleCreatePost = () => {
-    setEditingPost(null);
-    form.resetFields();
-    form.setFieldsValue({ status: "DRAFT" });
-    setIsModalVisible(true);
-  };
-
-  const handleEditPost = async (post) => {
-    try {
-      const postDetails = await blogService.getPostById(post.id);
-      setEditingPost(postDetails);
-      form.setFieldsValue(postDetails);
-      setIsModalVisible(true);
-    } catch (error) {
-      message.error("Failed to fetch post details");
-      console.error("Error fetching post details:", error);
-    }
-  };
-
-  const handleModalCancel = () => {
-    setIsModalVisible(false);
-    setEditingPost(null);
-    form.resetFields();
-  };
-
-  const handleFormSubmit = async (values) => {
-    try {
-      if (editingPost) {
-        await blogService.updatePost(editingPost.id, values);
-        message.success("Post updated successfully");
-      } else {
-        await blogService.createPost(values);
-        message.success("Post created successfully");
-      }
-      setIsModalVisible(false);
-      setEditingPost(null);
-      form.resetFields();
-      fetchPosts();
-    } catch (error) {
-      message.error(
-        editingPost ? "Failed to update post" : "Failed to create post"
-      );
-      console.error("Error saving post:", error);
-    }
-  };
-
-  const columns = [
-    { title: "Post ID", dataIndex: "id" },
-    { title: "Title", dataIndex: "title" },
-    { title: "Author", dataIndex: "author" },
-    { title: "Creation date", dataIndex: "creationDate" },
-    { title: "Last updated", dataIndex: "lastUpdated" },
+  // Mock data cho bảng bài viết
+  const [posts] = useState([
     {
-      title: "Status",
-      dataIndex: "status",
-      render: (value) => (
-        <span className={`status-badge ${statusColors[value]}`}>
-          {value.replace("_", " ")}
-        </span>
-      ),
+      id: "B001",
+      title: "Benefits of Quitting Smoking in the First Month",
+      author: "Lisa Thompson (Coach)",
+      created: "16/1/2023",
+      updated: "2024-10-15",
+      status: "PUBLISHED",
+      views: 1000,
     },
-    { title: "Views", dataIndex: "views" },
     {
-      title: "Action",
-      dataIndex: "action",
-      render: (_, record) => (
-        <>
-          <button
-            className="action-btn edit"
-            onClick={() => handleEditPost(record)}
-          >
-            Edit
-          </button>
-          <button
-            className="action-btn delete"
-            onClick={() => handleDeletePost(record.id)}
-          >
-            Delete
-          </button>
-          <button
-            className="action-btn cancel"
-            onClick={() => handleUpdateStatus(record.id, "REJECTED")}
-          >
-            Cancel publication
-          </button>
-        </>
-      ),
+      id: "B002",
+      title: "Managing Withdrawal Symptoms Effectively",
+      author: "Emma (Admin)",
+      created: "16/1/2023",
+      updated: "2024-09-07",
+      status: "UNDER REVIEW",
+      views: 1530,
     },
-  ];
+    {
+      id: "B003",
+      title: "Smoking Cessation and Mental Health",
+      author: "Emma (Admin)",
+      created: "16/1/2023",
+      updated: "2024-09-15",
+      status: "PUBLISHED",
+      views: 0,
+    },
+    {
+      id: "B004",
+      title: "Smoking Cessation and Mental Health",
+      author: "Emma Sarah (Coach)",
+      created: "16/1/2023",
+      updated: "2024-09-11",
+      status: "REJECTED",
+      views: 0,
+    },
+    {
+      id: "B005",
+      title: "Smoking Cessation and Mental Health",
+      author: "Emma Sarah (Coach)",
+      created: "16/1/2023",
+      updated: "2024-09-11",
+      status: "REJECTED",
+      views: 0,
+    },
+    {
+      id: "B006",
+      title: "Smoking Cessation and Mental Health",
+      author: "Emma Sarah (Coach)",
+      created: "16/1/2023",
+      updated: "2024-09-11",
+      status: "REJECTED",
+      views: 0,
+    },
+  ]);
+
+  // Hàm render badge status
+  const renderStatus = (status) => {
+    if (status === "PUBLISHED")
+      return <span className={styles["status-published"]}>PUBLISHED</span>;
+    if (status === "UNDER REVIEW")
+      return <span className={styles["status-review"]}>UNDER REVIEW</span>;
+    return <span className={styles["status-rejected"]}>REJECTED</span>;
+  };
 
   return (
-    <div className="app-layout">
-      <Sidebar />
-      <div className="blog-management-page">
-        <Header />
+    <AdminLayout title="Blog Management">
+      <div className={styles["blog-management-page"]}>
         <h2>Blog Management</h2>
-        <div className="search-filter-row">
-          <input
-            className="search-input"
-            placeholder="Search by title, author..."
-            value={filters.search}
-            onChange={(e) => handleFilterChange("search", e.target.value)}
-          />
-          <select
-            className="filter-select"
-            value={filters.status}
-            onChange={(e) => handleFilterChange("status", e.target.value)}
-          >
-            <option value="">Filter by status</option>
-            <option value="PUBLISHED">Published</option>
-            <option value="UNDER REVIEW">Under Review</option>
-            <option value="REJECTED">Rejected</option>
-            <option value="DRAFT">Draft</option>
-          </select>
-          <select
-            className="filter-select"
-            value={filters.author}
-            onChange={(e) => handleFilterChange("author", e.target.value)}
-          >
-            <option value="">Filter by author</option>
-          </select>
-          <select
-            className="filter-select"
-            value={filters.article}
-            onChange={(e) => handleFilterChange("article", e.target.value)}
-          >
-            <option value="">Filter by article</option>
-          </select>
-          <input
-            className="date-input"
-            type="date"
-            value={filters.startDate}
-            onChange={(e) => handleFilterChange("startDate", e.target.value)}
-          />
-          <input
-            className="date-input"
-            type="date"
-            value={filters.endDate}
-            onChange={(e) => handleFilterChange("endDate", e.target.value)}
-          />
-          <button className="add-article-btn" onClick={handleCreatePost}>
-            + Create new article
-          </button>
+        <div className={styles["search-filter-header"]}>Search and Filter</div>
+        <div className={styles["search-filter-row"]}>
+          <input className={styles["search-input"]} placeholder="Search by title, author,..." />
+          <select className={styles["filter-select"]}><option>Filter by status</option></select>
+          <select className={styles["filter-select"]}><option>Filter by author</option></select>
+          <select className={styles["filter-select"]}><option>Filter by article</option></select>
+          <input className={styles["date-input"]} placeholder="Start date" type="date" />
+          <input className={styles["date-input"]} placeholder="End date" type="date" />
+          <button className={styles["create-article-btn"]}>+ Create new article</button>
         </div>
-        <div className="blog-table-wrapper">
-          <ReusableTable columns={columns} data={posts} loading={loading} />
+        <div className={styles["blog-table-wrapper"]}>
+          <table className={styles["blog-table"]}>
+            <thead>
+              <tr>
+                <th>Post ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Creation date</th>
+                <th>Last updated</th>
+                <th>Status</th>
+                <th>Views</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {posts.map((p, idx) => (
+                <tr key={idx}>
+                  <td>{p.id}</td>
+                  <td>{p.title}</td>
+                  <td>{p.author}</td>
+                  <td>{p.created}</td>
+                  <td>{p.updated}</td>
+                  <td>{renderStatus(p.status)}</td>
+                  <td>{p.views}</td>
+                  <td>
+                    <div className={styles["action-btns"]}>
+                      <button className={styles["edit-btn"]}>Edit</button>
+                      <button className={styles["delete-btn"]}>Delete</button>
+                      <button className={styles["cancel-btn"]}>Cancel publication</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-
-        <Modal
-          title={
-            editingPost ? `Edit Post: ${editingPost.title}` : "Create New Post"
-          }
-          open={isModalVisible}
-          onCancel={handleModalCancel}
-          footer={null}
-          width={800}
-        >
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleFormSubmit}
-            initialValues={{ status: "DRAFT" }}
-          >
-            <Form.Item
-              name="title"
-              label="Title"
-              rules={[
-                { required: true, message: "Please enter the post title" },
-              ]}
-            >
-              <Input placeholder="Enter post title" />
-            </Form.Item>
-
-            <Form.Item
-              name="content"
-              label="Content"
-              rules={[
-                { required: true, message: "Please enter the post content" },
-              ]}
-            >
-              <Input.TextArea rows={8} placeholder="Enter post content" />
-            </Form.Item>
-
-            <Form.Item
-              name="author"
-              label="Author"
-              rules={[{ required: true, message: "Please select an author" }]}
-            >
-              <Select placeholder="Select author">
-                <Select.Option value="admin">Admin</Select.Option>
-                <Select.Option value="coach">Coach</Select.Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              name="category"
-              label="Category"
-              rules={[
-                {
-                  required: true,
-                  message: "Please select or enter categories",
-                },
-              ]}
-            >
-              <Select
-                mode="tags"
-                placeholder="Select or enter categories"
-                style={{ width: "100%" }}
-              >
-                <Select.Option value="health">Health</Select.Option>
-                <Select.Option value="wellness">Wellness</Select.Option>
-                <Select.Option value="lifestyle">Lifestyle</Select.Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              name="status"
-              label="Status"
-              rules={[{ required: true, message: "Please select a status" }]}
-            >
-              <Select>
-                <Select.Option value="DRAFT">Draft</Select.Option>
-                <Select.Option value="UNDER REVIEW">Under Review</Select.Option>
-                {editingPost && (
-                  <Select.Option value="PUBLISHED">Published</Select.Option>
-                )}
-              </Select>
-            </Form.Item>
-
-            <Form.Item>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  gap: "8px",
-                }}
-              >
-                <Button onClick={handleModalCancel}>Cancel</Button>
-                <Button type="primary" htmlType="submit">
-                  {editingPost ? "Update Post" : "Create Post"}
-                </Button>
-              </div>
-            </Form.Item>
-          </Form>
-        </Modal>
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 

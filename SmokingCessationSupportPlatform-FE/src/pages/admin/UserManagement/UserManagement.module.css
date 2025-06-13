@@ -1,26 +1,30 @@
 .user-management-page {
-  padding: 24px 24px 0 0;
+  padding: 40px 48px 0 48px;
+  background: #f7f8fa;
+  min-height: 100vh;
 }
 
 .user-management-page h2 {
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 2.2rem;
+  font-weight: 800;
   margin-bottom: 18px;
+  color: #18181b;
+  letter-spacing: 0.01em;
 }
 
 .search-filter-header {
   font-size: 1.08rem;
   font-weight: 500;
   color: #888;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   margin-top: 8px;
 }
 
 .search-filter-row {
   display: flex;
-  gap: 10px;
+  gap: 18px;
   align-items: center;
-  margin-bottom: 18px;
+  margin-bottom: 24px;
 }
 
 .filter-item {
@@ -29,11 +33,12 @@
 }
 
 .search-input, .filter-select, .date-input {
-  padding: 7px 14px;
-  border: 1px solid #e3e8f7;
-  border-radius: 8px;
+  padding: 10px 16px;
+  border: 1.5px solid #e3e8f7;
+  border-radius: 10px;
   font-size: 15px;
   background: #fff;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.04);
 }
 
 .search-input {
@@ -52,12 +57,12 @@
   background: #1677ff;
   color: #fff;
   border: none;
-  border-radius: 8px;
-  padding: 9px 28px;
-  font-weight: 600;
+  border-radius: 10px;
+  padding: 10px 32px;
+  font-weight: 700;
   font-size: 16px;
   cursor: pointer;
-  margin-left: 12px;
+  margin-left: 16px;
   transition: background 0.18s;
   box-shadow: 0 2px 8px rgba(22,119,255,0.08);
 }
@@ -67,11 +72,11 @@
 
 .user-table-wrapper {
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(99,102,241,0.06);
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(99,102,241,0.06);
   border: 1.5px solid #e3e8f7;
-  padding: 0 0 12px 0;
-  margin-top: 18px;
+  padding: 0 0 16px 0;
+  margin-top: 28px;
 }
 
 .user-table {
@@ -80,23 +85,26 @@
   border-spacing: 0;
   font-size: 15px;
   background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
 }
 
 .user-table th {
   background: #f4f7fe;
   font-weight: 900;
   color: #18181b;
-  font-size: 17px;
+  font-size: 18px;
   border-bottom: 2.5px solid #e3e8f7;
   border-top: none;
   letter-spacing: 0.01em;
-  padding: 15px 12px;
+  padding: 18px 14px;
 }
 
 .user-table td {
   border-bottom: 1.5px solid #e3e8f7;
   background: #fff;
-  padding: 13px 12px;
+  padding: 15px 14px;
+  font-size: 15px;
 }
 
 .user-table tr:last-child td {
@@ -107,20 +115,11 @@
   text-align: left;
 }
 
-.role-badge {
-  padding: 4px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #fff;
-  background: #6366f1;
-  display: inline-block;
-}
 .role-customer {
   background: #6366f1;
   color: #fff;
   border-radius: 8px;
-  padding: 4px 12px;
+  padding: 4px 14px;
   font-size: 13px;
   font-weight: 500;
   display: inline-block;
@@ -129,26 +128,17 @@
   background: #a78bfa;
   color: #fff;
   border-radius: 8px;
-  padding: 4px 12px;
+  padding: 4px 14px;
   font-size: 13px;
   font-weight: 500;
   display: inline-block;
 }
 
-.membership-badge {
-  padding: 4px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #fff;
-  background: #fbbf24;
-  display: inline-block;
-}
 .membership-premium {
   background: #fbbf24;
   color: #222;
   border-radius: 8px;
-  padding: 4px 12px;
+  padding: 4px 14px;
   font-size: 13px;
   font-weight: 500;
   display: inline-block;
@@ -157,7 +147,7 @@
   background: #e5e7eb;
   color: #444;
   border-radius: 8px;
-  padding: 4px 12px;
+  padding: 4px 14px;
   font-size: 13px;
   font-weight: 500;
   display: inline-block;
@@ -165,16 +155,17 @@
 
 .action-btns {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 .action-btns button {
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
   border: none;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.18s;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.04);
 }
 .edit-btn {
   background: #e0e7ff;
@@ -202,12 +193,12 @@
 }
 
 @media (max-width: 900px) {
+  .user-management-page {
+    padding: 12px 4px 0 4px;
+  }
   .search-filter-row {
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
-  }
-  .user-management-page {
-    padding: 12px 4px 0 0;
   }
 }
