@@ -1,9 +1,27 @@
 import AuthenTemplate from "../../../components/authen-template/authen-template";
 import { Button, Divider, Form, Input } from "antd";
 import FormItem from "antd/es/form/FormItem";
+import { useNavigate } from "react-router-dom";
+import api from "../../../config/axios";
+import { toast } from "react-toastify";
 
 function Register() {
-  const handleRegister = () => {};
+  const navigate = useNavigate();
+
+  const handleRegister = async (values) => {
+    try {
+      const response = await api.post("auth/register", values);
+      console.log(response.data);
+      toast.success("Create account successfully!");
+      navigate(`/verify-code?email=${encodeURIComponent(values.email)}`);
+    } catch (err) {
+      console.log(err.response.data);
+      if (err.response.data.message === "Email already exists") {
+        toast.error("Email already exists! Please use a different email.");
+      } else
+        toast.error("Create account failed! Please check your information.");
+    }
+  };
   return (
     <>
       <AuthenTemplate>
@@ -17,7 +35,7 @@ function Register() {
           <FormItem
             label="Full Name"
             className="input-box custom-label"
-            name="fullname"
+            name="fullName"
             rules={[
               {
                 required: true,
@@ -73,12 +91,23 @@ function Register() {
           <FormItem
             label="Confirm Password"
             className="input-box custom-label"
-            name="confirmpassword"
+            name="confirmPassword"
+            dependencies={["password"]}
             rules={[
               {
                 required: true,
                 message: "Please confirm your password.",
               },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error("The passwords do not match!")
+                  );
+                },
+              }),
             ]}
           >
             <Input.Password

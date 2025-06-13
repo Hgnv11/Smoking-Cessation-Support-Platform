@@ -7,6 +7,13 @@
     font-weight: 600;
 }
 
+.wrapper__title1 p {
+    margin: 50px 0 20px 0;
+    color: #458FF6;
+    font-size: 35px;
+    font-weight: 600;
+}
+
 .wrapper__card {
     display: flex;
     flex-direction: row;

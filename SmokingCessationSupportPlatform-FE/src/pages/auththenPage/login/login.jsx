@@ -3,33 +3,30 @@ import FormItem from "antd/es/form/FormItem";
 import AuthenTemplate from "../../../components/authen-template/authen-template";
 import api from "../../../config/axios";
 import { toast } from "react-toastify";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { login } from "../../../store/redux/features/userSlice";
 
 function Login() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const dispatch = useDispatch();
+  const [form] = Form.useForm();
 
   const handleLogin = async (values) => {
     try {
       const response = await api.post("auth/login", values);
-      const { user, token } = response.data;
-      
-      // Store user data and token in localStorage
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('token', token);
-      
-      toast.success("Đăng nhập thành công");
-      
-      // Redirect based on role
-      if (user.role === 'admin') {
-        navigate('/admin');
+      toast.success("Login successfully!");
+      console.log(response.data);
+      dispatch(login(response.data));
+      const { role, token } = response.data;
+      localStorage.setItem("token", token);
+      if (role === "admin") {
+        navigate("/admin");
       } else {
-        // If there's a redirect path in location state, use it
-        const from = location.state?.from?.pathname || '/';
-        navigate(from);
+        navigate("/");
       }
     } catch (err) {
-      toast.error("Đăng nhập thất bại");
+      toast.error("Login failed! Please check your email and password.");
       console.log(err);
     }
   };
@@ -38,6 +35,7 @@ function Login() {
     <>
       <AuthenTemplate>
         <Form
+          form={form}
           labelCol={{
             span: 24,
           }}

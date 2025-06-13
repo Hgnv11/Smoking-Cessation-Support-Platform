@@ -1,0 +1,204 @@
+.user-management-page {
+  padding: 40px 48px 0 48px;
+  background: #f7f8fa;
+  min-height: 100vh;
+}
+
+.user-management-page h2 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 18px;
+  color: #18181b;
+  letter-spacing: 0.01em;
+}
+
+.search-filter-header {
+  font-size: 1.08rem;
+  font-weight: 500;
+  color: #888;
+  margin-bottom: 12px;
+  margin-top: 8px;
+}
+
+.search-filter-row {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+}
+
+.search-input, .filter-select, .date-input {
+  padding: 10px 16px;
+  border: 1.5px solid #e3e8f7;
+  border-radius: 10px;
+  font-size: 15px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.04);
+}
+
+.search-input {
+  min-width: 260px;
+}
+
+.filter-select {
+  min-width: 180px;
+}
+
+.date-input {
+  min-width: 120px;
+}
+
+.add-user-btn {
+  background: #1677ff;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 32px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 16px;
+  transition: background 0.18s;
+  box-shadow: 0 2px 8px rgba(22,119,255,0.08);
+}
+.add-user-btn:hover {
+  background: #0958d9;
+}
+
+.user-table-wrapper {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(99,102,241,0.06);
+  border: 1.5px solid #e3e8f7;
+  padding: 0 0 16px 0;
+  margin-top: 28px;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 15px;
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.user-table th {
+  background: #f4f7fe;
+  font-weight: 900;
+  color: #18181b;
+  font-size: 18px;
+  border-bottom: 2.5px solid #e3e8f7;
+  border-top: none;
+  letter-spacing: 0.01em;
+  padding: 18px 14px;
+}
+
+.user-table td {
+  border-bottom: 1.5px solid #e3e8f7;
+  background: #fff;
+  padding: 15px 14px;
+  font-size: 15px;
+}
+
+.user-table tr:last-child td {
+  border-bottom: none;
+}
+
+.user-table th, .user-table td {
+  text-align: left;
+}
+
+.role-customer {
+  background: #6366f1;
+  color: #fff;
+  border-radius: 8px;
+  padding: 4px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-block;
+}
+.role-coach {
+  background: #a78bfa;
+  color: #fff;
+  border-radius: 8px;
+  padding: 4px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.membership-premium {
+  background: #fbbf24;
+  color: #222;
+  border-radius: 8px;
+  padding: 4px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-block;
+}
+.membership-free {
+  background: #e5e7eb;
+  color: #444;
+  border-radius: 8px;
+  padding: 4px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.action-btns {
+  display: flex;
+  gap: 8px;
+}
+.action-btns button {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.04);
+}
+.edit-btn {
+  background: #e0e7ff;
+  color: #6366f1;
+}
+.details-btn {
+  background: #f3f4f6;
+  color: #222;
+}
+.delete-btn {
+  background: #fff0f0;
+  color: #e74c3c;
+}
+.lock-btn {
+  background: #f87171;
+  color: #fff;
+}
+.unlock-btn {
+  background: #e0f7fa;
+  color: #1677ff;
+}
+.lock-btn:disabled {
+  background: #e5e7eb;
+  color: #b0b3b8;
+}
+
+@media (max-width: 900px) {
+  .user-management-page {
+    padding: 12px 4px 0 4px;
+  }
+  .search-filter-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+}
