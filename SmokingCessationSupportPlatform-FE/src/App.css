@@ -1,72 +1,13 @@
-body, #root {
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  background: #f4f7fe;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
 }
 
-#root {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-.app-layout {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
+.wrapper {
+    margin: auto;
+    max-width: 960px;
+    margin-top: 20px;
 }
 
-.app-layout {
-  display: flex;
-  background: #f4f7fe;
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(99,102,241,0.06);
-  border: 1px solid #e3e8f7;
-}
-
-.read-the-docs {
-  color: #b0b3b8;
-}
-
-.app-layout {
-  display: flex;
-  min-height: 100vh;
-  width: 100vw;
-  background: #f4f7fe;
-  margin: 0 !important;
-  padding: 0 !important;
-  box-sizing: border-box;
-}
-
-.main-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background: #f4f7fe;
-  border-radius: 0;
-}
-
-.main-content {
-  flex: 1;
-  padding: 10px 0 0 40px;
-  background: #f4f7fe;
-}

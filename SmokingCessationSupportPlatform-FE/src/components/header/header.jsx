@@ -1,7 +1,7 @@
 import { Button, Avatar } from "antd";
 import "./header.css";
 import { SearchOutlined, UserOutlined } from "@ant-design/icons";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 function Header() {
@@ -17,7 +17,6 @@ function Header() {
     return location.pathname.includes(path);
   };
 
-const Header = () => {
   return (
     <>
       <header className="header">
@@ -107,6 +106,6 @@ const Header = () => {
       </header>
     </>
   );
-};
+}
 
 export default Header;

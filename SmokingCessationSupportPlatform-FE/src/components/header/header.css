@@ -1,34 +1,29 @@
-.dashboard-header {
-  background: #fff;
-  padding: 24px 0 0 0;
-  border-bottom: 1px solid #f0f0f0;
-  width: 100%;
-  box-sizing: border-box;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+.header {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0eeee;
+    background-color: #ffff;
 }
 
-.app-layout {
-  display: flex;
-  min-height: 100vh;
-  background: #f4f7fe;
-  margin-top: 64px;
+.header__container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0px 50px;
 }
 
-.dashboard-breadcrumb {
-  font-size: 17px;
-  color: #b0b3b8;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-left: 40px;
+.header__inner {
+    display: flex;
+    align-items: center;
 }
 
-.dashboard-breadcrumb__section {
-  color: #b0b3b8;
+.header__inner-logo {
+    width: 100px;
+    margin-right: 50px;
 }
 
-.dashboard-breadcrumb__divider {
-  color: #b0b3b8;
+.header__inner-logo:hover {
+    cursor: pointer;
 }
 
 .header__nav a{
