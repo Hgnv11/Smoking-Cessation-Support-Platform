@@ -1,0 +1,91 @@
+/* Page Layout */
+.pageTitle {
+  margin-bottom: 24px;
+}
+
+/* Card Styles */
+.scheduleCard {
+  margin-bottom: 24px;
+  border-radius: 12px;
+}
+
+.allAppointmentsCard {
+  border-radius: 12px;
+}
+
+.calendarCard {
+  margin-bottom: 24px;
+  border-radius: 12px;
+}
+
+.statsCard {
+  border-radius: 12px;
+}
+
+/* List and Item Styles */
+.listItem {
+  padding: 16px 0;
+  border-radius: 8px;
+}
+
+.appointmentListItem {
+  padding: 12px 0;
+}
+
+.appointmentCard {
+  width: 100%;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+/* Appointment Details */
+.appointmentName {
+  margin: 0;
+  margin-bottom: 4px;
+}
+
+.appointmentNotes {
+  font-size: 12px;
+  display: block;
+  margin-top: 4px;
+}
+
+.appointmentDetails {
+  font-size: 12px;
+}
+
+/* Icons and Buttons */
+.icon {
+  color: #666;
+}
+
+.actionButton {
+  border-radius: 6px;
+}
+
+.scheduleNewButton {
+  border-radius: 6px;
+}
+
+/* Calendar */
+.calendarBadge {
+  display: block;
+  font-size: 8px;
+}
+
+/* Stats Colors */
+.todaySessions {
+  color: #1890ff;
+}
+
+.weekSessions {
+  color: #52c41a;
+}
+
+.upcomingSessions {
+  color: #faad14;
+}
+
+.completionRate {
+  color: #0d9488;
+}

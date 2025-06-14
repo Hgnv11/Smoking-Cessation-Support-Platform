@@ -22,8 +22,8 @@ function Login() {
       localStorage.setItem("token", token); // Store token in localStorage
       if (role === "admin") {
         navigate("/admin");
-      } else if (role === "coach") {
-        navigate("/coach");
+      } else if (role === "mentor") {
+        navigate("/mentor");
       } else {
         navigate("/");
       }

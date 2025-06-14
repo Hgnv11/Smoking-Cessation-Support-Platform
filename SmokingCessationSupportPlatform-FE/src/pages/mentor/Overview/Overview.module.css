@@ -1,0 +1,21 @@
+.title {
+  margin-bottom: 24px;
+}
+
+.card {
+  border-radius: 12px;
+}
+
+.mb24 {
+  margin-bottom: 24px;
+}
+
+.flexBetween {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.smallText {
+  font-size: 12px;
+}
