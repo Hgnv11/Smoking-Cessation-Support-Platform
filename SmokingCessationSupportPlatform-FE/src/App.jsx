@@ -27,6 +27,13 @@ import Overview from "./pages/admin/Dashboard/Overview.jsx";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import ChangePassCode from "./pages/auththenPage/changePass-code/changePass-code.jsx";
+import MentorDashboard from "./pages/mentor/Dashboard/MentorDashboard.jsx";
+import MentorAppointments from "./pages/mentor/Appointments/MentorAppointments.jsx";
+import MentorClients from "./pages/mentor/Clients/MentorClients.jsx";
+import MentorSettings from "./pages/mentor/Settings/MentorSettings.jsx";
+import MentorProfile from "./pages/mentor/Profile/MentorProfile.jsx";
+
+
 
 const ProtectRouteAuth = ({ children }) => {
   const user = useSelector((store) => store.user);
