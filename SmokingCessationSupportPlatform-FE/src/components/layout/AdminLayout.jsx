@@ -1,6 +1,6 @@
 import React from "react";
 import Sidebar from "../../components/admin/Sidebar/Sidebar.jsx";
-import { Layout, Typography } from "antd";
+import { Layout, Typography, Breadcrumb } from "antd";
 import styles from "./AdminLayout.module.css";
 
 const { Sider, Header, Content } = Layout;
@@ -13,9 +13,10 @@ const AdminLayout = ({ children, title }) => {
       </Sider>
       <Layout className={styles["admin-main"]}>
         <Header className={styles["admin-header"]}>
-          <Typography.Title level={3} className={styles["admin-title"]}>
-            {title || "Admin Dashboard"}
-          </Typography.Title>
+          <Breadcrumb className={styles["admin-breadcrumb"]}>
+            <Breadcrumb.Item>Dashboards</Breadcrumb.Item>
+            {title && <Breadcrumb.Item>{title}</Breadcrumb.Item>}
+          </Breadcrumb>
         </Header>
         <Content className={styles["admin-content"]}>{children}</Content>
       </Layout>

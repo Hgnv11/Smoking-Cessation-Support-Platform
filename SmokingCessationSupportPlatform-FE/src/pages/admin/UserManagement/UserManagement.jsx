@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styles from "./UserManagement.module.css";
+import AdminLayout from "../../../components/layout/AdminLayout.jsx";
 import ReusableTable from "../../../components/admin/ReusableTable/ReusableTable.jsx";
-import SearchFilterRow from "../../../components/admin/SearchFilterRow/SearchFilterRow.jsx";
 import {
   Modal,
   Tabs,
@@ -13,18 +13,8 @@ import {
   Button,
   message,
 } from "antd";
-import { userService } from "../../../services/userService.js";
-import Sidebar from "../../../components/admin/Sidebar/Sidebar.jsx";
 
 const UserManagement = () => {
-  const [filters, setFilters] = useState({
-    search: "",
-    membership: "",
-    status: "",
-    role: "",
-    startDate: "",
-    endDate: "",
-  });
   const [users] = useState([
     {
       id: "U001",
@@ -37,48 +27,48 @@ const UserManagement = () => {
       lastActivity: "2024-10-15",
       status: "locked",
     },
-    
+    {
+      id: "U002",
+      name: "David Sad",
+      author: "david.sad@example.com",
+      profile: "David_S",
+      role: "Coach",
+      membership: "Free",
+      joinDate: "01/2/2023",
+      lastActivity: "2024-10-14",
+      status: "active",
+    },
+    {
+      id: "U003",
+      name: "John Doe",
+      author: "john.doe@example.com",
+      profile: "JDoe",
+      role: "Customer",
+      membership: "Premium",
+      joinDate: "05/3/2023",
+      lastActivity: "2024-10-16",
+      status: "active",
+    },
+    {
+      id: "U004",
+      name: "Jane Smith",
+      author: "jane.smith@example.com",
+      profile: "JaneS",
+      role: "Coach",
+      membership: "Free",
+      joinDate: "10/4/2023",
+      lastActivity: "2024-10-13",
+      status: "locked",
+    },
   ]);
+
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const [selectedMembership, setSelectedMembership] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedRole, setSelectedRole] = useState("");
 
-  // const handleFilterChange = (key, value) => {
-  //   setFilters((prev) => ({ ...prev, [key]: value }));
-  // };
-
-  const handleSeeDetails = async (user) => {
-    try {
-      const userDetails = await userService.getUserById(user.id);
-      setSelectedUser(userDetails);
-      setIsModalVisible(true);
-    } catch (error) {
-      message.error("Failed to fetch user details");
-      console.error("Error fetching user details:", error);
-    }
-  };
-
-  const handleUpdatePlan = async (values) => {
-    try {
-      await userService.updateUser(selectedUser.id, values);
-      message.success("Plan updated successfully");
-    } catch (error) {
-      message.error("Failed to update plan");
-      console.error("Error updating plan:", error);
-    }
-  };
-
-  const handleDeleteUser = async (userId) => {
-    try {
-      await userService.deleteUser(userId);
-      message.success("User deleted successfully");
-    } catch (error) {
-      message.error("Failed to delete user");
-      console.error("Error deleting user:", error);
-    }
-  };
-
-  // Mock data for demonstration
   const mockSubscriptionHistory = [
     { plan: "Premium", startDate: "2024-01-01", endDate: "2024-02-01" },
     { plan: "Free", startDate: "2023-12-01", endDate: "2023-12-31" },
@@ -142,7 +132,7 @@ const UserManagement = () => {
       title: "Role",
       dataIndex: "role",
       render: (value) => (
-        <span className={value === "Coach" ? "role-coach" : "role-customer"}>
+        <span className={value === "Coach" ? styles["role-coach"] : styles["role-customer"]}>
           {value}
         </span>
       ),
@@ -153,7 +143,7 @@ const UserManagement = () => {
       render: (value) => (
         <span
           className={
-            value === "Premium" ? "membership-premium" : "membership-free"
+            value === "Premium" ? styles["membership-premium"] : styles["membership-free"]
           }
         >
           {value}
@@ -166,21 +156,21 @@ const UserManagement = () => {
       title: "Action",
       dataIndex: "action",
       render: (value, row) => (
-        <div className="action-btns">
-          <button className="edit-btn">Edit</button>
-          <button className="details-btn" onClick={() => handleSeeDetails(row)}>
+        <div className={styles["action-btns"]}>
+          <button className={styles["edit-btn"]}>Edit</button>
+          <button className={styles["details-btn"]} onClick={() => { /* handleSeeDetails(row) */ }}>
             See Details
           </button>
           <button
-            className="delete-btn"
-            onClick={() => handleDeleteUser(row.id)}
+            className={styles["delete-btn"]}
+            onClick={() => { /* handleDeleteUser(row.id) */ }}
           >
             Delete
           </button>
           {row.status === "locked" ? (
-            <button className="lock-btn">Account Lock</button>
+            <button className={styles["lock-btn"]}>Account Lock</button>
           ) : (
-            <button className="unlock-btn">Unlock account</button>
+            <button className={styles["unlock-btn"]}>Unlock account</button>
           )}
         </div>
       ),
@@ -192,39 +182,53 @@ const UserManagement = () => {
       key: "search",
       type: "text",
       placeholder: "Search by name, email, profile name...",
-      value: filters.search,
     },
     {
       key: "membership",
       type: "select",
-      value: filters.membership,
       options: membershipOptions,
     },
     {
       key: "status",
       type: "select",
-      value: filters.status,
       options: statusOptions,
     },
     {
       key: "role",
       type: "select",
-      value: filters.role,
       options: roleOptions,
     },
-    // Đã loại bỏ startDate và endDate để tránh lỗi với SearchFilterRow
   ];
 
   return (
-    <div className="app-layout">
-      <Sidebar />
+    <AdminLayout title="User Management">
       <div className={styles["user-management-page"]}>
         <h2>User Management</h2>
         <div className={styles["search-filter-header"]}>Search and Filter</div>
-        <SearchFilterRow filters={filterConfig} filterConfig={filterConfig}>
-          <button className={styles["add-user-btn"]}>+ Add user</button>
-        </SearchFilterRow>
-        <div className="user-table-wrapper">
+        <div className={styles["search-filter-row"]}>
+            <input className={styles["search-input"]} placeholder="Search by name, email, profile name..." />
+            <Select
+                className={styles["filter-select"]}
+                onChange={(value) => setSelectedMembership(value)}
+                value={selectedMembership}
+                options={membershipOptions}
+            />
+            <Select
+                className={styles["filter-select"]}
+                onChange={(value) => setSelectedStatus(value)}
+                value={selectedStatus}
+                options={statusOptions}
+            />
+            <Select
+                className={styles["filter-select"]}
+                onChange={(value) => setSelectedRole(value)}
+                value={selectedRole}
+                options={roleOptions}
+            />
+            <button className={styles["add-user-btn"]}>+ Add user</button>
+        </div>
+
+        <div className={styles["user-table-wrapper"]}>
           <ReusableTable columns={columns} data={users} />
         </div>
 
@@ -281,7 +285,7 @@ const UserManagement = () => {
                       <h3>Update Membership Plan</h3>
                       <Form
                         form={form}
-                        onFinish={handleUpdatePlan}
+                        onFinish={() => { /* handleUpdatePlan */ }}
                         layout="vertical"
                       >
                         <Form.Item
@@ -384,7 +388,7 @@ const UserManagement = () => {
           />
         </Modal>
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 
