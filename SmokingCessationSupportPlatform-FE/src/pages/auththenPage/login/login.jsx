@@ -19,9 +19,11 @@ function Login() {
       console.log(response.data);
       dispatch(login(response.data));
       const { role, token } = response.data;
-      localStorage.setItem("token", token);
+      localStorage.setItem("token", token); // Store token in localStorage
       if (role === "admin") {
         navigate("/admin");
+      } else if (role === "mentor") {
+        navigate("/mentor");
       } else {
         navigate("/");
       }

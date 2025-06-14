@@ -1,0 +1,143 @@
+/* Page Layout */
+.pageTitle {
+  margin-bottom: 24px;
+  padding: 0 24px;
+}
+/* Search and Filter */
+.searchFilterRow {
+  margin-bottom: 24px;
+  padding: 0 24px;
+}
+
+.searchInput {
+  border-radius: 8px;
+}
+
+.filterSelect {
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* Client Card */
+.clientCard {
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.clientHeader {
+  margin-bottom: 20px;
+  padding: 24px 24px 8px 24px;
+}
+
+.clientName {
+  margin: 0;
+  margin-bottom: 4px;
+}
+
+.icon {
+  color: #666;
+  font-size: 12px;
+}
+
+.clientDetail {
+  font-size: 12px;
+}
+
+.actionButton {
+  border-radius: 6px;
+}
+
+/* Progress Section */
+.progressOverview {
+  background-color: #fafafa;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  margin: 0;
+  margin-bottom: 16px;
+}
+
+.statBox {
+  text-align: center;
+}
+
+.statLabel {
+  font-size: 12px;
+}
+
+.smokeFreeValue {
+  font-size: 24px;
+  font-weight: bold;
+  color: #722ed1;
+  margin-top: 4px;
+}
+
+.cigarettesValue {
+  font-size: 24px;
+  font-weight: bold;
+  color: #0d9488;
+  margin-top: 4px;
+}
+
+.moneySavedValue {
+  font-size: 24px;
+  font-weight: bold;
+  color: #52c41a;
+  margin-top: 4px;
+}
+
+/* Craving Section */
+.cravingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cravingTitle {
+  font-size: 14px;
+}
+
+.cravingProgress {
+  margin-bottom: 8px;
+}
+
+.cravingLabels {
+  display: flex;
+  justify-content: space-between;
+}
+
+.cravingLabel {
+  font-size: 11px;
+}
+
+/* Summary Card */
+.summaryCard {
+  margin-top: 24px;
+  margin-bottom: 32px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+
+.totalClientsStatistic :global(.ant-statistic-content) {
+  color: #0d9488;
+  font-size: 28px;
+}
+
+.premiumClientsStatistic :global(.ant-statistic-content) {
+  color: #722ed1;
+  font-size: 28px;
+}
+
+.highCravingClientsStatistic :global(.ant-statistic-content) {
+  color: #ff4d4f;
+  font-size: 28px;
+}
+
+.moneySavedStatistic :global(.ant-statistic-content) {
+  color: #52c41a;
+  font-size: 28px;
+}
