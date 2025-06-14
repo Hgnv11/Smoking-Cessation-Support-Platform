@@ -1,14 +1,25 @@
-import { Affix, Button, DatePicker, Form, Image, Input, Select } from "antd";
+import {
+  Affix,
+  Avatar,
+  Button,
+  DatePicker,
+  Form,
+  Image,
+  Input,
+  Select,
+} from "antd";
 import Header from "../../../../components/header/header";
 import Footer from "../../../../components/footer/footer";
 import "./userProfile.css";
-import { CameraOutlined } from "@ant-design/icons";
+import { CameraOutlined, UserOutlined } from "@ant-design/icons";
 import FormItem from "antd/es/form/FormItem";
 import MyAccountNav from "../../../../components/myAccount-nav/myAccount-nav";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
 function UserProfile() {
   const dateFormat = "DD/MM/YYYY";
+  const user = useSelector((store) => store.user);
 
   // State để quản lý trạng thái enable/disable của từng field
   const [fieldStates, setFieldStates] = useState({
@@ -46,11 +57,20 @@ function UserProfile() {
           <MyAccountNav />
           <div className="wrapper__profile-details">
             <div className="wrapper__profile-details-avatar">
-              <Image
-                className="wrapper__profile-details-avatar-img"
-                src="../src/components/images/avatar1.png"
-                alt="User Avatar"
-              />
+              {user.avatar ? (
+                <Avatar
+                  className="wrapper__profile-details-avatar-img"
+                  src={user.avatar}
+                  alt="User Avatar"
+                />
+              ) : (
+                <Avatar
+                  className="wrapper__profile-details-avatar-img"
+                  icon={
+                    <UserOutlined className="wrapper__profile-details-avatar-img-UserOutlined" />
+                  }
+                />
+              )}
               <div className="wrapper__profile-details-avatar-info">
                 <h1>Personal Information</h1>
                 <Button

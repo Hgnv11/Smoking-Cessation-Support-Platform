@@ -99,7 +99,7 @@ function Login() {
           >
             <img
               className="google-logo"
-              src="../src/components/images/google-logo.png"
+              src="/images/google-logo.png"
               alt="google-logo"
             />
             <p>

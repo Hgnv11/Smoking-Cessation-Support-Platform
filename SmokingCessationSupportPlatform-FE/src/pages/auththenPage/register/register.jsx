@@ -132,7 +132,7 @@ function Register() {
           <Button className="google-login_btn" color="default" variant="filled">
             <img
               className="google-logo"
-              src="../src/components/images/google-logo.png"
+              src="/images/google-logo.png"
               alt="google-logo"
             />
             <p>

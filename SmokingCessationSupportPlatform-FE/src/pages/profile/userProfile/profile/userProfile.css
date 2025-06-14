@@ -21,6 +21,10 @@
     max-height: 90px;
 }
 
+.wrapper__profile-details-avatar-img-UserOutlined {
+    font-size: 50px;
+}
+
 .wrapper__profile-details-avatar-btn {
     color: #7D7987;
     margin-top: 10px;

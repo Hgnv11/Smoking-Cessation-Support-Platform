@@ -27,6 +27,9 @@ import Overview from "./pages/admin/Dashboard/Overview.jsx";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import ChangePassCode from "./pages/auththenPage/changePass-code/changePass-code.jsx";
+import OthersProfile from "./pages/profile/othersProfile/profile/othersProfile.jsx";
+import OthersPosts from "./pages/profile/othersProfile/posts/othersPosts.jsx";
+import UserPosts from "./pages/profile/userProfile/posts/userPosts.jsx";
 
 const ProtectRouteAuth = ({ children }) => {
   const user = useSelector((store) => store.user);
@@ -178,6 +181,22 @@ function App() {
             </ProtectUserProfile>
           ),
         },
+        {
+          path: "user-profile/posts",
+          element: (
+            <ProtectUserProfile>
+              <UserPosts />
+            </ProtectUserProfile>
+          ),
+        },
+        {
+          path: "users/:userId",
+          element: <OthersProfile />,
+        },
+        {
+          path: "users/:userId/posts",
+          element: <OthersPosts />,
+        },
         { path: "make-plan", element: <MakePlan /> },
         { path: "community", element: <Community /> },
         { path: "community/:postId", element: <PostDetail /> },
@@ -229,4 +248,4 @@ function App() {
   return <RouterProvider router={router} />;
 }
 
-export default App
+export default App;

@@ -1,7 +1,7 @@
 .wrapper__profile-nav{
     display: flex;
     flex-direction: column;
-    width: 350px;
+    min-width: 230px;
 }
 
 .wrapper__profile-nav a {

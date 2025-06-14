@@ -25,7 +25,7 @@ function Header() {
             <a href="/">
               <img
                 className="header__inner-logo"
-                src="../src/components/images/Quitlt-logo.png"
+                src="/images/Quitlt-logo.png"
                 alt="Quitlt Logo"
               />
             </a>

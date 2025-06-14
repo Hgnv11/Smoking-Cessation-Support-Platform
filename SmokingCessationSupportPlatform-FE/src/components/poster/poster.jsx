@@ -27,7 +27,7 @@ function Poster() {
         <div className="poster__image">
           <img
             className="poster__image-asset"
-            src="../src/components/images/poster-asset.png"
+            src="/images/poster-asset.png"
             alt="poster"
           />
         </div>
