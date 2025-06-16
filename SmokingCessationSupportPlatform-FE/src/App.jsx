@@ -27,22 +27,28 @@ import Overview from "./pages/admin/Dashboard/Overview.jsx";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import ChangePassCode from "./pages/auththenPage/changePass-code/changePass-code.jsx";
-import MentorDashboard from "./pages/mentor/Dashboard/MentorDashboard.jsx";
-import MentorAppointments from "./pages/mentor/Appointments/MentorAppointments.jsx";
-import MentorClients from "./pages/mentor/Clients/MentorClients.jsx";
-import MentorSettings from "./pages/mentor/Settings/MentorSettings.jsx";
-import MentorProfile from "./pages/mentor/Profile/MentorProfile.jsx";
-
-
+// Import mentor pages từ các file có sẵn
+import MentorLayout from "./components/mentor/Layout";
+import MentorOverview from "./pages/mentor/Overview/Overview.jsx";
+import MentorAppointments from "./pages/mentor/Appointments/Appointment.jsx";
+import MentorClients from "./pages/mentor/Clients/Client.jsx";
+import MentorReports from "./pages/mentor/Reports/Report.jsx";
 
 const ProtectRouteAuth = ({ children }) => {
   const user = useSelector((store) => store.user);
+  
+  // Nếu chưa đăng nhập, cho phép truy cập trang auth
   if (user == null) {
     return children;
-  } else if (user && user.role === "admin") {
-    return <Navigate to="/admin" />;
+  }
+  
+  // Nếu đã đăng nhập, chuyển hướng dựa theo role
+  if (user.role === "admin") {
+    return <Navigate to="/admin" replace />;
+  } else if (user.role === "mentor") {
+    return <Navigate to="/mentor" replace />;
   } else {
-    return <Navigate to="/" />;
+    return <Navigate to="/" replace />;
   }
 };
 
@@ -109,6 +115,18 @@ const ProtectAdminRoute = ({ children }) => {
   }
   if (user.role !== "admin") {
     toast.error("Access denied! Admin privileges required.");
+    return <Navigate to="/" />;
+  }
+  return children;
+};
+
+const ProtectMentorRoute = ({ children }) => {
+  const user = useSelector((store) => store.user);
+  if (user == null) {
+    return <Navigate to="/" />;
+  }
+  if (user.role !== "mentor") {
+    toast.error("Access denied! Mentor privileges required.");
     return <Navigate to="/" />;
   }
   return children;
@@ -189,6 +207,7 @@ function App() {
         { path: "community", element: <Community /> },
         { path: "community/:postId", element: <PostDetail /> },
         { path: "user-coach", element: <UserCoach /> },
+        // Admin Routes
         {
           path: "admin",
           element: (
@@ -229,6 +248,22 @@ function App() {
             </ProtectAdminRoute>
           ),
         },
+        // Mentor Routes
+        {
+          path: "mentor",
+          element: (
+            <ProtectMentorRoute>
+              <MentorLayout />
+            </ProtectMentorRoute>
+          ),
+          children: [
+            { index: true, element: <MentorOverview /> },
+            { path: "overview", element: <MentorOverview /> },
+            { path: "appointments", element: <MentorAppointments /> },
+            { path: "clients", element: <MentorClients /> },
+            { path: "reports", element: <MentorReports /> },
+          ]
+        },
       ],
     },
   ]);
@@ -236,4 +271,4 @@ function App() {
   return <RouterProvider router={router} />;
 }
 
-export default App
+export default App;

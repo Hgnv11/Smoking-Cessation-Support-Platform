@@ -1,6 +1,6 @@
 import React from "react";
 import { Layout as AntLayout, Avatar, Button, Typography, Space } from "antd";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Outlet } from "react-router-dom"; // Import Outlet
 import {
   LogoutOutlined,
   BookOutlined,
@@ -9,45 +9,58 @@ import {
   BarChartOutlined,
   CalendarOutlined,
 } from "@ant-design/icons";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../store/redux/features/userSlice";
+import { toast } from "react-toastify";
 
 const { Sider, Header, Content } = AntLayout;
 const { Text } = Typography;
 
-export const Layout = ({ children }) => {
+export const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
+  const user = useSelector((store) => store.user);
 
   const sidebarItems = [
     {
       key: "overview",
       icon: <PieChartOutlined />,
       label: "Overview",
-      path: "/overview",
+      path: "/mentor/overview", // Use full paths
     },
     {
       key: "appointments",
       icon: <StarOutlined />,
       label: "Appointments",
-      path: "/appointments",
+      path: "/mentor/appointments", // Use full paths
     },
     {
       key: "clients",
       icon: <BookOutlined />,
       label: "Clients",
-      path: "/clients",
+      path: "/mentor/clients", // Use full paths
     },
     {
       key: "reports",
       icon: <BarChartOutlined />,
       label: "Reports",
-      path: "/reports",
+      path: "/mentor/reports", // Use full paths
     },
   ];
 
   const getCurrentPageTitle = () => {
     const currentPath = location.pathname;
-    const currentItem = sidebarItems.find(item => item.path === currentPath);
+    // Handle /mentor as /mentor/overview
+    const pathToMatch = currentPath === "/mentor" ? "/mentor/overview" : currentPath;
+    const currentItem = sidebarItems.find(item => item.path === pathToMatch);
     return currentItem ? currentItem.label : "Overview";
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    toast.success("Logged out successfully");
+    navigate("/");
   };
 
   return (
@@ -71,13 +84,13 @@ export const Layout = ({ children }) => {
             <Space align="center" style={{ marginBottom: 8 }}>
               <Avatar
                 size={32}
-                src="https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=64&h=64&fit=crop"
+                src={user?.avatarUrl || "https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=64&h=64&fit=crop"}
                 style={{ backgroundColor: "#0d9488" }}
               >
-                CQ
+                {user?.fullName?.charAt(0)?.toUpperCase() || "M"}
               </Avatar>
               <div>
-                <Text strong>Coach QuitIt</Text>
+                <Text strong>{user?.fullName || "Mentor Name"}</Text>
               </div>
             </Space>
             <Text type="secondary" style={{ fontSize: 12, paddingLeft: 8 }}>
@@ -92,8 +105,9 @@ export const Layout = ({ children }) => {
             </Text>
             <div style={{ marginTop: 8 }}>
               {sidebarItems.map((item) => {
-                const isActive = location.pathname === item.path || 
-                  (location.pathname === "/" && item.path === "/overview");
+                // Adjust isActive logic for /mentor and /mentor/overview
+                const isActive = location.pathname === item.path ||
+                                 (location.pathname === "/mentor" && item.path === "/mentor/overview");
                 
                 return (
                   <div
@@ -128,6 +142,7 @@ export const Layout = ({ children }) => {
               icon={<LogoutOutlined />}
               block
               style={{ borderRadius: 8 }}
+              onClick={handleLogout}
             >
               Log out
             </Button>
@@ -160,9 +175,11 @@ export const Layout = ({ children }) => {
 
         {/* Main Content */}
         <Content style={{ padding: 24, marginTop: 64 }}>
-          {children}
+          <Outlet />
         </Content>
       </AntLayout>
     </AntLayout>
   );
 };
+
+export default Layout;
