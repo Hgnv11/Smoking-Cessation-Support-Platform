@@ -9,24 +9,26 @@ import CommunityPosts from "../../../../config/communityPost";
 import "./othersPosts.css";
 
 function OthersPosts() {
-  const { userId } = useParams();
+  const { profileName } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
 
   useEffect(() => {
-    // Find the user
-    const foundUser = UsersData.find((u) => u.user_id === parseInt(userId));
+    const decodedProfileName = decodeURIComponent(profileName);
+
+    const foundUser = UsersData.find(
+      (u) => u.profile_name === decodedProfileName
+    );
     setUser(foundUser);
 
-    // Find all posts by this user
     if (foundUser) {
       const posts = CommunityPosts.filter(
         (post) => post.user_id === foundUser.user_id
       );
       setUserPosts(posts);
     }
-  }, [userId]);
+  }, [profileName]);
 
   if (!user) {
     return (

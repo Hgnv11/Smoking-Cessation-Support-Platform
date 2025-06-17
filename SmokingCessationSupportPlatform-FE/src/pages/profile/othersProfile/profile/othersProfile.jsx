@@ -4,20 +4,22 @@ import Footer from "../../../../components/footer/footer";
 import "./othersProfile.css";
 import { UserOutlined } from "@ant-design/icons";
 import FormItem from "antd/es/form/FormItem";
-import MyAccountNav from "../../../../components/myAccount-nav/myAccount-nav";
 import { useParams } from "react-router";
 import { useState, useEffect } from "react";
 import UsersData from "../../../../config/userData";
 import OthersAccountNav from "../../../../components/othersAccount-nav/othersAccount-nav";
 
 function OthersProfile() {
-  const { userId } = useParams();
+  const { profileName } = useParams();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const foundUser = UsersData.find((u) => u.user_id === parseInt(userId));
+    const decodedProfileName = decodeURIComponent(profileName);
+    const foundUser = UsersData.find(
+      (u) => u.profile_name === decodedProfileName
+    );
     setUser(foundUser);
-  }, [userId]);
+  }, [profileName]);
 
   if (!user) {
     return (

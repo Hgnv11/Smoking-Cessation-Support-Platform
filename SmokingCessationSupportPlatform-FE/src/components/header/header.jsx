@@ -58,12 +58,12 @@ function Header() {
             {user ? (
               // Hiển thị khi user đã đăng nhập
               <div className="user-info">
-                {user.avatar ? (
+                {user.avatarUrl ? (
                   <Avatar
                     onClick={() => navigate("/user-profile")}
                     className="user-avatar"
                     size="large"
-                    src={user.avatar}
+                    src={user.avatarUrl}
                   />
                 ) : (
                   <Avatar

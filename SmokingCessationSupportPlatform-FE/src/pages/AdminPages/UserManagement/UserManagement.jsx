@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import styles from "./UserManagement.module.css";
 import AdminLayout from "../../../components/layout/AdminLayout.jsx";
 import ReusableTable from "../../../components/admin/ReusableTable/ReusableTable.jsx";
@@ -11,8 +10,8 @@ import {
   List,
   Descriptions,
   Button,
-  message,
 } from "antd";
+import { useState } from "react";
 
 const UserManagement = () => {
   const [users] = useState([
@@ -132,7 +131,11 @@ const UserManagement = () => {
       title: "Role",
       dataIndex: "role",
       render: (value) => (
-        <span className={value === "Coach" ? styles["role-coach"] : styles["role-customer"]}>
+        <span
+          className={
+            value === "Coach" ? styles["role-coach"] : styles["role-customer"]
+          }
+        >
           {value}
         </span>
       ),
@@ -143,7 +146,9 @@ const UserManagement = () => {
       render: (value) => (
         <span
           className={
-            value === "Premium" ? styles["membership-premium"] : styles["membership-free"]
+            value === "Premium"
+              ? styles["membership-premium"]
+              : styles["membership-free"]
           }
         >
           {value}
@@ -158,12 +163,19 @@ const UserManagement = () => {
       render: (value, row) => (
         <div className={styles["action-btns"]}>
           <button className={styles["edit-btn"]}>Edit</button>
-          <button className={styles["details-btn"]} onClick={() => { /* handleSeeDetails(row) */ }}>
+          <button
+            className={styles["details-btn"]}
+            onClick={() => {
+              /* handleSeeDetails(row) */
+            }}
+          >
             See Details
           </button>
           <button
             className={styles["delete-btn"]}
-            onClick={() => { /* handleDeleteUser(row.id) */ }}
+            onClick={() => {
+              /* handleDeleteUser(row.id) */
+            }}
           >
             Delete
           </button>
@@ -206,26 +218,29 @@ const UserManagement = () => {
         <h2>User Management</h2>
         <div className={styles["search-filter-header"]}>Search and Filter</div>
         <div className={styles["search-filter-row"]}>
-            <input className={styles["search-input"]} placeholder="Search by name, email, profile name..." />
-            <Select
-                className={styles["filter-select"]}
-                onChange={(value) => setSelectedMembership(value)}
-                value={selectedMembership}
-                options={membershipOptions}
-            />
-            <Select
-                className={styles["filter-select"]}
-                onChange={(value) => setSelectedStatus(value)}
-                value={selectedStatus}
-                options={statusOptions}
-            />
-            <Select
-                className={styles["filter-select"]}
-                onChange={(value) => setSelectedRole(value)}
-                value={selectedRole}
-                options={roleOptions}
-            />
-            <button className={styles["add-user-btn"]}>+ Add user</button>
+          <input
+            className={styles["search-input"]}
+            placeholder="Search by name, email, profile name..."
+          />
+          <Select
+            className={styles["filter-select"]}
+            onChange={(value) => setSelectedMembership(value)}
+            value={selectedMembership}
+            options={membershipOptions}
+          />
+          <Select
+            className={styles["filter-select"]}
+            onChange={(value) => setSelectedStatus(value)}
+            value={selectedStatus}
+            options={statusOptions}
+          />
+          <Select
+            className={styles["filter-select"]}
+            onChange={(value) => setSelectedRole(value)}
+            value={selectedRole}
+            options={roleOptions}
+          />
+          <button className={styles["add-user-btn"]}>+ Add user</button>
         </div>
 
         <div className={styles["user-table-wrapper"]}>
@@ -285,7 +300,9 @@ const UserManagement = () => {
                       <h3>Update Membership Plan</h3>
                       <Form
                         form={form}
-                        onFinish={() => { /* handleUpdatePlan */ }}
+                        onFinish={() => {
+                          /* handleUpdatePlan */
+                        }}
                         layout="vertical"
                       >
                         <Form.Item

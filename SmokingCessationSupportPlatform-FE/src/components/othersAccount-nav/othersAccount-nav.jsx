@@ -3,11 +3,11 @@ import { useLocation, useParams } from "react-router-dom";
 
 function OthersAccountNav() {
   const location = useLocation();
-  const { userId } = useParams();
+  const { profileName } = useParams();
 
   const isActivePage = (path) => {
-    if (path === `/users/${userId}`) {
-      return location.pathname === `/users/${userId}`;
+    if (path === `/users/${encodeURIComponent(profileName)}`) {
+      return location.pathname === `/users/${encodeURIComponent(profileName)}`;
     }
     return location.pathname.includes(path);
   };
@@ -15,14 +15,22 @@ function OthersAccountNav() {
   return (
     <div className="wrapper__profile-nav">
       <a
-        href={`/users/${userId}`}
-        className={isActivePage(`/users/${userId}`) ? "active" : ""}
+        href={`/users/${encodeURIComponent(profileName)}`}
+        className={
+          isActivePage(`/users/${encodeURIComponent(profileName)}`)
+            ? "active"
+            : ""
+        }
       >
         Profile
       </a>
       <a
-        href={`/users/${userId}/posts`}
-        className={isActivePage(`/users/${userId}/posts`) ? "active" : ""}
+        href={`/users/${encodeURIComponent(profileName)}/posts`}
+        className={
+          isActivePage(`/users/${encodeURIComponent(profileName)}/posts`)
+            ? "active"
+            : ""
+        }
       >
         Posts
       </a>

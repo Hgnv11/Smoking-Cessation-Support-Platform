@@ -5,31 +5,31 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import "./App.css";
-import Home from "./pages/home/home";
-import Login from "./pages/auththenPage/login/login";
-import Register from "./pages/auththenPage/register/register";
-import ForgotPass from "./pages/auththenPage/forgotPass/forgotPass";
-import ForgotPassCode from "./pages/auththenPage/forgotPass-code/forgotPass-code";
-import VerifyCode from "./pages/auththenPage/verifyCode/verifyCode";
-import MakePlan from "./pages/quitPlan/makePlan";
-import Community from "./pages/community/postList/community";
-import UserCoach from "./pages/userCoach/userCoach";
-import Layout from "./components/layout/layout";
-import UserProfile from "./pages/profile/userProfile/profile/userProfile";
-import ChangePass from "./pages/profile/userProfile/changePass/changePass";
-import NewPass from "./pages/auththenPage/newPass/newPass";
-import PostDetail from "./pages/community/postDetail/postDetail";
-import UserManagement from "./pages/admin/UserManagement/UserManagement.jsx";
-import BlogManagement from "./pages/admin/BlogManagement/BlogManagement.jsx";
-import MembershipPayment from "./pages/admin/MembershipPayment/MembershipPayment.jsx";
-import CoachManagement from "./pages/admin/CoachManagement/CoachManagement.jsx";
-import Overview from "./pages/admin/Dashboard/Overview.jsx";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import ChangePassCode from "./pages/auththenPage/changePass-code/changePass-code.jsx";
-import OthersProfile from "./pages/profile/othersProfile/profile/othersProfile.jsx";
-import OthersPosts from "./pages/profile/othersProfile/posts/othersPosts.jsx";
-import UserPosts from "./pages/profile/userProfile/posts/userPosts.jsx";
+import Home from "./pages/Home/home.jsx";
+import Login from "./pages/Authentication/Login/login.jsx";
+import Register from "./pages/Authentication/Register/register.jsx";
+import ForgotPass from "./pages/Authentication/ForgotPass/forgotPass.jsx";
+import ForgotPassCode from "./pages/Authentication/ForgotPass-code/forgotPass-code.jsx";
+import VerifyCode from "./pages/Authentication/VerifyCode/verifyCode.jsx";
+import MakePlan from "./pages/QuitPlan/makePlan.jsx";
+import Community from "./pages/Community/PostList/community.jsx";
+import UserCoach from "./pages/UserCoach/userCoach.jsx";
+import Layout from "./components/layout/layout";
+import UserProfile from "./pages/Profile/UserProfile/profile/userProfile.jsx";
+import ChangePass from "./pages/Profile/userProfile/changePass/changePass.jsx";
+import NewPass from "./pages/Authentication/NewPass/newPass.jsx";
+import PostDetail from "./pages/Community/PostDetail/postDetail.jsx";
+import UserManagement from "./pages/AdminPages/UserManagement/UserManagement.jsx";
+import BlogManagement from "./pages/AdminPages/BlogManagement/BlogManagement.jsx";
+import MembershipPayment from "./pages/AdminPages/MembershipPayment/MembershipPayment.jsx";
+import CoachManagement from "./pages/AdminPages/CoachManagement/CoachManagement.jsx";
+import Overview from "./pages/AdminPages/Dashboard/Overview.jsx";
+import ChangePassCode from "./pages/Authentication/ChangePass-code/changePass-code.jsx";
+import OthersProfile from "./pages/Profile/othersProfile/profile/othersProfile.jsx";
+import OthersPosts from "./pages/Profile/othersProfile/posts/othersPosts.jsx";
+import UserPosts from "./pages/Profile/userProfile/posts/userPosts.jsx";
 
 const ProtectRouteAuth = ({ children }) => {
   const user = useSelector((store) => store.user);
@@ -190,11 +190,11 @@ function App() {
           ),
         },
         {
-          path: "users/:userId",
+          path: "users/:profileName",
           element: <OthersProfile />,
         },
         {
-          path: "users/:userId/posts",
+          path: "users/:profileName/posts",
           element: <OthersPosts />,
         },
         { path: "make-plan", element: <MakePlan /> },
