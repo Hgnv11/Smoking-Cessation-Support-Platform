@@ -3,10 +3,13 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 0 6% 25px;
     border-top: 2px solid #f0eeee;
     border-bottom: 2px solid #f0eeee;
     color: #6F6C90;
+
 }
 
 .footer__logo-image {
@@ -26,6 +29,7 @@
     justify-content: space-between;
     width: 100%;
     padding-top: 40px;
+    max-width: 980px;
 }
 
 .footer__links-container {

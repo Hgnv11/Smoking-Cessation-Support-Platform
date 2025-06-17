@@ -12,6 +12,8 @@
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-between;
+    max-width: 1064px;
+    margin: 0 auto; /* center the cards */
 }
 
 .wrapper__card-card {
