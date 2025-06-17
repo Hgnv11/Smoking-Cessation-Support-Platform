@@ -7,14 +7,13 @@ import {
 import "./App.css";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import ChangePassCode from "./pages/auththenPage/changePass-code/changePass-code.jsx";
 // Import mentor pages từ các file có sẵn
 import MentorLayout from "./components/mentor/Layout";
-import MentorOverview from "./pages/mentor/Overview/Overview.jsx";
-import MentorAppointments from "./pages/mentor/Appointments/Appointment.jsx";
-import MentorClients from "./pages/mentor/Clients/Client.jsx";
-import MentorReports from "./pages/mentor/Reports/Report.jsx";
-import { MentorClientDetails } from "./pages/mentor/Clients/ClientDetails.jsx";
+import MentorOverview from "./pages/MentorPages/Overview/Overview.jsx";
+import MentorAppointments from "./pages/MentorPages/Appointments/Appointment.jsx";
+import MentorClients from "./pages/MentorPages/Clients/Client.jsx";
+import MentorReports from "./pages/MentorPages/Reports/Report.jsx";
+import { MentorClientDetails } from "./pages/MentorPages/Clients/ClientDetails.jsx";
 import Home from "./pages/Home/home.jsx";
 import Login from "./pages/Authentication/Login/login.jsx";
 import Register from "./pages/Authentication/Register/register.jsx";
