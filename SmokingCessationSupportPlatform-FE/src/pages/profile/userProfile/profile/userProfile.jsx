@@ -50,18 +50,7 @@ function UserProfile() {
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
-      const token = user.token;
-
-      if (!token) {
-        message.error("No authentication token found. Please login again.");
-        return;
-      }
-
-      const response = await api.get("/profile/my", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.get("/profile/my");
 
       const profileData = response.data;
 
@@ -121,18 +110,7 @@ function UserProfile() {
       // Upload file lên Firebase
       const avatarUrl = await uploadFile(file);
 
-      // Gửi API để cập nhật avatar
-      const token = user.token;
-      const response = await api.post(
-        "/profile/my",
-        { avatarUrl },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await api.post("/profile/my", { avatarUrl });
 
       if (response.status === 200 || response.status === 201) {
         // Cập nhật avatar trong state local
@@ -185,17 +163,16 @@ function UserProfile() {
     setEditedFields(new Set());
   };
 
+  // Chỉ gửi API nếu có field được update
+  // if (Object.keys(updatedData).length === 0) {
+  //   toast.info("No changes to save");
+  //   return;
+  // }
+
   // Hàm xử lý khi submit form
   const handleSubmit = async (values) => {
     try {
       setLoading(true);
-      const token = user.token;
-
-      if (!token) {
-        message.error("No authentication token found. Please login again.");
-        return;
-      }
-
       // Chỉ gửi những field đã được edit
       const updatedData = {};
 
@@ -210,18 +187,8 @@ function UserProfile() {
         }
       });
 
-      // Chỉ gửi API nếu có field được update
-      // if (Object.keys(updatedData).length === 0) {
-      //   toast.info("No changes to save");
-      //   return;
-      // }
-
-      const response = await api.post("/profile/my", updatedData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      // Gửi API với header tự động từ interceptor
+      const response = await api.post("/profile/my", updatedData);
 
       if (response.status === 200 || response.status === 201) {
         message.success("Profile updated successfully");
@@ -299,7 +266,6 @@ function UserProfile() {
                   <CameraOutlined />
                   {avatarLoading ? "Uploading..." : "Change Avatar"}
                 </Button>
-                {/* Input file ẩn */}
                 <input
                   type="file"
                   ref={fileInputRef}

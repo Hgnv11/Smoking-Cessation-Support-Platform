@@ -10,6 +10,7 @@ const userSlice = createSlice({
         },
 
         logout: () => {
+            localStorage.removeItem("token");
             return null;
         },
     },
