@@ -31,7 +31,7 @@ public class AuthService {
         this.jwtUtil = jwtUtil;
     }
 
-    public void register(String email, String password, String fullName) throws Exception {
+    public void register(String email, String password, String fullName, String nameProfile) throws Exception {
         if (userRepository.existsByEmail(email)) {
             throw new Exception("Email already exists");
         }
@@ -40,6 +40,7 @@ public class AuthService {
         user.setEmail(email);
         user.setPasswordHash(passwordEncoder.encode(password));
         user.setFullName(fullName);
+        user.setProfileName(nameProfile);
         user.setRole(User.Role.user);
         user.setHasActive(false);
         user.setTypeLogin("LOCAL");

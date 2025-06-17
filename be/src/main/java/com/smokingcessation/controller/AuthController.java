@@ -27,7 +27,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest request) throws Exception {
-        authService.register(request.getEmail(), request.getPassword(), request.getFullName());
+        authService.register(request.getEmail(), request.getPassword(), request.getFullName(), request.getProfileName());
         return ResponseEntity.ok("Registration successful. Please verify your email with the OTP sent.");
     }
 
