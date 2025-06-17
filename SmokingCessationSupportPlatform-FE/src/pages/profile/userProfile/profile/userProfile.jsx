@@ -1,4 +1,13 @@
-import { Affix, Avatar, Button, DatePicker, Form, Input, Select } from "antd";
+import {
+  Affix,
+  Avatar,
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  message,
+  Select,
+} from "antd";
 import Header from "../../../../components/header/header";
 import Footer from "../../../../components/footer/footer";
 import "./userProfile.css";
@@ -7,7 +16,6 @@ import FormItem from "antd/es/form/FormItem";
 import MyAccountNav from "../../../../components/myAccount-nav/myAccount-nav";
 import { useState, useEffect, useRef } from "react";
 import api from "../../../../config/axios";
-import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../../../store/redux/features/userSlice";
@@ -45,7 +53,7 @@ function UserProfile() {
       const token = user.token;
 
       if (!token) {
-        toast.error("No authentication token found. Please login again.");
+        message.error("No authentication token found. Please login again.");
         return;
       }
 
@@ -72,7 +80,7 @@ function UserProfile() {
       setUserAvatar(profileData.avatarUrl);
     } catch (error) {
       console.error("Error fetching profile:", error);
-      toast.error("Failed to fetch profile data");
+      message.error("Failed to fetch profile data");
     } finally {
       setLoading(false);
     }
@@ -96,14 +104,14 @@ function UserProfile() {
     // Kiểm tra định dạng file
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
     if (!allowedTypes.includes(file.type)) {
-      toast.error("Please select a valid image file (JPEG, PNG, GIF)");
+      message.error("Please select a valid image file (JPEG, PNG, GIF)");
       return;
     }
 
     // Kiểm tra kích thước file (max 5MB)
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
-      toast.error("File size must be less than 5MB");
+      message.error("File size must be less than 5MB");
       return;
     }
 
@@ -137,11 +145,11 @@ function UserProfile() {
         };
         dispatch(login(updatedUser));
 
-        toast.success("Avatar updated successfully");
+        message.success("Avatar updated successfully");
       }
     } catch (error) {
       console.error("Error updating avatar:", error);
-      toast.error("Failed to update avatar");
+      message.error("Failed to update avatar");
     } finally {
       setAvatarLoading(false);
       // Reset file input
@@ -184,7 +192,7 @@ function UserProfile() {
       const token = user.token;
 
       if (!token) {
-        toast.error("No authentication token found. Please login again.");
+        message.error("No authentication token found. Please login again.");
         return;
       }
 
@@ -216,7 +224,7 @@ function UserProfile() {
       });
 
       if (response.status === 200 || response.status === 201) {
-        toast.success("Profile updated successfully");
+        message.success("Profile updated successfully");
 
         // Cập nhật Redux store nếu profileName được update
         if (updatedData.profileName) {
@@ -242,7 +250,7 @@ function UserProfile() {
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error("Failed to update profile");
+      message.error("Failed to update profile");
     } finally {
       setLoading(false);
     }

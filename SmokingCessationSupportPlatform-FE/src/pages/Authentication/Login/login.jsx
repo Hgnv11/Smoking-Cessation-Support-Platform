@@ -1,8 +1,15 @@
-import { Form, Input, Button, Checkbox, Divider } from "antd";
+import {
+  Form,
+  Input,
+  Button,
+  Checkbox,
+  Divider,
+  notification,
+  message,
+} from "antd";
 import FormItem from "antd/es/form/FormItem";
 import AuthenTemplate from "../../../components/authen-template/authen-template";
 import api from "../../../config/axios";
-import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "../../../store/redux/features/userSlice";
@@ -15,7 +22,7 @@ function Login() {
   const handleLogin = async (values) => {
     try {
       const response = await api.post("auth/login", values);
-      toast.success("Login successfully!");
+      message.success("Login successfully!");
       console.log(response.data);
       dispatch(login(response.data));
       const { role, token } = response.data;
@@ -28,7 +35,12 @@ function Login() {
         navigate("/");
       }
     } catch (err) {
-      toast.error("Login failed! Please check your email and password.");
+      notification.error({
+        message: "Login failed!",
+        description: "Email or password is incorrect. Please try again.",
+        placement: "topRight",
+        duration: 2,
+      });
       console.log(err);
     }
   };

@@ -1,10 +1,9 @@
-import { Form, Input, Button } from "antd";
+import { Form, Input, Button, message, notification } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import FormItem from "antd/es/form/FormItem";
 import AuthenTemplate from "../../../components/authen-template/authen-template";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../../../config/axios";
-import { toast } from "react-toastify";
 
 function VerifyCode() {
   const navigate = useNavigate();
@@ -17,11 +16,11 @@ function VerifyCode() {
         `auth/verify-otp?otpCode=${values.otpCode}&purpose=register`
       );
       console.log(response.data);
-      toast.success("Verify code successfully!");
+      message.success("Verify code successfully!");
       navigate("/login");
     } catch (err) {
       console.log(err.response?.data);
-      toast.error("The verify code is incorrect or has expired!");
+      message.error("The verify code is incorrect or has expired!");
     }
   };
 
@@ -31,10 +30,14 @@ function VerifyCode() {
         `auth/resend-otp?email=${email}&purpose=register`
       );
       console.log(response.data);
-      toast.success("OTP code resent successfully!");
+      message.success("OTP code resent successfully!");
     } catch (err) {
       console.log(err.response?.data);
-      toast.error("OTP code resend failed! Please try again later");
+      notification.error({
+        message: "OTP code resend failed!",
+        description: "Please try again later.",
+        duration: 2,
+      });
     }
   };
 

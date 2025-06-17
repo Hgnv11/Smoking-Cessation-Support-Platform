@@ -6,7 +6,6 @@ import {
 } from "react-router-dom";
 import "./App.css";
 import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
 import Home from "./pages/Home/home.jsx";
 import Login from "./pages/Authentication/Login/login.jsx";
 import Register from "./pages/Authentication/Register/register.jsx";
@@ -18,9 +17,9 @@ import Community from "./pages/Community/PostList/community.jsx";
 import UserCoach from "./pages/UserCoach/userCoach.jsx";
 import Layout from "./components/layout/layout";
 import UserProfile from "./pages/Profile/UserProfile/profile/userProfile.jsx";
-import ChangePass from "./pages/Profile/userProfile/changePass/changePass.jsx";
+import ChangePass from "./pages/Profile/UserProfile/changePass/changePass.jsx";
 import NewPass from "./pages/Authentication/NewPass/newPass.jsx";
-import PostDetail from "./pages/Community/PostDetail/postDetail.jsx";
+import PostDetail from "./pages/Community/postDetail/postDetail.jsx";
 import UserManagement from "./pages/AdminPages/UserManagement/UserManagement.jsx";
 import BlogManagement from "./pages/AdminPages/BlogManagement/BlogManagement.jsx";
 import MembershipPayment from "./pages/AdminPages/MembershipPayment/MembershipPayment.jsx";
@@ -29,7 +28,8 @@ import Overview from "./pages/AdminPages/Dashboard/Overview.jsx";
 import ChangePassCode from "./pages/Authentication/ChangePass-code/changePass-code.jsx";
 import OthersProfile from "./pages/Profile/othersProfile/profile/othersProfile.jsx";
 import OthersPosts from "./pages/Profile/othersProfile/posts/othersPosts.jsx";
-import UserPosts from "./pages/Profile/userProfile/posts/userPosts.jsx";
+import UserPosts from "./pages/Profile/UserProfile/posts/userPosts.jsx";
+import { message, notification } from "antd";
 
 const ProtectRouteAuth = ({ children }) => {
   const user = useSelector((store) => store.user);
@@ -47,7 +47,7 @@ const ProtectUserProfile = ({ children }) => {
   if (user != null) {
     return children;
   }
-  toast.error("Login to access this page!");
+  message.error("Login to access this page!");
   return <Navigate to={"/"} />;
 };
 
@@ -56,11 +56,11 @@ const ProtectForgotPasswordCode = ({ children }) => {
   const [searchParams] = useSearchParams();
   const email = searchParams.get("email");
   if (user != null) {
-    toast.error("Cannot access this page while logged in!");
+    message.error("Cannot access this page while logged in!");
     return <Navigate to="/" />;
   }
   if (!email) {
-    toast.error("Please enter your email first to reset password!");
+    message.error("Please enter your email first to reset password!");
     return <Navigate to="/forgot-password" />;
   }
 
@@ -72,11 +72,11 @@ const ProtectVerifyCode = ({ children }) => {
   const [searchParams] = useSearchParams();
   const email = searchParams.get("email");
   if (user != null) {
-    toast.error("Cannot access this page while logged in!");
+    message.error("Cannot access this page while logged in!");
     return <Navigate to="/" />;
   }
   if (!email) {
-    toast.error("Please register first to verify your account!");
+    message.error("Please register first to verify your account!");
     return <Navigate to="/register" />;
   }
 
@@ -88,11 +88,11 @@ const ProtectNewPassword = ({ children }) => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
   if (user != null) {
-    toast.error("Cannot access this page while logged in!");
+    message.error("Cannot access this page while logged in!");
     return <Navigate to="/" />;
   }
   if (!token) {
-    toast.error("Invalid access! Please go through forgot password process!");
+    message.error("Invalid access! Please go through forgot password process!");
     return <Navigate to="/forgot-password" />;
   }
   return children;
@@ -104,7 +104,11 @@ const ProtectAdminRoute = ({ children }) => {
     return <Navigate to="/" />;
   }
   if (user.role !== "admin") {
-    toast.error("Access denied! Admin privileges required.");
+    notification.error({
+      message: "Access denied!",
+      description: "Admin privileges required.",
+      duration: 2,
+    });
     return <Navigate to="/" />;
   }
   return children;

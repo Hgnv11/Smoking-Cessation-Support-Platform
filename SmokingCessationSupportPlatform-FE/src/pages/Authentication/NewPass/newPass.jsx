@@ -1,9 +1,8 @@
 import React from "react";
 import AuthenTemplate from "../../../components/authen-template/authen-template";
-import { Form, Input, Button } from "antd";
+import { Form, Input, Button, message, notification } from "antd";
 import FormItem from "antd/es/form/FormItem";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { toast } from "react-toastify";
 import api from "../../../config/axios";
 
 function NewPass() {
@@ -17,11 +16,15 @@ function NewPass() {
         `auth/change-password?token=${token}&newPassword=${values.newPassword}`
       );
       console.log(response.data);
-      toast.success("Change password successfully!");
+      message.success("Change password successfully!");
       navigate(`/login`);
     } catch (err) {
       console.log(err.response?.data);
-      toast.error("Error changing password! Please try again.");
+      notification.error({
+        message: "Error changing password!",
+        description: "Please try again later.",
+        duration: 2,
+      });
     }
   };
   return (

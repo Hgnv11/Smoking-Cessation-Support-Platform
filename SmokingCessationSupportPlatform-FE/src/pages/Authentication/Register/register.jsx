@@ -1,9 +1,8 @@
 import AuthenTemplate from "../../../components/authen-template/authen-template";
-import { Button, Divider, Form, Input } from "antd";
+import { Button, Divider, Form, Input, message, notification } from "antd";
 import FormItem from "antd/es/form/FormItem";
 import { useNavigate } from "react-router-dom";
 import api from "../../../config/axios";
-import { toast } from "react-toastify";
 
 function Register() {
   const navigate = useNavigate();
@@ -12,14 +11,22 @@ function Register() {
     try {
       const response = await api.post("auth/register", values);
       console.log(response.data);
-      toast.success("Create account successfully!");
+      message.success("Create account successfully!");
       navigate(`/verify-code?email=${encodeURIComponent(values.email)}`);
     } catch (err) {
       console.log(err.response.data);
       if (err.response.data.message === "Email already exists") {
-        toast.error("Email already exists! Please use a different email.");
+        notification.error({
+          message: "Create account failed!",
+          description: "Email already exists! Please use a different email.",
+          duration: 2,
+        });
       } else
-        toast.error("Create account failed! Please check your information.");
+        notification.error({
+          message: "Create account failed!",
+          description: "Please try again later.",
+          duration: 2,
+        });
     }
   };
   return (
