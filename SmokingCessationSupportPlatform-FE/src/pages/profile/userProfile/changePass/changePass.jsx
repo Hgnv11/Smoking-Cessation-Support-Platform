@@ -1,12 +1,11 @@
 import "./ChangePass.css";
 import MyAccountNav from "../../../../components/myAccount-nav/myAccount-nav";
-import { Affix, Button, Input } from "antd";
+import { Affix, Button, Input, message, notification } from "antd";
 import Header from "../../../../components/header/header";
 import Footer from "../../../../components/footer/footer";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import api from "../../../../config/axios";
-import { toast } from "react-toastify";
 import { useState } from "react";
 
 function ChangePass() {
@@ -20,13 +19,15 @@ function ChangePass() {
         `auth/reset-password?email=${encodeURIComponent(user.email)}`
       );
       console.log(response.data);
-      toast.success("Reset code sent to your email!");
+      message.success("Reset code sent to your email!");
       navigate(`/change-password-code?email=${encodeURIComponent(user.email)}`);
     } catch (err) {
       console.log(err.response?.data);
-      toast.error(
-        "Failed to send reset code. Please check your email address."
-      );
+      notification.error({
+        message: "Failed to send reset code!",
+        description: "Please check your email address..",
+        duration: 2,
+      });
     } finally {
       setLoading(false);
     }

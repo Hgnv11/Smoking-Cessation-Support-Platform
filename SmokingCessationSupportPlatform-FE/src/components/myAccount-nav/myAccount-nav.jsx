@@ -29,7 +29,10 @@ function MyAccountNav() {
       >
         Change Password
       </a>
-      <a href="/#" className={isActivePage("/#") ? "active" : ""}>
+      <a
+        href="/user-profile/posts"
+        className={isActivePage("/user-profile/posts") ? "active" : ""}
+      >
         Posts
       </a>
       <a href="/#" className={isActivePage("/#") ? "active" : ""}>

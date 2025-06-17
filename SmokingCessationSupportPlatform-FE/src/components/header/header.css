@@ -31,6 +31,16 @@
     font-size: 17px;
     margin-right: 30px;
     color: #adacac;
+    transition: opacity 0.3s ease, color 0.3s ease;
+}
+
+.header__nav a:hover {
+    opacity: 0.6;
+}
+
+.header__login-register {
+    display: flex;
+    align-items: center;
 }
 
 .header__login-register .login-btn {
@@ -40,3 +50,18 @@
 .header__login-register .search {
     margin-right: 20px;
 }
+
+.header__nav a.active {
+    font-weight: bold;
+    color: #000;
+}
+
+.user-name {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.user-avatar {
+    cursor: pointer;
+}
+

@@ -1,14 +1,37 @@
-import { Affix, Button, DatePicker, Form, Image, Input, Select } from "antd";
+import {
+  Affix,
+  Avatar,
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  message,
+  Select,
+} from "antd";
 import Header from "../../../../components/header/header";
 import Footer from "../../../../components/footer/footer";
 import "./userProfile.css";
-import { CameraOutlined } from "@ant-design/icons";
+import { CameraOutlined, UserOutlined } from "@ant-design/icons";
 import FormItem from "antd/es/form/FormItem";
 import MyAccountNav from "../../../../components/myAccount-nav/myAccount-nav";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import api from "../../../../config/axios";
+import dayjs from "dayjs";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../../../../store/redux/features/userSlice";
+import uploadFile from "../../../../store/utils/file";
 
 function UserProfile() {
   const dateFormat = "DD/MM/YYYY";
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const [userAvatar, setUserAvatar] = useState(null);
+  const user = useSelector((store) => store.user);
+  const dispatch = useDispatch();
+
+  // Ref cho input file ẩn
+  const fileInputRef = useRef(null);
 
   // State để quản lý trạng thái enable/disable của từng field
   const [fieldStates, setFieldStates] = useState({
@@ -18,7 +41,99 @@ function UserProfile() {
     gender: true,
   });
 
-  const handleChange = () => {};
+  // State để lưu giá trị gốc khi bắt đầu edit
+  const [originalValues, setOriginalValues] = useState({});
+
+  // State để track những field đã được edit
+  const [editedFields, setEditedFields] = useState(new Set());
+
+  const fetchUserProfile = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get("/profile/my");
+
+      const profileData = response.data;
+
+      const formValues = {
+        fullName: profileData.fullName,
+        profileName: profileData.profileName,
+        email: profileData.email,
+        birthDate: profileData.birthDate
+          ? dayjs(profileData.birthDate, "YYYY-MM-DD")
+          : null,
+        gender: profileData.gender,
+      };
+
+      form.setFieldsValue(formValues);
+      setOriginalValues(formValues);
+      setUserAvatar(profileData.avatarUrl);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      message.error("Failed to fetch profile data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  // Hàm xử lý khi click Change Avatar
+  const handleChangeAvatar = () => {
+    fileInputRef.current?.click();
+  };
+
+  // Hàm xử lý khi chọn file avatar
+  const handleAvatarChange = async (event) => {
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    // Kiểm tra định dạng file
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+      message.error("Please select a valid image file (JPEG, PNG, GIF)");
+      return;
+    }
+
+    // Kiểm tra kích thước file (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      message.error("File size must be less than 5MB");
+      return;
+    }
+
+    try {
+      setAvatarLoading(true);
+
+      // Upload file lên Firebase
+      const avatarUrl = await uploadFile(file);
+
+      const response = await api.post("/profile/my", { avatarUrl });
+
+      if (response.status === 200 || response.status === 201) {
+        // Cập nhật avatar trong state local
+        setUserAvatar(avatarUrl);
+
+        // Cập nhật Redux store
+        const updatedUser = {
+          ...user,
+          avatarUrl: avatarUrl,
+        };
+        dispatch(login(updatedUser));
+
+        message.success("Avatar updated successfully");
+      }
+    } catch (error) {
+      console.error("Error updating avatar:", error);
+      message.error("Failed to update avatar");
+    } finally {
+      setAvatarLoading(false);
+      // Reset file input
+      event.target.value = "";
+    }
+  };
 
   // Hàm xử lý khi nhấn nút Update
   const handleUpdateClick = (fieldName) => {
@@ -26,9 +141,88 @@ function UserProfile() {
       ...prev,
       [fieldName]: false,
     }));
+
+    // Add field to edited fields set
+    setEditedFields((prev) => new Set([...prev, fieldName]));
   };
 
-  // Kiểm tra xem có field nào đang được edit không
+  // Hàm xử lý khi nhấn Cancel
+  const handleCancel = () => {
+    // Reset form về giá trị gốc
+    form.setFieldsValue(originalValues);
+
+    // Reset tất cả field về trạng thái disabled
+    setFieldStates({
+      fullName: true,
+      profileName: true,
+      birthDate: true,
+      gender: true,
+    });
+
+    // Clear edited fields
+    setEditedFields(new Set());
+  };
+
+  // Chỉ gửi API nếu có field được update
+  // if (Object.keys(updatedData).length === 0) {
+  //   toast.info("No changes to save");
+  //   return;
+  // }
+
+  // Hàm xử lý khi submit form
+  const handleSubmit = async (values) => {
+    try {
+      setLoading(true);
+      // Chỉ gửi những field đã được edit
+      const updatedData = {};
+
+      editedFields.forEach((fieldName) => {
+        if (fieldName === "birthDate" && values[fieldName]) {
+          updatedData[fieldName] = values[fieldName].format("YYYY-MM-DD");
+        } else if (
+          values[fieldName] !== undefined &&
+          values[fieldName] !== null
+        ) {
+          updatedData[fieldName] = values[fieldName];
+        }
+      });
+
+      // Gửi API với header tự động từ interceptor
+      const response = await api.post("/profile/my", updatedData);
+
+      if (response.status === 200 || response.status === 201) {
+        message.success("Profile updated successfully");
+
+        // Cập nhật Redux store nếu profileName được update
+        if (updatedData.profileName) {
+          const updatedUser = {
+            ...user,
+            profileName: updatedData.profileName,
+          };
+          dispatch(login(updatedUser));
+        }
+
+        // Reset states sau khi update thành công
+        setFieldStates({
+          fullName: true,
+          profileName: true,
+          birthDate: true,
+          gender: true,
+        });
+
+        setEditedFields(new Set());
+
+        // Cập nhật original values với giá trị mới
+        setOriginalValues(form.getFieldsValue());
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      message.error("Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const hasActiveEdits = Object.values(fieldStates).some(
     (disabled) => !disabled
   );
@@ -46,29 +240,48 @@ function UserProfile() {
           <MyAccountNav />
           <div className="wrapper__profile-details">
             <div className="wrapper__profile-details-avatar">
-              <Image
-                className="wrapper__profile-details-avatar-img"
-                src="../src/components/images/avatar1.png"
-                alt="User Avatar"
-              />
+              {userAvatar ? (
+                <Avatar
+                  className="wrapper__profile-details-avatar-img"
+                  src={userAvatar}
+                  alt="User Avatar"
+                />
+              ) : (
+                <Avatar
+                  className="wrapper__profile-details-avatar-img"
+                  icon={
+                    <UserOutlined className="wrapper__profile-details-avatar-img-UserOutlined" />
+                  }
+                />
+              )}
               <div className="wrapper__profile-details-avatar-info">
                 <h1>Personal Information</h1>
                 <Button
                   color="default"
                   variant="filled"
                   className="wrapper__profile-details-avatar-btn"
+                  onClick={handleChangeAvatar}
+                  loading={avatarLoading}
                 >
                   <CameraOutlined />
-                  Change Avatar
+                  {avatarLoading ? "Uploading..." : "Change Avatar"}
                 </Button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleAvatarChange}
+                  accept="image/jpeg,image/jpg,image/png,image/gif"
+                  style={{ display: "none" }}
+                />
               </div>
             </div>
             <div className="wrapper__profile-detail-info">
               <Form
+                form={form}
                 labelCol={{
                   span: 24,
                 }}
-                onFinish={handleChange}
+                onFinish={handleSubmit}
               >
                 <div className="wrapper__profile-detail-info-label">
                   Full Name
@@ -148,15 +361,7 @@ function UserProfile() {
                   Date Of Birth
                 </div>
                 <div className="wrapper__profile-detail-info-form">
-                  <FormItem
-                    name="birthDate"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please enter your date of birth to update.",
-                      },
-                    ]}
-                  >
+                  <FormItem name="birthDate">
                     <DatePicker
                       disabled={fieldStates.birthDate}
                       variant="filled"
@@ -181,10 +386,11 @@ function UserProfile() {
                     <Select
                       disabled={fieldStates.gender}
                       variant="filled"
-                      style={{ height: 40 }}
+                      style={{ height: 40, width: 130 }}
                       options={[
-                        { value: "Male", label: "Male" },
-                        { value: "Female", label: "Female" },
+                        { value: "male", label: "Male" },
+                        { value: "female", label: "Female" },
+                        { value: "other", label: "Other" },
                       ]}
                     />
                   </FormItem>
@@ -203,8 +409,16 @@ function UserProfile() {
                   disabled={!hasActiveEdits}
                   className="save-change-btn"
                   type="primary"
+                  loading={loading}
                 >
                   Save Changes
+                </Button>
+                <Button
+                  disabled={!hasActiveEdits}
+                  className="save-change-btn"
+                  onClick={handleCancel}
+                >
+                  Cancel
                 </Button>
               </Form>
             </div>

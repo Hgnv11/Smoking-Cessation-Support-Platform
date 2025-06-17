@@ -1,5 +1,5 @@
-import { Affix, Empty, Image } from "antd";
-import { useParams } from "react-router-dom";
+import { Affix, Avatar, Empty, Image } from "antd";
+import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "./postDetail.css";
 import Header from "../../../components/header/header";
@@ -11,6 +11,7 @@ function PostDetail() {
   const { postId } = useParams();
   const [post, setPost] = useState(null);
   const [author, setAuthor] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const foundPost = CommunityPosts.find(
@@ -44,12 +45,20 @@ function PostDetail() {
       <div className="wrapper">
         <div className="wrapper__post-container">
           <div className="wrapper__post-container-author">
-            <img
+            <Avatar
               src={author.avatar_url}
               alt={`${author.full_name} avatar`}
+              onClick={() =>
+                navigate(`/users/${encodeURIComponent(author.profile_name)}`)
+              }
               className="wrapper__post-container-author-avatar"
             />
-            <p className="wrapper__post-container-author-username">
+            <p
+              onClick={() =>
+                navigate(`/users/${encodeURIComponent(author.profile_name)}`)
+              }
+              className="wrapper__post-container-author-username"
+            >
               {author.profile_name}
             </p>
           </div>

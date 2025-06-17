@@ -8,7 +8,7 @@ function AuthenTemplate({ children }) {
         <a href="/">
           <img
             className="quitlt_logo"
-            src="../src/components/images/Quitlt-logo.png"
+            src="/images/Quitlt-logo.png"
             alt="quitlt-logo"
           />
         </a>

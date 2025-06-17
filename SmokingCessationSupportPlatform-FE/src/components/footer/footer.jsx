@@ -10,7 +10,7 @@ function Footer() {
             <div className="footer__logo">
               <img
                 className="footer__logo-image"
-                src="../src/components/images/Quitlt-logo.png"
+                src="/images/Quitlt-logo.png"
                 alt="Quitlt Logo"
               />
               <div>

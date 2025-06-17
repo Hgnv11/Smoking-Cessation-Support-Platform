@@ -44,7 +44,7 @@ function Community() {
               <img
                 alt="asset"
                 className="wrapper__community-categories-card-img"
-                src="../src/components/images/communityAsset1.png"
+                src="/images/communityAsset1.png"
               />
               <h3>Tips</h3>
               <p>Share and discover tips for quitting smoking.</p>
@@ -59,7 +59,7 @@ function Community() {
               <img
                 alt="asset"
                 className="wrapper__community-categories-card-img"
-                src="../src/components/images/communityAsset2.png"
+                src="/images/communityAsset2.png"
               />
               <h3>Stories</h3>
               <p>Read inspiring stories from those who have quit.</p>
@@ -74,7 +74,7 @@ function Community() {
               <img
                 alt="asset"
                 className="wrapper__community-categories-card-img"
-                src="../src/components/images/communityAsset3.png"
+                src="/images/communityAsset3.png"
               />
               <h3>Others</h3>
               <p>

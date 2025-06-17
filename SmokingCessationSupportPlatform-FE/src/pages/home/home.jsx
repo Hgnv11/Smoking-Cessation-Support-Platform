@@ -2,9 +2,49 @@ import Header from "../../components/header/header";
 import Poster from "../../components/poster/poster";
 import Footer from "../../components/footer/footer";
 import "./home.css";
-import { Affix, Card } from "antd";
+import { Affix, Button, Card } from "antd";
+import { useNavigate } from "react-router-dom";
+import CommunityPosts from "../../config/communityPost";
+import { useState, useEffect } from "react";
 
 function Home() {
+  const navigate = useNavigate();
+  const [randomPosts, setRandomPosts] = useState([]);
+
+  useEffect(() => {
+    // Lấy ngẫu nhiên 6 bài post
+    const getRandomPosts = () => {
+      const shuffled = [...CommunityPosts].sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, 6);
+    };
+
+    setRandomPosts(getRandomPosts());
+  }, []);
+
+  const testimonials = [
+    {
+      id: 1,
+      text: "After 15 years of smoking, I never thought I'd quit. BreakFree's personalized plan and supportive community made it possible. I'm 8 months smoke-free now!",
+      avatar: "/images/avatar1.png",
+      name: "John Doe",
+      role: "Quit Smoker - 8 Months",
+    },
+    {
+      id: 2,
+      text: "After 15 years of smoking, I never thought I'd quit. BreakFree's personalized plan and supportive community made it possible. I'm 8 months smoke-free now!",
+      avatar: "/images/avatar2.png",
+      name: "Matthew Paul",
+      role: "Quit Smoker - 12 Months",
+    },
+    {
+      id: 3,
+      text: "After 15 years of smoking, I never thought I'd quit. BreakFree's personalized plan and supportive community made it possible. I'm 8 months smoke-free now!",
+      avatar: "/images/avatar3.png",
+      name: "Thien Phung",
+      role: "Quit Smoker - 6 Months",
+    },
+  ];
+
   return (
     <>
       <Affix offsetTop={0}>
@@ -16,11 +56,15 @@ function Home() {
           <p>Explore</p>
         </div>
         <div className="wrapper__card">
-          <Card hoverable className="wrapper__card-card">
+          <Card
+            hoverable
+            className="wrapper__card-card"
+            onClick={() => navigate("/make-plan")}
+          >
             <img
               alt="example"
               className="wrapper__card-img"
-              src="../src/components/images/card-asset1.png"
+              src="/images/card-asset1.png"
             />
             <h2 className="wrapper__card-title">I want to Quit</h2>
             <p className="wrapper__card-des">
@@ -28,23 +72,27 @@ function Home() {
               future
             </p>
           </Card>
-          <Card hoverable className="wrapper__card-card">
+          <Card
+            hoverable
+            className="wrapper__card-card"
+            onClick={() => navigate("/community")}
+          >
             <img
               alt="example"
               className="wrapper__card-img"
-              src="../src/components/images/card-asset2.png"
+              src="/images/card-asset2.png"
             />
             <h2 className="wrapper__card-title">Community</h2>
             <p className="wrapper__card-des">
-              Buy your medicines with our mobile application with a simple
-              delivery system
+              Connect with others on the same journey and share your stories,
+              tips, and support in our community.
             </p>
           </Card>
           <Card hoverable className="wrapper__card-card">
             <img
               alt="example"
               className="wrapper__card-img"
-              src="../src/components/images/card-asset3.png"
+              src="/images/card-asset3.png"
             />
             <h2 className="wrapper__card-title">Consulation</h2>
             <p className="wrapper__card-des">
@@ -52,6 +100,66 @@ function Home() {
               recomendations
             </p>
           </Card>
+        </div>
+        <div className="custom-divider" />
+
+        <div className="wrapper__title">
+          <p>Community</p>
+        </div>
+        <div className="wrapper__card">
+          {randomPosts.map((post) => (
+            <Card
+              key={post.post_id}
+              hoverable
+              className="wrapper__card-coumminity"
+              onClick={() => navigate(`/community/${post.post_id}`)}
+            >
+              <img
+                alt="community post"
+                className="wrapper__card-community-img"
+                src={post.image}
+              />
+              <div className="wrapper__card-post-type">
+                <p>{post.post_type}</p>
+              </div>
+              <h2 className="wrapper__card-title">{post.title}</h2>
+              <p className="wrapper__card-post-des">{post.content}</p>
+            </Card>
+          ))}
+        </div>
+        <div className="wrapper__view-more">
+          <Button
+            className="wrapper__view-more-btn"
+            type="primary"
+            onClick={() => navigate("/community")}
+          >
+            View More
+          </Button>
+        </div>
+
+        <div className="custom-divider" />
+        <div className="wrapper__title">
+          <p>What other users say about Quitlt</p>
+        </div>
+        <div className="wrapper__card">
+          {testimonials.map((testimonial) => (
+            <Card key={testimonial.id} hoverable className="wrapper__card-card">
+              <h3 className="wrapper__card-des">"{testimonial.text}"</h3>
+              <div className="wrapper__card-user">
+                <img
+                  alt="user"
+                  className="wrapper__card-user-img"
+                  src={testimonial.avatar}
+                />
+                <div className="wrapper__card-user-info">
+                  <h3 className="wrapper__card-user-name">
+                    {testimonial.name}
+                  </h3>
+                  <p className="wrapper__card-user-role">{testimonial.role}</p>
+                </div>
+              </div>
+            </Card>
+          ))}
         </div>
       </div>
       <Footer />
