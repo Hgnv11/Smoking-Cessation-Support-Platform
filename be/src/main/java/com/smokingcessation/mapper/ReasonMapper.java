@@ -22,6 +22,9 @@ public interface ReasonMapper {
     @Mapping(source = "user.userId", target = "userId")
     ReasonDTO toReasonDTO(UserReasons userReasons);
 
+    @Mapping(target = "createdAt", ignore = true)
+    ReasonsQuit toReasonsQuit(ReasonDTO reasonDTO);
+
     List<ReasonDTO> toReasonDTOList(List<ReasonsQuit> reasonsQuitList);
 
     List<ReasonDTO> toUserReasonDTOList(List<UserReasons> userReasonsList);

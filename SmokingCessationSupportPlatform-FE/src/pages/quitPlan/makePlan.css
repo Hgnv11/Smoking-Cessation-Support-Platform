@@ -62,7 +62,9 @@
 }
 
 .wrapper__content-step-cost-input {
-    width: 100px;
+    display: flex;
+    align-items: center;
+    width: 90px;
     height: 40px;
     margin-left: 20px;
     margin-right: 20px;

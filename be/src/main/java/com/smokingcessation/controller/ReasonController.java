@@ -17,7 +17,7 @@ public class ReasonController {
 
     private final ReasonService reasonService;
 
-    @Operation(summary = "Lấy danh sách tất cả lý do bỏ thuốc")
+    @Operation(summary = "Lấy danh sách tất cả lý do bỏ thuốc (active)")
     @GetMapping
     public ResponseEntity<List<ReasonDTO>> getAllReasons() {
         List<ReasonDTO> reasons = reasonService.getAllReasons();
@@ -34,7 +34,7 @@ public class ReasonController {
         return ResponseEntity.ok("Reason added successfully for user");
     }
 
-    @Operation(summary = "Lấy danh sách lý do bỏ thuốc của người dùng hiện tại")
+    @Operation(summary = "Lấy danh sách lý do bỏ thuốc của người dùng hiện tại (active)")
     @GetMapping("/my")
     public ResponseEntity<List<ReasonDTO>> getMyReasons(Principal principal) {
         String email = principal.getName();

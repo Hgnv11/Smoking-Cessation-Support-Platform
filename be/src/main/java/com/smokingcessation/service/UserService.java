@@ -24,7 +24,7 @@ public class UserService {
         return new UserDTO(
                 user.getUserId(),
                 user.getFullName(),
-                user.getProfileName()!=null?user.getProfileName(): user.getFullName(),
+                user.getProfileName(),
                 user.getEmail(),
                 user.getBirthDate(),
                 user.getAvatarUrl(),
@@ -70,7 +70,7 @@ public class UserService {
         return new UserDTO(
                 user.getUserId(),
                 user.getFullName(),
-                user.getProfileName()!=null?user.getProfileName(): user.getFullName(),
+                user.getProfileName(),
                 user.getEmail(),
                 user.getBirthDate(),
                 user.getAvatarUrl(),
@@ -85,7 +85,7 @@ public class UserService {
         return new UserDTO(
                 user.getUserId(),
                 user.getFullName(),
-                user.getProfileName()!=null?user.getProfileName(): user.getFullName(),
+                user.getProfileName(),
                 user.getEmail(),
                 user.getBirthDate(),
                 user.getAvatarUrl(),
@@ -99,7 +99,7 @@ public class UserService {
         return new UserDTO(
                 user.getUserId(),
                 user.getFullName(),
-                user.getProfileName()!=null?user.getProfileName(): user.getFullName(),
+                user.getProfileName(),
                 user.getEmail(),
                 user.getBirthDate(),
                 user.getAvatarUrl(),

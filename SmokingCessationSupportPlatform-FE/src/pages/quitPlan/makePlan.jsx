@@ -9,6 +9,7 @@ import {
   DatePicker,
   Divider,
   Input,
+  InputNumber,
   Radio,
   Row,
   TimePicker,
@@ -93,8 +94,8 @@ function MakePlan() {
             <div className="wrapper__content-step-cost">
               <div className="wrapper__content-step-cost-item">
                 <h3>I smoke about</h3>
-                <Input
-                  type="number"
+                <InputNumber
+                  min={0}
                   variant="filled"
                   id="cigarettesPerDay"
                   className="wrapper__content-step-cost-input"
@@ -103,8 +104,8 @@ function MakePlan() {
               </div>
               <div className="wrapper__content-step-cost-item">
                 <h3>I spend about $</h3>
-                <Input
-                  type="number"
+                <InputNumber
+                  min={0}
                   variant="filled"
                   id="cigarettesPerDay"
                   className="wrapper__content-step-cost-input"
@@ -113,8 +114,8 @@ function MakePlan() {
               </div>
               <div className="wrapper__content-step-cost-item">
                 <h3>A pack contains</h3>
-                <Input
-                  type="number"
+                <InputNumber
+                  min={0}
                   variant="filled"
                   id="cigarettesPerDay"
                   className="wrapper__content-step-cost-input"
