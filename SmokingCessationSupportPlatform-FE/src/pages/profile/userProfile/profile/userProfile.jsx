@@ -49,7 +49,6 @@ function UserProfile() {
 
   const fetchUserProfile = async () => {
     try {
-      setLoading(true);
       const response = await api.get("/profile/my");
 
       const profileData = response.data;
@@ -70,8 +69,6 @@ function UserProfile() {
     } catch (error) {
       console.error("Error fetching profile:", error);
       message.error("Failed to fetch profile data");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -79,7 +76,7 @@ function UserProfile() {
     fetchUserProfile();
   }, []);
 
-  // Hàm xử lý khi click Change Avatar
+  // Hàm xử lý khi click Change
   const handleChangeAvatar = () => {
     fileInputRef.current?.click();
   };
