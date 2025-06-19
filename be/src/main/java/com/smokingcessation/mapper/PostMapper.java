@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 public interface PostMapper {
 
     @Mapping(source = "user", target = "user")
+    @Mapping(source = "isApproved", target = "isApproved")
     PostDTO toDto(CommunityPost post);
 
 
