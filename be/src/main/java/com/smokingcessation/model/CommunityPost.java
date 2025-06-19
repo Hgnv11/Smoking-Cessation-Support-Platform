@@ -43,7 +43,7 @@ public class CommunityPost {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     public enum PostType {
-        experience, question, achievement, advice
+        tips, stories, other
     }
 
 
