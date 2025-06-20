@@ -2,48 +2,35 @@ import Header from "../../components/header/header";
 import Poster from "../../components/poster/poster";
 import Footer from "../../components/footer/footer";
 import "./home.css";
-import { Affix, Button, Card } from "antd";
+import { Affix, Button, Card, message } from "antd";
 import { useNavigate } from "react-router-dom";
-import CommunityPosts from "../../config/communityPost";
 import { useState, useEffect } from "react";
+import api from "../../config/axios";
+import UserFeedback from "../../config/userFeedback";
 
 function Home() {
   const navigate = useNavigate();
   const [randomPosts, setRandomPosts] = useState([]);
 
+  const fetchAllPosts = async () => {
+    try {
+      const response = await api.get("/post/all?approved=true");
+      const allPosts = response.data;
+
+      // Lấy ngẫu nhiên 6 bài post
+      const shuffled = [...allPosts].sort(() => 0.5 - Math.random());
+      const selectedPosts = shuffled.slice(0, 6);
+
+      setRandomPosts(selectedPosts);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      message.error("Failed to fetch posts. Please try again later.");
+    }
+  };
+
   useEffect(() => {
-    // Lấy ngẫu nhiên 6 bài post
-    const getRandomPosts = () => {
-      const shuffled = [...CommunityPosts].sort(() => 0.5 - Math.random());
-      return shuffled.slice(0, 6);
-    };
-
-    setRandomPosts(getRandomPosts());
+    fetchAllPosts();
   }, []);
-
-  const testimonials = [
-    {
-      id: 1,
-      text: "After 15 years of smoking, I never thought I'd quit. BreakFree's personalized plan and supportive community made it possible. I'm 8 months smoke-free now!",
-      avatar: "/images/avatar1.png",
-      name: "John Doe",
-      role: "Quit Smoker - 8 Months",
-    },
-    {
-      id: 2,
-      text: "After 15 years of smoking, I never thought I'd quit. BreakFree's personalized plan and supportive community made it possible. I'm 8 months smoke-free now!",
-      avatar: "/images/avatar2.png",
-      name: "Matthew Paul",
-      role: "Quit Smoker - 12 Months",
-    },
-    {
-      id: 3,
-      text: "After 15 years of smoking, I never thought I'd quit. BreakFree's personalized plan and supportive community made it possible. I'm 8 months smoke-free now!",
-      avatar: "/images/avatar3.png",
-      name: "Thien Phung",
-      role: "Quit Smoker - 6 Months",
-    },
-  ];
 
   return (
     <>
@@ -109,18 +96,20 @@ function Home() {
         <div className="wrapper__card">
           {randomPosts.map((post) => (
             <Card
-              key={post.post_id}
+              key={post.postId}
               hoverable
               className="wrapper__card-coumminity"
-              onClick={() => navigate(`/community/${post.post_id}`)}
+              onClick={() => navigate(`/community/${post.postId}`)}
             >
-              <img
-                alt="community post"
-                className="wrapper__card-community-img"
-                src={post.image}
-              />
+              {post.imageUrl && (
+                <img
+                  alt="community post"
+                  className="wrapper__card-community-img"
+                  src={post.imageUrl}
+                />
+              )}
               <div className="wrapper__card-post-type">
-                <p>{post.post_type}</p>
+                <p>{post.postType?.toUpperCase()}</p>
               </div>
               <h2 className="wrapper__card-title">{post.title}</h2>
               <p className="wrapper__card-post-des">{post.content}</p>
@@ -142,20 +131,24 @@ function Home() {
           <p>What other users say about Quitlt</p>
         </div>
         <div className="wrapper__card">
-          {testimonials.map((testimonial) => (
-            <Card key={testimonial.id} hoverable className="wrapper__card-card">
-              <h3 className="wrapper__card-des">"{testimonial.text}"</h3>
+          {UserFeedback.map((userFeedback) => (
+            <Card
+              key={userFeedback.id}
+              hoverable
+              className="wrapper__card-card"
+            >
+              <h3 className="wrapper__card-des">"{userFeedback.text}"</h3>
               <div className="wrapper__card-user">
                 <img
                   alt="user"
                   className="wrapper__card-user-img"
-                  src={testimonial.avatar}
+                  src={userFeedback.avatar}
                 />
                 <div className="wrapper__card-user-info">
                   <h3 className="wrapper__card-user-name">
-                    {testimonial.name}
+                    {userFeedback.name}
                   </h3>
-                  <p className="wrapper__card-user-role">{testimonial.role}</p>
+                  <p className="wrapper__card-user-role">{userFeedback.role}</p>
                 </div>
               </div>
             </Card>

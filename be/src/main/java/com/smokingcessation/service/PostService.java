@@ -47,8 +47,8 @@ public class PostService {
                 .toList();
     }
 
-    public List<PostDTO> getPostsByUserProfileName(int userid) {
-        User user = userRepository.findByUserId(userid)
+    public List<PostDTO> getPostsByUserProfileName(String profileName) {
+        User user = userRepository.findByProfileName(profileName)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         List<CommunityPost> posts = postRepository.findByUser(user);
         return posts.stream().map(postMapper::toDto).toList();

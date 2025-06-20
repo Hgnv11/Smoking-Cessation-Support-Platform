@@ -19,7 +19,7 @@ import Layout from "./components/layout/layout";
 import UserProfile from "./pages/Profile/UserProfile/profile/userProfile.jsx";
 import ChangePass from "./pages/Profile/UserProfile/changePass/changePass.jsx";
 import NewPass from "./pages/Authentication/NewPass/newPass.jsx";
-import PostDetail from "./pages/Community/postDetail/postDetail.jsx";
+import PostDetail from "./pages/Community/PostDetail/postDetail.jsx";
 import UserManagement from "./pages/AdminPages/UserManagement/UserManagement.jsx";
 import BlogManagement from "./pages/AdminPages/BlogManagement/BlogManagement.jsx";
 import MembershipPayment from "./pages/AdminPages/MembershipPayment/MembershipPayment.jsx";

@@ -6,13 +6,23 @@
 .wrapper__post-container-author {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 30px;
+}
+
+.wrapper__post-container-author-info {
+    display: flex;
+    align-items: center;
 }
 
 .wrapper__post-container-author-avatar {
     width: 65px;
     height: 65px;
     cursor: pointer;
+}
+
+.wrapper__post-container-author-avatar-UserOutlined {
+    font-size: 35px;
 }
 
 .wrapper__post-container-author-username {
@@ -55,4 +65,8 @@
     align-items: center;
     justify-content: center;
     min-height: 470px;
+}
+
+.wrapper__post-container-author-actions-btn {
+    margin-left: 10px;
 }

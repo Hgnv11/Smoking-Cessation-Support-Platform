@@ -73,6 +73,8 @@
 .wrapper__content-step-reason {
     width: 100%;
     margin-top: 20px;
+    margin-left: 170px;
+    text-align: left;
 }
 
 .wrapper__content-step-reason-checkbox {

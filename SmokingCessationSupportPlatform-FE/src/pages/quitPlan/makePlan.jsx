@@ -137,7 +137,7 @@ function MakePlan() {
                 <Col span={12}>
                   <Checkbox
                     className="wrapper__content-step-reason-checkbox"
-                    value="A"
+                    value="It is affecting my health"
                   >
                     It is affecting my health
                   </Checkbox>
@@ -145,7 +145,7 @@ function MakePlan() {
                 <Col span={12}>
                   <Checkbox
                     className="wrapper__content-step-reason-checkbox"
-                    value="B"
+                    value="For my family or friends"
                   >
                     For my family or friends
                   </Checkbox>
@@ -153,49 +153,49 @@ function MakePlan() {
                 <Col span={12}>
                   <Checkbox
                     className="wrapper__content-step-reason-checkbox"
-                    value="C"
+                    value="My doctor recommended quitting"
                   >
-                    It is affecting my health
+                    My doctor recommended quitting
                   </Checkbox>
                 </Col>
                 <Col span={12}>
                   <Checkbox
                     className="wrapper__content-step-reason-checkbox"
-                    value="D"
+                    value="To save money"
                   >
-                    For my family or friends
+                    To save money
                   </Checkbox>
                 </Col>
                 <Col span={12}>
                   <Checkbox
                     className="wrapper__content-step-reason-checkbox"
-                    value="E"
+                    value="Baby on the way"
                   >
-                    It is affecting my health
+                    Baby on the way
                   </Checkbox>
                 </Col>
                 <Col span={12}>
                   <Checkbox
                     className="wrapper__content-step-reason-checkbox"
-                    value="F"
+                    value="To set a good example"
                   >
-                    For my family or friends
+                    To set a good example
                   </Checkbox>
                 </Col>
                 <Col span={12}>
                   <Checkbox
                     className="wrapper__content-step-reason-checkbox"
-                    value="G"
+                    value="To have a better future"
                   >
-                    It is affecting my health
+                    To have a better future
                   </Checkbox>
                 </Col>
                 <Col span={12}>
                   <Checkbox
                     className="wrapper__content-step-reason-checkbox"
-                    value="H"
+                    value="To take back control"
                   >
-                    For my family or friends
+                    To take back control
                   </Checkbox>
                 </Col>
               </Row>

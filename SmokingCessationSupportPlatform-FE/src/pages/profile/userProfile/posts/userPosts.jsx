@@ -204,8 +204,8 @@ function UserPosts() {
                         label: "STORIES",
                       },
                       {
-                        value: "others",
-                        label: "OTHERS",
+                        value: "other",
+                        label: "OTHER",
                       },
                     ]}
                     placeholder="Select the post's category"

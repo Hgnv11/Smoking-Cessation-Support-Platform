@@ -81,16 +81,16 @@ function Community() {
             <Card
               hoverable
               className={`wrapper__community-categories-card ${
-                selectedCategory === "others" ? "active" : ""
+                selectedCategory === "other" ? "active" : ""
               }`}
-              onClick={() => handleCategoryClick("others")}
+              onClick={() => handleCategoryClick("other")}
             >
               <img
                 alt="asset"
                 className="wrapper__community-categories-card-img"
                 src="/images/communityAsset3.png"
               />
-              <h3>Others</h3>
+              <h3>Other</h3>
               <p>
                 Other post categories shared by people that might be helpful.
               </p>

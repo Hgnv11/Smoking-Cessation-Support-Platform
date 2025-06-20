@@ -50,7 +50,7 @@ function OthersProfile() {
       </Affix>
       <div className="wrapper">
         <div className="wrapper__title1">
-          <p>{user.profileName || user.profile_name}'s Account</p>
+          <p>{user.profileName}'s Account</p>
         </div>
         <div className="wrapper__profile">
           <OthersAccountNav />

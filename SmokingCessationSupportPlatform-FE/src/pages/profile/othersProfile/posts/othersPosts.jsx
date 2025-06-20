@@ -1,11 +1,10 @@
-import { Affix, Empty } from "antd";
+import { Affix, Empty, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Footer from "../../../../components/footer/footer";
 import Header from "../../../../components/header/header";
 import OthersAccountNav from "../../../../components/othersAccount-nav/othersAccount-nav";
-import UsersData from "../../../../config/userData";
-import CommunityPosts from "../../../../config/communityPost";
+import api from "../../../../config/axios";
 import "./othersPosts.css";
 
 function OthersPosts() {
@@ -14,19 +13,35 @@ function OthersPosts() {
   const [user, setUser] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
 
-  useEffect(() => {
-    const decodedProfileName = decodeURIComponent(profileName);
+  const fetchUserData = async () => {
+    try {
+      const response = await api.get(`/profile/by-name/${profileName}`);
+      setUser(response.data);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      message.error("Failed to fetch user profile. Please try again later.");
+    }
+  };
 
-    const foundUser = UsersData.find(
-      (u) => u.profile_name === decodedProfileName
-    );
-    setUser(foundUser);
-
-    if (foundUser) {
-      const posts = CommunityPosts.filter(
-        (post) => post.user_id === foundUser.user_id
+  const fetchUserPosts = async () => {
+    try {
+      const response = await api.get(
+        `/post/${profileName}?profileName=${profileName}`
       );
-      setUserPosts(posts);
+      const approvedPosts = response.data.filter(
+        (post) => post.isApproved === true
+      );
+      setUserPosts(approvedPosts);
+    } catch (error) {
+      console.error("Error fetching user posts:", error);
+      message.error("Failed to fetch user posts. Please try again later.");
+    }
+  };
+
+  useEffect(() => {
+    if (profileName) {
+      fetchUserData();
+      fetchUserPosts();
     }
   }, [profileName]);
 
@@ -36,7 +51,9 @@ function OthersPosts() {
         <Affix offsetTop={0}>
           <Header />
         </Affix>
-        <Empty className="empty-user" description="User Not Found" />
+        <div className="wrapper">
+          <Empty className="empty-user" description="User Not Found" />
+        </div>
         <Footer />
       </>
     );
@@ -49,7 +66,7 @@ function OthersPosts() {
       </Affix>
       <div className="wrapper">
         <div className="wrapper__title1">
-          <p>{user.profile_name}'s Account</p>
+          <p>{user.profileName}'s Account</p>
         </div>
         <div className="wrapper__profile">
           <OthersAccountNav />
@@ -58,29 +75,29 @@ function OthersPosts() {
             {userPosts.length === 0 ? (
               <Empty
                 className="empty-posts"
-                description={`${user.profile_name} hasn't posted anything yet`}
+                description={`${user.profileName} hasn't posted anything approved yet`}
               />
             ) : (
               <div className="wrapper__community-posts-container">
                 {userPosts.map((post) => (
                   <div
-                    key={post.post_id}
+                    key={post.postId}
                     className="wrapper__community-posts-card"
                   >
-                    <img
-                      alt="post"
-                      className="wrapper__community-posts-card-img"
-                      src={post.image}
-                      onClick={() => navigate(`/community/${post.post_id}`)}
-                    />
+                    {post.imageUrl && (
+                      <img
+                        alt="post"
+                        className="wrapper__community-posts-card-img"
+                        src={post.imageUrl}
+                        onClick={() => navigate(`/community/${post.postId}`)}
+                      />
+                    )}
                     <div className="wrapper__community-posts-card-content">
-                      <h3>{post.post_type}</h3>
-                      <h2
-                        onClick={() => navigate(`/community/${post.post_id}`)}
-                      >
+                      <h3>{post.postType?.toUpperCase()}</h3>
+                      <h2 onClick={() => navigate(`/community/${post.postId}`)}>
                         {post.title}
                       </h2>
-                      <p onClick={() => navigate(`/community/${post.post_id}`)}>
+                      <p onClick={() => navigate(`/community/${post.postId}`)}>
                         {post.content}
                       </p>
                     </div>
