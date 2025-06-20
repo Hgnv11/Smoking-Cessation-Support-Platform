@@ -1,11 +1,11 @@
 import "./postDetail.css";
-import { Affix, Avatar, Empty, Image } from "antd";
+import { Affix, Avatar, Empty, Image, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Header from "../../../components/header/header";
 import Footer from "../../../components/footer/footer";
-import CommunityPosts from "../../../config/communityPost";
-import UsersData from "../../../config/userData";
+import api from "../../../config/axios";
+import { useSelector } from "react-redux";
 
 function PostDetail() {
   const { postId } = useParams();
@@ -13,25 +13,53 @@ function PostDetail() {
   const [author, setAuthor] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const foundPost = CommunityPosts.find(
-      (p) => p.post_id === parseInt(postId)
-    );
-    setPost(foundPost);
+  const user = useSelector((store) => store.user);
 
-    if (foundPost) {
-      const foundUser = UsersData.find((u) => u.user_id === foundPost.user_id);
-      setAuthor(foundUser);
+  const fetchPostDetail = async () => {
+    try {
+      const response = await api.get(`/post/detail/${postId}`);
+      const postData = response.data;
+      setPost(postData);
+
+      if (postData.user?.profileName) {
+        try {
+          const response = await api.get(
+            `/profile/by-name/${postData.user.profileName}`
+          );
+          setAuthor(response.data);
+        } catch (authorError) {
+          console.error("Error fetching author:", authorError);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching post detail:", error);
+      message.error("Failed to fetch post details. Please try again later.");
+    }
+  };
+
+  useEffect(() => {
+    if (postId) {
+      fetchPostDetail();
     }
   }, [postId]);
 
-  if (!post || !author) {
+  const handleAuthorClick = () => {
+    if (author?.profileName === user?.profileName) {
+      navigate("/user-profile");
+    } else {
+      navigate(`/users/${encodeURIComponent(author?.profileName)}`);
+    }
+  };
+
+  if (!post) {
     return (
       <>
         <Affix offsetTop={0}>
           <Header />
         </Affix>
-        <Empty className="empty-post" description="Post Not Found" />
+        <div className="wrapper">
+          <Empty className="empty-post" description="Post Not Found" />
+        </div>
         <Footer />
       </>
     );
@@ -46,30 +74,28 @@ function PostDetail() {
         <div className="wrapper__post-container">
           <div className="wrapper__post-container-author">
             <Avatar
-              src={author.avatar_url}
-              alt={`${author.full_name} avatar`}
-              onClick={() =>
-                navigate(`/users/${encodeURIComponent(author.profile_name)}`)
-              }
+              src={author?.avatarUrl}
+              alt={`${author?.fullName} avatar`}
+              onClick={handleAuthorClick}
               className="wrapper__post-container-author-avatar"
             />
             <p
-              onClick={() =>
-                navigate(`/users/${encodeURIComponent(author.profile_name)}`)
-              }
+              onClick={handleAuthorClick}
               className="wrapper__post-container-author-username"
             >
-              {author.profile_name}
+              {author?.profileName}
             </p>
           </div>
           <div className="wrapper__post-container-detail">
-            <Image
-              src={post.image}
-              alt={post.title}
-              className="wrapper__post-container-detail-img"
-            />
+            {post.imageUrl && (
+              <Image
+                src={post.imageUrl}
+                alt={post.title}
+                className="wrapper__post-container-detail-img"
+              />
+            )}
             <p className="wrapper__post-container-detail-type">
-              {post.post_type}
+              {post.postType?.toUpperCase()}
             </p>
             <h1 className="wrapper__post-container-detail-img-title">
               {post.title}
