@@ -1,20 +1,34 @@
 import Footer from "../../../components/footer/footer";
 import Header from "../../../components/header/header";
-import { Affix, Card, Divider, Empty } from "antd";
-import { useState } from "react";
 import "./community.css";
-import CommunityPosts from "../../../config/communityPost";
+import { Affix, Card, Divider, Empty, message } from "antd";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../../../config/axios";
 
 function Community() {
   const [selectedCategory, setSelectedCategory] = useState("tips");
+  const [allPosts, setAllPosts] = useState([]);
 
   const navigate = useNavigate();
 
-  const allPosts = CommunityPosts.filter((post) => post.is_approved);
+  const fetchAllPosts = async () => {
+    try {
+      const response = await api.get("/post/all?approved=true");
+      setAllPosts(response.data);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      message.error("Failed to fetch posts. Please try again later.");
+    }
+  };
 
+  useEffect(() => {
+    fetchAllPosts();
+  }, []);
+
+  // Filter posts theo category được chọn
   const filteredPosts = allPosts.filter(
-    (post) => post.post_type.toLowerCase() === selectedCategory.toLowerCase()
+    (post) => post.postType?.toLowerCase() === selectedCategory.toLowerCase()
   );
 
   const handleCategoryClick = (category) => {
@@ -78,32 +92,36 @@ function Community() {
               />
               <h3>Others</h3>
               <p>
-                Other post categories shared by people that migh be helpful.
+                Other post categories shared by people that might be helpful.
               </p>
             </Card>
           </div>
           <Divider className="divider" />
+
           <div className="wrapper__community-posts">
             {filteredPosts.map((post) => (
-              <div key={post.post_id} className="wrapper__community-posts-card">
-                <img
-                  alt="post"
-                  className="wrapper__community-posts-card-img"
-                  src={post.image}
-                  onClick={() => navigate(`/community/${post.post_id}`)}
-                />
+              <div key={post.postId} className="wrapper__community-posts-card">
+                {post.imageUrl && (
+                  <img
+                    alt="post"
+                    className="wrapper__community-posts-card-img"
+                    src={post.imageUrl}
+                    onClick={() => navigate(`/community/${post.postId}`)}
+                  />
+                )}
                 <div className="wrapper__community-posts-card-content">
-                  <h3>{post.post_type}</h3>
-                  <h2 onClick={() => navigate(`/community/${post.post_id}`)}>
+                  <h3>{post.postType?.toUpperCase()}</h3>
+                  <h2 onClick={() => navigate(`/community/${post.postId}`)}>
                     {post.title}
                   </h2>
-                  <p onClick={() => navigate(`/community/${post.post_id}`)}>
+                  <p onClick={() => navigate(`/community/${post.postId}`)}>
                     {post.content}
                   </p>
                 </div>
               </div>
             ))}
           </div>
+
           {filteredPosts.length === 0 && (
             <div className="no-posts-message">
               <Empty description="No posts found for this Category." />

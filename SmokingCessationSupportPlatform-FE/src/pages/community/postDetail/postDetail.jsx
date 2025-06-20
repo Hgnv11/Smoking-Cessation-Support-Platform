@@ -1,7 +1,7 @@
+import "./postDetail.css";
 import { Affix, Avatar, Empty, Image } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import "./postDetail.css";
 import Header from "../../../components/header/header";
 import Footer from "../../../components/footer/footer";
 import CommunityPosts from "../../../config/communityPost";

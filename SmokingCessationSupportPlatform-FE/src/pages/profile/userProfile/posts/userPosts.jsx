@@ -46,7 +46,10 @@ function UserPosts() {
   const fetchUserPost = async () => {
     try {
       const response = await api.get("/post/my");
-      setUserPosts(response.data);
+      const approvedPosts = response.data.filter(
+        (post) => post.isApproved === true
+      );
+      setUserPosts(approvedPosts);
     } catch (error) {
       console.error("Error fetching user posts:", error);
       message.error("Failed to fetch user posts. Please try again later.");
@@ -74,7 +77,7 @@ function UserPosts() {
       const response = await api.post("/post", values);
 
       if (response.status === 200 || response.status === 201) {
-        message.success("Post created successfully!");
+        message.success("Your post has been sent for approval!");
         handleCloseModal();
         // Refresh posts list
         await fetchUserPost();
@@ -171,7 +174,7 @@ function UserPosts() {
                   <Input
                     variant="filled"
                     className="wrapper__community-posts-create-input"
-                    placeholder="Enter the post's itle"
+                    placeholder="Enter the post's title"
                   />
                 </FormItem>
 
@@ -193,15 +196,15 @@ function UserPosts() {
                     allowClear
                     options={[
                       {
-                        value: "TIPS",
+                        value: "tips",
                         label: "TIPS",
                       },
                       {
-                        value: "experience",
-                        label: "EXPERIENCE",
+                        value: "stories",
+                        label: "STORIES",
                       },
                       {
-                        value: "OTHERS",
+                        value: "others",
                         label: "OTHERS",
                       },
                     ]}
@@ -228,7 +231,7 @@ function UserPosts() {
                 </FormItem>
 
                 <p className="wrapper__community-posts-create-label">
-                  Add image :{" "}
+                  Add Image
                 </p>
                 <FormItem name="imageUrl">
                   <Upload

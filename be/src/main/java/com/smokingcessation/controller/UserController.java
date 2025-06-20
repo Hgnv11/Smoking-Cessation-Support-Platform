@@ -1,6 +1,7 @@
 package com.smokingcessation.controller;
 
 import com.smokingcessation.dto.res.UserDTO;
+import com.smokingcessation.model.User;
 import com.smokingcessation.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,15 @@ public class UserController {
         System.out.println(email);
         UserDTO profile = userService.getProfileByEmail(email);
         return ResponseEntity.ok(profile);
+    }
+
+    @Operation(
+            summary = "Lấy danh sách tất cả mentor cho user thực hiện"
+    )
+    @GetMapping("/mentors")
+    public ResponseEntity<List<UserDTO>> getAllMentors() {
+        List<UserDTO> mentors = userService.getAllMentorsForUser();
+        return ResponseEntity.ok(mentors);
     }
 
     @Operation(

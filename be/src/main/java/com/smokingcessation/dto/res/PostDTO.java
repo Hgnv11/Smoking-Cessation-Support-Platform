@@ -23,6 +23,7 @@ public class PostDTO {
 
     @NotNull
     private PostType postType;
+    private Boolean isApproved;
 
 
 
