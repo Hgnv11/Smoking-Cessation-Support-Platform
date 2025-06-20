@@ -1,7 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./BlogManagement.module.css";
 import AdminLayout from "../../../components/layout/AdminLayout.jsx";
 import EditPostModal from "./EditPostModal.jsx"; // Import modal component
+import FilterBar from '../../../components/admin/AdminReusableUI/FilterBar';
+import BulkActionBar from '../../../components/admin/AdminReusableUI/BulkActionBar';
+import ActionDropdown from '../../../components/admin/AdminReusableUI/ActionDropdown';
+import ReusableTable from '../../../components/admin/ReusableTable/ReusableTable';
+import dayjs from 'dayjs';
+import { message } from 'antd';
 
 const BlogManagement = () => {
   // Mock data cho bảng bài viết
@@ -61,10 +67,22 @@ const BlogManagement = () => {
       views: 0,
     },
   ]);
-  const [loading, setLoading] = useState(false); // theo dõi post đang được xử lý
   const [selectedPosts, setSelectedPosts] = useState([]); // theo dõi posts được chọn
   const [editingPost, setEditingPost] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filteredPosts, setFilteredPosts] = useState(posts);
+
+  // Filter logic
+  useEffect(() => {
+    let result = posts.filter(post => {
+      const matchSearch = post.title.toLowerCase().includes(search.toLowerCase()) || post.author.toLowerCase().includes(search.toLowerCase());
+      const matchStatus = filterStatus ? post.status === filterStatus : true;
+      return matchSearch && matchStatus;
+    });
+    setFilteredPosts(result);
+  }, [search, filterStatus, posts]);
 
   // Hàm render badge status
   const renderStatus = (status) => {
@@ -75,85 +93,11 @@ const BlogManagement = () => {
     return <span className={styles["status-rejected"]}>REJECTED</span>;
   };
 
-  const renderActionButtons = (post) => {
-    switch (post.status) {
-      case "PUBLISHED":
-        return (
-          <>
-            <button className="btn-primary" onClick={() => handleEdit(post)}>
-              Edit
-            </button>
-            <button className="btn-warning">Unpublish</button>
-            <button className="btn-danger">Delete</button>
-          </>
-        );
-
-      case "UNDER REVIEW":
-        return (
-          <>
-            <button className="btn-success" onClick={() => handleApprove(post.id)} disabled={loading}>
-              {loading ? "Approving..." : "Approve"}
-            </button>
-            <button className="btn-danger" onClick={() => handleReject(post.id)} disabled={loading}>
-              {loading ? "Rejecting..." : "Reject"}
-            </button>
-            <button className="btn-primary" onClick={() => handleEdit(post)}>
-              Edit
-            </button>
-            <button className="btn-danger" onClick={() => handleDelete(post.id)} disabled={loading}>
-              {loading ? "Deleting..." : "Delete"}
-            </button>
-          </>
-        );
-
-      case "REJECTED":
-        return (
-          <>
-            <button className="btn-primary" onClick={() => handleEdit(post)}>
-              Edit
-            </button>
-            <button className="btn-info">Resubmit for Review</button>
-            <button className="btn-danger" onClick={() => handleDelete(post.id)} disabled={loading}>
-              {loading ? "Deleting..." : "Delete"}
-            </button>
-          </>
-        );
-
-      default:
-        return null;
-    }
-  };
-
-  // Các hàm xử lý action
-  // Hàm xử lý approve
-  const handleApprove = async (postId) => {
-    if (!window.confirm("Approve this post?")) return;
-
-    setLoading(true);
-    try {
-      //1. API call here
-      // await approvePost(postId);
-
-      //2. Cập nhật trạng thái bài viết
-      setPosts(
-        posts.map((post) =>
-          post.id === postId
-            ? { ...post, status: "PUBLISHED", updated: new Date().toISOString() }
-            : post
-        )
-      );
-    } catch (error) {
-      alert("Failed to approve post");
-    } finally {
-      setLoading(false);
-    }
-  };
   // Hàm xử lý reject
   const handleReject = async (postId) => {
     const reason = prompt("Reason for rejection:");
     if (!reason) return;
 
-    setLoading(true);
     try {
       // API call here
       // await rejectPost(postId, reason);
@@ -164,103 +108,20 @@ const BlogManagement = () => {
             : post
         )
       );
-    } catch (error) {
+    } catch {
       alert("Failed to reject post");
-    } finally {
-      setLoading(false);
     }
   };
   // Hàm xử lý delete
   const handleDelete = async (postId) => {
     if (!window.confirm("Are you sure? This cannot be undone.")) return;
 
-    setLoading(true);
     try {
       // API call here
       // await deletePost(postId);
       setPosts(posts.filter((post) => post.id !== postId));
-    } catch (error) {
-      alert("Failed to delete post");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Thêm hàm xử lý select all
-  const handleSelectAll = (e) => {
-    if (e.target.checked) {
-      // Chọn tất cả posts
-      setSelectedPosts(posts.map((post) => post.id));
-    } else {
-      // Bỏ chọn tất cả
-      setSelectedPosts([]);
-    }
-  };
-
-  // Thêm hàm xử lý select individual post
-  const handleSelectPost = (postId) => {
-    setSelectedPosts((prevSelected) => {
-      if (prevSelected.includes(postId)) {
-        // Nếu đã chọn thì bỏ chọn
-        return prevSelected.filter((id) => id !== postId);
-      } else {
-        // Nếu chưa chọn thì thêm vào
-        return [...prevSelected, postId];
-      }
-    });
-  };
-  // Thêm hàm xử lý bulk actions
-  const handleBulkAction = async (action, selectElement) => {
-    if (!action || selectedPosts.length === 0) return;
-
-    const actionText = {
-      approve: "approve",
-      reject: "reject",
-      delete: "delete",
-    };
-
-    if (
-      !window.confirm(
-        `Are you sure you want to ${actionText[action]} ${selectedPosts.length} selected posts?`
-      )
-    ) {
-      // Reset select value if user cancels
-      if (selectElement) selectElement.value = "";
-      return;
-    }
-
-    setLoading(true);
-    try {
-      switch (action) {
-        case "approve":
-          setPosts(
-            posts.map((post) =>
-              selectedPosts.includes(post.id)
-                ? { ...post, status: "PUBLISHED", updated: new Date().toISOString() }
-                : post
-            )
-          );
-          break;
-        case "reject":
-          setPosts(
-            posts.map((post) =>
-              selectedPosts.includes(post.id)
-                ? { ...post, status: "REJECTED", updated: new Date().toISOString() }
-                : post
-            )
-          );
-          break;
-        case "delete":
-          setPosts(posts.filter((post) => !selectedPosts.includes(post.id)));
-          break;
-      }      setSelectedPosts([]); // Clear selection after action
     } catch {
-      alert(`Failed to ${actionText[action]} posts`);
-    } finally {
-      setLoading(false);
-      // Reset select value
-      const selectElement = document.querySelector('.bulk-actions select');
-      if (selectElement) selectElement.value = "";
+      alert("Failed to delete post");
     }
   };
 
@@ -271,7 +132,6 @@ const BlogManagement = () => {
   };
 
   const handleSavePost = async (updatedPost) => {
-    setLoading(true);
     try {
       // Cập nhật post trong state
       setPosts((currentPosts) =>
@@ -282,10 +142,80 @@ const BlogManagement = () => {
 
       // Đóng modal
       setShowEditModal(false);
-      setEditingPost(null);    } catch {
+      setEditingPost(null);
+    } catch {
       throw new Error("Failed to save post");
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  // Handler stubs for new actions (with toast)
+  const handleView = (row) => { message.info(`Viewing post: ${row.title}`); };
+  const handleUnpublish = (row) => { message.success(`Unpublished post: ${row.title}`); };
+  const handlePublish = (row) => { message.success(`Published post: ${row.title}`); };
+  const handleMoveToReview = (row) => { message.success(`Moved to review: ${row.title}`); };
+
+  const columns = [
+    { title: 'Post ID', dataIndex: 'id' },
+    { title: 'Title', dataIndex: 'title' },
+    { title: 'Author', dataIndex: 'author' },
+    { title: 'Creation date', dataIndex: 'created', render: value => dayjs(value, ["D/M/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"]).format("DD/MM/YYYY") },
+    { title: 'Last updated', dataIndex: 'updated', render: value => dayjs(value, ["D/M/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"]).format("DD/MM/YYYY") },
+    { title: 'Status', dataIndex: 'status', render: renderStatus },
+    { title: 'Views', dataIndex: 'views' },
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      render: (value, row) => {
+        let actions = [];
+        if (row.status === "PUBLISHED") {
+          actions = [
+            { key: 'view', label: 'View', onClick: () => handleView(row) },
+            { key: 'edit', label: 'Edit', onClick: () => handleEdit(row) },
+            { key: 'unpublish', label: 'Remove/Unpublish', onClick: () => handleUnpublish(row) },
+            { key: 'delete', label: 'Delete', onClick: () => handleDelete(row.id), danger: true },
+          ];
+        } else if (row.status === "UNDER REVIEW") {
+          actions = [
+            { key: 'view', label: 'View/Review', onClick: () => handleView(row) },
+            { key: 'publish', label: 'Publish', onClick: () => handlePublish(row) },
+            { key: 'edit', label: 'Edit', onClick: () => handleEdit(row) },
+            { key: 'reject', label: 'Reject', onClick: () => handleReject(row.id), danger: true },
+            { key: 'delete', label: 'Delete', onClick: () => handleDelete(row.id), danger: true },
+          ];
+        } else if (row.status === "REJECTED") {
+          actions = [
+            { key: 'view', label: 'View', onClick: () => handleView(row) },
+            { key: 'edit', label: 'Edit', onClick: () => handleEdit(row) },
+            { key: 'publish', label: 'Publish', onClick: () => handlePublish(row) },
+            { key: 'delete', label: 'Delete', onClick: () => handleDelete(row.id), danger: true },
+            { key: 'moveToReview', label: 'Move to Review', onClick: () => handleMoveToReview(row) },
+          ];
+        }
+        return <ActionDropdown actions={actions} />;
+      }
+    },
+  ];
+
+  // Filter posts by status
+  const publishedPosts = filteredPosts.filter(p => p.status === 'PUBLISHED');
+  const underReviewPosts = filteredPosts.filter(p => p.status === 'UNDER REVIEW');
+  const rejectedPosts = filteredPosts.filter(p => p.status === 'REJECTED');
+
+  // Section-specific selected posts
+  const publishedSelected = selectedPosts.filter(id => publishedPosts.some(p => p.id === id));
+  const underReviewSelected = selectedPosts.filter(id => underReviewPosts.some(p => p.id === id));
+  const rejectedSelected = selectedPosts.filter(id => rejectedPosts.some(p => p.id === id));
+
+  // Section-specific bulk action handler
+  const handleBulkActionSection = (section) => (action) => {
+    let ids = [];
+    if (section === 'published') ids = publishedSelected;
+    if (section === 'underReview') ids = underReviewSelected;
+    if (section === 'rejected') ids = rejectedSelected;
+    if (action === 'delete') {
+      setPosts(posts.filter(post => !ids.includes(post.id)));
+      setSelectedPosts(selectedPosts.filter(id => !ids.includes(id)));
+      message.success('Deleted selected posts');
     }
   };
 
@@ -293,86 +223,79 @@ const BlogManagement = () => {
     <AdminLayout title="Blog Management">
       <div className={styles["blog-management-page"]}>
         <h2>Blog Management</h2>
-        <div className={styles["search-filter-header"]}>Search and Filter</div>
-        <div className={styles["search-filter-row"]}>
-          <input className={styles["search-input"]} placeholder="Search by title, author,..." />
-          <select className={styles["filter-select"]}>
-            <option>Filter by status</option>
-          </select>
-          <select className={styles["filter-select"]}>
-            <option>Filter by author</option>
-          </select>
-          <select className={styles["filter-select"]}>
-            <option>Filter by article</option>
-          </select>
-          <input className={styles["date-input"]} placeholder="Start date" type="date" />
-          <input className={styles["date-input"]} placeholder="End date" type="date" />
-          <button className={styles["create-article-btn"]}>+ Create new article</button>
-        </div>
-
-        {/* Hiển thị các hành động bulk nếu có bài viết được chọn */}
-        {selectedPosts.length > 0 && (
-          <div className={styles["bulk-actions"]}>
-            <span>{selectedPosts.length} posts selected</span>            <select onChange={(e) => handleBulkAction(e.target.value, e.target)} defaultValue="">
-              <option value="">Bulk Actions</option>
-              <option value="approve">Approve Selected</option>
-              <option value="reject">Reject Selected</option>
-              <option value="delete">Delete Selected</option>
-            </select>
-          </div>
+        <FilterBar
+          searchPlaceholder="Search by title, author..."
+          searchValue={search}
+          onSearchChange={e => setSearch(e.target.value)}
+          filters={[{
+            placeholder: 'Filter status',
+            value: filterStatus,
+            onChange: setFilterStatus,
+            options: [
+              { value: '', label: 'All status' },
+              { value: 'PUBLISHED', label: 'Published' },
+              { value: 'UNDER REVIEW', label: 'Under Review' },
+              { value: 'REJECTED', label: 'Rejected' },
+            ]
+          }]}
+        />
+        {/* Published Section */}
+        <h3>Published</h3>
+        {publishedSelected.length > 0 && (
+          <BulkActionBar
+            selectedCount={publishedSelected.length}
+            onAction={handleBulkActionSection('published')}
+            actions={[{ value: 'delete', label: 'Delete' }]}
+          />
         )}
-
-        <div className={styles["blog-table-wrapper"]}>
-          <table className={styles["blog-table"]}>
-            <thead>
-              <tr>
-                {/* THÊM CHECKBOX SELECT ALL */}
-                <th>
-                  <input
-                    type="checkbox"
-                    checked={selectedPosts.length === posts.length && posts.length > 0}
-                    onChange={handleSelectAll}
-                    disabled={loading}
-                  />
-                </th>
-                <th>Post ID</th>
-                <th>Title</th>
-                <th>Author</th>
-                <th>Creation date</th>
-                <th>Last updated</th>
-                <th>Status</th>
-                <th>Views</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {posts.map((p, idx) => (
-                <tr key={idx}>
-                  {/* THÊM CHECKBOX CHO TỪNG ROW */}
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={selectedPosts.includes(p.id)}
-                      onChange={() => handleSelectPost(p.id)}
-                      disabled={loading}
-                    />
-                  </td>
-                  <td>{p.id}</td>
-                  <td>{p.title}</td>
-                  <td>{p.author}</td>
-                  <td>{p.created}</td>
-                  <td>{p.updated}</td>
-                  <td>{renderStatus(p.status)}</td>
-                  <td>{p.views}</td>
-                  <td>
-                    <div className={styles["action-btns"]}>{renderActionButtons(p)}</div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
+        <ReusableTable
+          columns={columns}
+          data={publishedPosts}
+          selectedRowKeys={publishedSelected}
+          onSelectAll={checked => {
+            const ids = publishedPosts.map(p => p.id);
+            setSelectedPosts(checked ? Array.from(new Set([...selectedPosts, ...ids])) : selectedPosts.filter(id => !ids.includes(id)));
+          }}
+          onSelectRow={(id, checked) => setSelectedPosts(prev => checked ? [...prev, id] : prev.filter(pid => pid !== id))}
+        />
+        {/* Under Review Section */}
+        <h3>Under Review</h3>
+        {underReviewSelected.length > 0 && (
+          <BulkActionBar
+            selectedCount={underReviewSelected.length}
+            onAction={handleBulkActionSection('underReview')}
+            actions={[{ value: 'delete', label: 'Delete' }]}
+          />
+        )}
+        <ReusableTable
+          columns={columns}
+          data={underReviewPosts}
+          selectedRowKeys={underReviewSelected}
+          onSelectAll={checked => {
+            const ids = underReviewPosts.map(p => p.id);
+            setSelectedPosts(checked ? Array.from(new Set([...selectedPosts, ...ids])) : selectedPosts.filter(id => !ids.includes(id)));
+          }}
+          onSelectRow={(id, checked) => setSelectedPosts(prev => checked ? [...prev, id] : prev.filter(pid => pid !== id))}
+        />
+        {/* Rejected Section */}
+        <h3>Rejected</h3>
+        {rejectedSelected.length > 0 && (
+          <BulkActionBar
+            selectedCount={rejectedSelected.length}
+            onAction={handleBulkActionSection('rejected')}
+            actions={[{ value: 'delete', label: 'Delete' }]}
+          />
+        )}
+        <ReusableTable
+          columns={columns}
+          data={rejectedPosts}
+          selectedRowKeys={rejectedSelected}
+          onSelectAll={checked => {
+            const ids = rejectedPosts.map(p => p.id);
+            setSelectedPosts(checked ? Array.from(new Set([...selectedPosts, ...ids])) : selectedPosts.filter(id => !ids.includes(id)));
+          }}
+          onSelectRow={(id, checked) => setSelectedPosts(prev => checked ? [...prev, id] : prev.filter(pid => pid !== id))}
+        />
         <EditPostModal
           post={editingPost}
           isOpen={showEditModal}

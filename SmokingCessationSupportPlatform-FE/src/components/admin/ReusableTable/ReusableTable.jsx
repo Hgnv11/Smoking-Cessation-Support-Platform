@@ -7,19 +7,26 @@ const getSortIcon = (order) => {
   return <span className="sort-icon">↓</span>;
 };
 
-const ReusableTable = ({ columns, data, pagination, onPageChange, onSort, sortConfig }) => (
+const ReusableTable = ({ columns, data, pagination, onPageChange, onSort, sortConfig, selectedRowKeys = [], onSelectAll, onSelectRow }) => (
   <div className="reusable-table-wrapper">
     <table className="reusable-table">
       <colgroup>
         <col className="col-checkbox" />
-        {columns.map((col, idx) => (
+        {columns.map((col) => (
           <col key={col.key || col.dataIndex} />
         ))}
       </colgroup>
       <thead>
         <tr>
           <th className="th-checkbox">
-            <input type="checkbox" />
+            <input
+              type="checkbox"
+              checked={data.length > 0 && selectedRowKeys.length === data.length}
+              ref={el => {
+                if (el) el.indeterminate = selectedRowKeys.length > 0 && selectedRowKeys.length < data.length;
+              }}
+              onChange={e => onSelectAll && onSelectAll(e.target.checked)}
+            />
           </th>
           {columns.map((col, idx) => (
             <th
@@ -43,7 +50,11 @@ const ReusableTable = ({ columns, data, pagination, onPageChange, onSort, sortCo
         {data.map((row, rowIdx) => (
           <tr key={row.id || rowIdx} className="reusable-table-row">
             <td className="td-checkbox">
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={selectedRowKeys.includes(row.id)}
+                onChange={e => onSelectRow && onSelectRow(row.id, e.target.checked)}
+              />
             </td>
             {columns.map((col, colIdx) => (
               <td

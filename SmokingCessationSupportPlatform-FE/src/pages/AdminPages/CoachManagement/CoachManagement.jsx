@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./CoachManagement.module.css";
 import AdminLayout from "../../../components/layout/AdminLayout.jsx";
+import FilterBar from '../../../components/admin/AdminReusableUI/FilterBar';
+import BulkActionBar from '../../../components/admin/AdminReusableUI/BulkActionBar';
+import ActionDropdown from '../../../components/admin/AdminReusableUI/ActionDropdown';
+import ReusableTable from '../../../components/admin/ReusableTable/ReusableTable';
+import dayjs from 'dayjs';
 
 const CoachManagement = () => {
   // Mock data for summary cards
@@ -69,7 +74,21 @@ const CoachManagement = () => {
     },
   ]);
 
-  // Hàm render expertise badges
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [filteredCoaches, setFilteredCoaches] = useState(coaches);
+
+  useEffect(() => {
+    let result = coaches.filter(coach => {
+      const matchSearch = coach.name.toLowerCase().includes(search.toLowerCase()) || coach.email.toLowerCase().includes(search.toLowerCase());
+      const matchStatus = filterStatus ? coach.status === filterStatus : true;
+      return matchSearch && matchStatus;
+    });
+    setFilteredCoaches(result);
+  }, [search, filterStatus, coaches]);
+
+  // Move these functions above columns
   const renderExpertise = (expertiseArray) => (
     <>
       {expertiseArray.map((exp, i) => (
@@ -80,7 +99,6 @@ const CoachManagement = () => {
     </>
   );
 
-  // Hàm render rating stars
   const renderRating = (rating) => (
     <>
       {Array.from({ length: 5 }).map((_, i) => (
@@ -91,12 +109,36 @@ const CoachManagement = () => {
     </>
   );
 
-  // Hàm render status badge
   const renderStatus = (status) => (
-    <span className={`${styles["status-badge"]} ${status === "ACTIVE" ? styles["status-active"] : styles["status-inactive"]}`}>
-      {status}
-    </span>
+    <span className={`${styles["status-badge"]} ${status === "ACTIVE" ? styles["status-active"] : styles["status-inactive"]}`}>{status}</span>
   );
+
+  const columns = [
+    { title: 'User ID', dataIndex: 'id' },
+    { title: 'Coach name', dataIndex: 'name' },
+    { title: 'Email', dataIndex: 'email' },
+    { title: 'Expertise', dataIndex: 'expertise', render: renderExpertise },
+    { title: 'Rating', dataIndex: 'rating', render: renderRating },
+    { title: 'Number of consultations today', dataIndex: 'todayConsults' },
+    { title: 'Number of cases currently consulting', dataIndex: 'currentCases' },
+    { title: 'Joining date', dataIndex: 'joinDate', render: value => dayjs(value, ["D/M/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"]).format("DD/MM/YYYY") },
+    { title: 'Status', dataIndex: 'status', render: renderStatus },
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      render: (value, row) => (
+        <ActionDropdown
+          actions={[
+            { key: 'edit', label: 'Edit', onClick: () => {} },
+            { key: 'calendar', label: 'Calendar', onClick: () => {} },
+            row.status === 'ACTIVE'
+              ? { key: 'deactive', label: 'Deactivate', onClick: () => {}, danger: true }
+              : { key: 'active', label: 'Activate', onClick: () => {} },
+          ]}
+        />
+      ),
+    },
+  ];
 
   return (
     <AdminLayout title="Coach Management">
@@ -125,56 +167,35 @@ const CoachManagement = () => {
           </div>
         </div>
         <div className={styles["list-title"]}>List of coaches</div>
-        <div className={styles["search-filter-row"]}>
-          <input className={styles["search-input"]} placeholder="Search by name, email, profile name..." />
-          <select className={styles["filter-select"]}><option>Filter expertise</option></select>
-          <select className={styles["filter-select"]}><option>Filter status</option></select>
-          <button className={styles["add-coach-btn"]}>+ Add Coach</button>
-        </div>
-        <div className={styles["coach-table-wrapper"]}>
-          <table className={styles["coach-table"]}>
-            <thead>
-              <tr>
-                <th>User ID</th>
-                <th>Coach name</th>
-                <th>Email</th>
-                <th>Expertise</th>
-                <th>Rating</th>
-                <th>Number of consultations today</th>
-                <th>Number of cases currently consulting</th>
-                <th>Joining date</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {coaches.map((coach) => (
-                <tr key={coach.id}>
-                  <td>{coach.id}</td>
-                  <td>{coach.name}</td>
-                  <td>{coach.email}</td>
-                  <td>{renderExpertise(coach.expertise)}</td>
-                  <td>{renderRating(coach.rating)}</td>
-                  <td>{coach.todayConsults}</td>
-                  <td>{coach.currentCases}</td>
-                  <td>{coach.joinDate}</td>
-                  <td>{renderStatus(coach.status)}</td>
-                  <td>
-                    <div className={styles["action-btns"]}>
-                      <button className={styles["edit"]}>✏️ Edit</button>
-                      <button className={styles["calendar"]}>🗓️ Calendar</button>
-                      {coach.status === "ACTIVE" ? (
-                        <button className={styles["deactivate"]}>Deactive</button>
-                      ) : (
-                        <button className={styles["active-btn"]}>Active</button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <FilterBar
+          searchPlaceholder="Search by name, email..."
+          searchValue={search}
+          onSearchChange={e => setSearch(e.target.value)}
+          filters={[{
+            placeholder: 'Filter status',
+            value: filterStatus,
+            onChange: setFilterStatus,
+            options: [
+              { value: '', label: 'All status' },
+              { value: 'ACTIVE', label: 'Active' },
+              { value: 'INACTIVE', label: 'Inactive' },
+            ]
+          }]}
+        />
+        {selectedRows.length > 0 && (
+          <BulkActionBar
+            selectedCount={selectedRows.length}
+            onAction={() => {}}
+            actions={[]}
+          />
+        )}
+        <ReusableTable
+          columns={columns}
+          data={filteredCoaches}
+          selectedRowKeys={selectedRows}
+          onSelectAll={checked => setSelectedRows(checked ? filteredCoaches.map(c => c.id) : [])}
+          onSelectRow={(id, checked) => setSelectedRows(prev => checked ? [...prev, id] : prev.filter(cid => cid !== id))}
+        />
       </div>
     </AdminLayout>
   );

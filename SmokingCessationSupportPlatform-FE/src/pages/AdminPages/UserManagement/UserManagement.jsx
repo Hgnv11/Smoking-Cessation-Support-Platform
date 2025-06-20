@@ -10,63 +10,134 @@ import {
   List,
   Descriptions,
   Button,
+  Dropdown,
+  Menu,
+  Input,
 } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import dayjs from "dayjs";
+
+const initialUsers = [
+  {
+    id: "U001",
+    name: "Emma Sarah",
+    author: "emma.jack@example.com",
+    profile: "Emma158",
+    role: "Customer",
+    membership: "Premium",
+    joinDate: "16/1/2023",
+    lastActivity: "2024-10-15",
+    status: "locked",
+  },
+  {
+    id: "U002",
+    name: "David Sad",
+    author: "david.sad@example.com",
+    profile: "David_S",
+    role: "Coach",
+    membership: "Free",
+    joinDate: "01/2/2023",
+    lastActivity: "2024-10-14",
+    status: "active",
+  },
+  {
+    id: "U003",
+    name: "John Doe",
+    author: "john.doe@example.com",
+    profile: "JDoe",
+    role: "Customer",
+    membership: "Premium",
+    joinDate: "05/3/2023",
+    lastActivity: "2024-10-16",
+    status: "active",
+  },
+  {
+    id: "U004",
+    name: "Jane Smith",
+    author: "jane.smith@example.com",
+    profile: "JaneS",
+    role: "Coach",
+    membership: "Free",
+    joinDate: "10/4/2023",
+    lastActivity: "2024-10-13",
+    status: "locked",
+  },
+];
+
+const membershipOptions = [
+  { value: "", label: "Filter membership packages" },
+  { value: "Premium", label: "Premium" },
+  { value: "Free", label: "Free" },
+];
+const statusOptions = [
+  { value: "", label: "Filter account status" },
+  { value: "active", label: "Active" },
+  { value: "locked", label: "Locked" },
+];
+const roleOptions = [
+  { value: "", label: "Filter roles" },
+  { value: "Customer", label: "Customer" },
+  { value: "Coach", label: "Coach" },
+];
 
 const UserManagement = () => {
-  const [users] = useState([
-    {
-      id: "U001",
-      name: "Emma Sarah",
-      author: "emma.jack@example.com",
-      profile: "Emma158",
-      role: "Customer",
-      membership: "Premium",
-      joinDate: "16/1/2023",
-      lastActivity: "2024-10-15",
-      status: "locked",
-    },
-    {
-      id: "U002",
-      name: "David Sad",
-      author: "david.sad@example.com",
-      profile: "David_S",
-      role: "Coach",
-      membership: "Free",
-      joinDate: "01/2/2023",
-      lastActivity: "2024-10-14",
-      status: "active",
-    },
-    {
-      id: "U003",
-      name: "John Doe",
-      author: "john.doe@example.com",
-      profile: "JDoe",
-      role: "Customer",
-      membership: "Premium",
-      joinDate: "05/3/2023",
-      lastActivity: "2024-10-16",
-      status: "active",
-    },
-    {
-      id: "U004",
-      name: "Jane Smith",
-      author: "jane.smith@example.com",
-      profile: "JaneS",
-      role: "Coach",
-      membership: "Free",
-      joinDate: "10/4/2023",
-      lastActivity: "2024-10-13",
-      status: "locked",
-    },
-  ]);
-
+  const [users, setUsers] = useState(initialUsers);
+  const [filters, setFilters] = useState({
+    search: "",
+    membership: "",
+    status: "",
+    role: "",
+  });
+  const [filteredUsers, setFilteredUsers] = useState(users);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
-  const [selectedMembership, setSelectedMembership] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("");
-  const [selectedRole, setSelectedRole] = useState("");
+
+  useEffect(() => {
+    let result = users.filter((user) => {
+      const search = filters.search.toLowerCase();
+      const matchSearch =
+        user.name.toLowerCase().includes(search) ||
+        user.author.toLowerCase().includes(search) ||
+        user.profile.toLowerCase().includes(search);
+      const matchMembership = filters.membership ? user.membership === filters.membership : true;
+      const matchStatus = filters.status ? user.status === filters.status : true;
+      const matchRole = filters.role ? user.role === filters.role : true;
+      return matchSearch && matchMembership && matchStatus && matchRole;
+    });
+    setFilteredUsers(result);
+    setSelectedRowKeys([]);
+  }, [filters, users]);
+
+  const handleSelectAll = (checked) => {
+    setSelectedRowKeys(checked ? filteredUsers.map((u) => u.id) : []);
+  };
+  const handleSelectRow = (id, checked) => {
+    setSelectedRowKeys((prev) =>
+      checked ? [...prev, id] : prev.filter((key) => key !== id)
+    );
+  };
+  const handleBulkDelete = () => {
+    setUsers((prev) => prev.filter((u) => !selectedRowKeys.includes(u.id)));
+    setSelectedRowKeys([]);
+  };
+  const handleBulkLock = () => {
+    setUsers((prev) =>
+      prev.map((u) =>
+        selectedRowKeys.includes(u.id) ? { ...u, status: "locked" } : u
+      )
+    );
+    setSelectedRowKeys([]);
+  };
+  const handleBulkUnlock = () => {
+    setUsers((prev) =>
+      prev.map((u) =>
+        selectedRowKeys.includes(u.id) ? { ...u, status: "active" } : u
+      )
+    );
+    setSelectedRowKeys([]);
+  };
 
   const mockSubscriptionHistory = [
     { plan: "Premium", startDate: "2024-01-01", endDate: "2024-02-01" },
@@ -104,24 +175,6 @@ const UserManagement = () => {
     { coachName: "Dr. Johnson", date: "2024-01-27", topic: "Progress Review" },
   ];
 
-  const membershipOptions = [
-    { value: "", label: "Filter membership packages" },
-    { value: "Premium", label: "Premium" },
-    { value: "Free", label: "Free" },
-  ];
-
-  const statusOptions = [
-    { value: "", label: "Filter account status" },
-    { value: "active", label: "Active" },
-    { value: "locked", label: "Locked" },
-  ];
-
-  const roleOptions = [
-    { value: "", label: "Filter roles" },
-    { value: "Customer", label: "Customer" },
-    { value: "Coach", label: "Coach" },
-  ];
-
   const columns = [
     { title: "User ID", dataIndex: "id" },
     { title: "Name", dataIndex: "name" },
@@ -131,11 +184,7 @@ const UserManagement = () => {
       title: "Role",
       dataIndex: "role",
       render: (value) => (
-        <span
-          className={
-            value === "Coach" ? styles["role-coach"] : styles["role-customer"]
-          }
-        >
+        <span className={value === "Coach" ? styles["role-coach"] : styles["role-customer"]}>
           {value}
         </span>
       ),
@@ -144,71 +193,53 @@ const UserManagement = () => {
       title: "Membership package",
       dataIndex: "membership",
       render: (value) => (
-        <span
-          className={
-            value === "Premium"
-              ? styles["membership-premium"]
-              : styles["membership-free"]
-          }
-        >
+        <span className={value === "Premium" ? styles["membership-premium"] : styles["membership-free"]}>
           {value}
         </span>
       ),
     },
-    { title: "Joining date", dataIndex: "joinDate" },
-    { title: "Last activity", dataIndex: "lastActivity" },
+    {
+      title: "Joining date",
+      dataIndex: "joinDate",
+      render: (value) => dayjs(value, ["D/M/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"]).format("DD/MM/YYYY"),
+    },
+    {
+      title: "Last activity",
+      dataIndex: "lastActivity",
+      render: (value) => dayjs(value, ["D/M/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"]).format("DD/MM/YYYY"),
+    },
     {
       title: "Action",
       dataIndex: "action",
-      render: (value, row) => (
-        <div className={styles["action-btns"]}>
-          <button className={styles["edit-btn"]}>Edit</button>
-          <button
-            className={styles["details-btn"]}
-            onClick={() => {
-              /* handleSeeDetails(row) */
-            }}
-          >
-            See Details
-          </button>
-          <button
-            className={styles["delete-btn"]}
-            onClick={() => {
-              /* handleDeleteUser(row.id) */
-            }}
-          >
-            Delete
-          </button>
-          {row.status === "locked" ? (
-            <button className={styles["lock-btn"]}>Account Lock</button>
-          ) : (
-            <button className={styles["unlock-btn"]}>Unlock account</button>
-          )}
-        </div>
-      ),
-    },
-  ];
-
-  const filterConfig = [
-    {
-      key: "search",
-      type: "text",
-      placeholder: "Search by name, email, profile name...",
-    },
-    {
-      key: "membership",
-      type: "select",
-      options: membershipOptions,
-    },
-    {
-      key: "status",
-      type: "select",
-      options: statusOptions,
-    },
-    {
-      key: "role",
-      type: "select",
-      options: roleOptions,
+      render: (value, row) => {
+        const menu = (
+          <Menu>
+            <Menu.Item key="edit" onClick={() => {}}>
+              Edit
+            </Menu.Item>
+            <Menu.Item key="details" onClick={() => { setSelectedUser(row); setIsModalVisible(true); }}>
+              See Details
+            </Menu.Item>
+            <Menu.Item key="delete" onClick={() => setUsers((prev) => prev.filter((u) => u.id !== row.id))} danger>
+              Delete
+            </Menu.Item>
+            {row.status === "locked" ? (
+              <Menu.Item key="lock" style={{ color: '#e74c3c' }}>
+                Account Lock
+              </Menu.Item>
+            ) : (
+              <Menu.Item key="unlock" style={{ color: '#1677ff' }}>
+                Unlock account
+              </Menu.Item>
+            )}
+          </Menu>
+        );
+        return (
+          <Dropdown overlay={menu} trigger={["hover"]} placement="bottomLeft">
+            <Button>Actions</Button>
+          </Dropdown>
+        );
+      },
     },
   ];
 
@@ -217,36 +248,79 @@ const UserManagement = () => {
       <div className={styles["user-management-page"]}>
         <h2>User Management</h2>
         <div className={styles["search-filter-header"]}>Search and Filter</div>
-        <div className={styles["search-filter-row"]}>
-          <input
-            className={styles["search-input"]}
+        <div style={{ display: 'flex', gap: 20, alignItems: 'center', marginBottom: 24 }}>
+          <Input.Search
             placeholder="Search by name, email, profile name..."
+            allowClear
+            style={{ minWidth: 260, borderRadius: 12, boxShadow: '0 1px 4px rgba(99,102,241,0.08)' }}
+            value={filters.search}
+            onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
           />
           <Select
-            className={styles["filter-select"]}
-            onChange={(value) => setSelectedMembership(value)}
-            value={selectedMembership}
+            showSearch
+            allowClear
+            placeholder="Filter membership packages"
+            style={{ minWidth: 220, borderRadius: 12, boxShadow: '0 1px 4px rgba(99,102,241,0.08)' }}
+            onChange={value => setFilters(f => ({ ...f, membership: value || "" }))}
+            value={filters.membership || undefined}
             options={membershipOptions}
           />
           <Select
-            className={styles["filter-select"]}
-            onChange={(value) => setSelectedStatus(value)}
-            value={selectedStatus}
+            showSearch
+            allowClear
+            placeholder="Filter account status"
+            style={{ minWidth: 220, borderRadius: 12, boxShadow: '0 1px 4px rgba(99,102,241,0.08)' }}
+            onChange={value => setFilters(f => ({ ...f, status: value || "" }))}
+            value={filters.status || undefined}
             options={statusOptions}
           />
           <Select
-            className={styles["filter-select"]}
-            onChange={(value) => setSelectedRole(value)}
-            value={selectedRole}
+            showSearch
+            allowClear
+            placeholder="Filter roles"
+            style={{ minWidth: 220, borderRadius: 12, boxShadow: '0 1px 4px rgba(99,102,241,0.08)' }}
+            onChange={value => setFilters(f => ({ ...f, role: value || "" }))}
+            value={filters.role || undefined}
             options={roleOptions}
           />
-          <button className={styles["add-user-btn"]}>+ Add user</button>
         </div>
-
+        {selectedRowKeys.length > 0 && (
+          <div style={{
+            marginBottom: 16,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            background: '#f9fbff',
+            borderRadius: 12,
+            padding: '12px 20px',
+            boxShadow: '0 1px 4px rgba(99,102,241,0.06)'
+          }}>
+            <span style={{ fontWeight: 500 }}>{selectedRowKeys.length} users selected</span>
+            <Select
+              placeholder='Bulk Actions'
+              style={{ minWidth: 160 }}
+              onChange={action => {
+                if (action === 'delete') handleBulkDelete();
+                if (action === 'lock') handleBulkLock();
+                if (action === 'unlock') handleBulkUnlock();
+              }}
+              options={[
+                { value: 'delete', label: 'Delete' },
+                { value: 'lock', label: 'Lock' },
+                { value: 'unlock', label: 'Unlock' }
+              ]}
+            />
+          </div>
+        )}
         <div className={styles["user-table-wrapper"]}>
-          <ReusableTable columns={columns} data={users} />
+          <ReusableTable
+            columns={columns}
+            data={filteredUsers}
+            selectedRowKeys={selectedRowKeys}
+            onSelectAll={handleSelectAll}
+            onSelectRow={handleSelectRow}
+          />
         </div>
-
         <Modal
           title={
             selectedUser ? `User Details: ${selectedUser.name}` : "User Details"
