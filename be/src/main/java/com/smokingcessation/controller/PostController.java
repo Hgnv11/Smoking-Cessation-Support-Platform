@@ -36,7 +36,7 @@ public class PostController {
             summary = "Xem list bài viết của người khác"
     )
     @GetMapping("/{profileName}")
-    public ResponseEntity<List<PostDTO>> getPostsByUser(String profileName) {
+    public ResponseEntity<List<PostDTO>> getPostsByUser(@PathVariable String profileName) {
         List<PostDTO> posts = postService.getPostsByUserProfileName(profileName);
         return ResponseEntity.ok(posts);
     }
