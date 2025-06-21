@@ -1,7 +1,7 @@
 import { Button, Avatar } from "antd";
 import "./header.css";
 import { SearchOutlined, UserOutlined } from "@ant-design/icons";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 function Header() {

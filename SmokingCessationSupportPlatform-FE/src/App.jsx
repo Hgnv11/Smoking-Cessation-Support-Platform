@@ -98,6 +98,21 @@ const ProtectNewPassword = ({ children }) => {
   return children;
 };
 
+const ProtectMakePlan = ({ children }) => {
+  const user = useSelector((store) => store.user);
+  if (user != null) {
+    return children;
+  }
+  notification.warning({
+    message: "Login or Register to make your plan!",
+    description:
+      "Please register or login with your account to make your own quitting plan.",
+    placement: "top",
+    duration: 3,
+  });
+  return <Navigate to={"/"} />;
+};
+
 const ProtectAdminRoute = ({ children }) => {
   const user = useSelector((store) => store.user);
   if (user == null) {
@@ -201,7 +216,14 @@ function App() {
           path: "users/:profileName/posts",
           element: <OthersPosts />,
         },
-        { path: "make-plan", element: <MakePlan /> },
+        {
+          path: "make-plan",
+          element: (
+            <ProtectMakePlan>
+              <MakePlan />
+            </ProtectMakePlan>
+          ),
+        },
         { path: "community", element: <Community /> },
         { path: "community/:postId", element: <PostDetail /> },
         { path: "user-coach", element: <UserCoach /> },
