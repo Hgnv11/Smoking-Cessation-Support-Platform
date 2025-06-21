@@ -75,7 +75,11 @@ function Home() {
               tips, and support in our community.
             </p>
           </Card>
-          <Card hoverable className="wrapper__card-card">
+          <Card
+            hoverable
+            className="wrapper__card-card"
+            onClick={() => navigate("/user-coach")}
+          >
             <img
               alt="example"
               className="wrapper__card-img"

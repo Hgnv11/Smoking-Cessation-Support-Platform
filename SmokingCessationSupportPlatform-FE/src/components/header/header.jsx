@@ -1,6 +1,6 @@
 import { Button, Avatar } from "antd";
 import "./header.css";
-import { SearchOutlined, UserOutlined } from "@ant-design/icons";
+import { BellOutlined, SearchOutlined, UserOutlined } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -55,6 +55,7 @@ function Header() {
           </div>
           <div className="header__login-register">
             <SearchOutlined className="search" />
+            <BellOutlined className="noti" />
             {user ? (
               // Hiển thị khi user đã đăng nhập
               <div className="user-info">

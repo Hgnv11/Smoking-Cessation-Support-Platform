@@ -48,7 +48,15 @@
 }
 
 .header__login-register .search {
+    font-size: larger;
     margin-right: 20px;
+    color: #adacac;
+}
+
+.noti {
+    font-size: larger;
+    margin-right: 20px;
+    color: #adacac;
 }
 
 .header__nav a.active {

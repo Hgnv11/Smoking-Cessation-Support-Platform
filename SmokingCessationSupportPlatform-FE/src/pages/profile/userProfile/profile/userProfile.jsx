@@ -87,7 +87,6 @@ function UserProfile() {
     fetchUserProfile();
   }, []);
 
-  // Hàm xử lý khi click Change
   const handleChangeAvatar = () => {
     fileInputRef.current?.click();
   };
@@ -115,13 +114,11 @@ function UserProfile() {
     try {
       setAvatarLoading(true);
 
-      // Upload file lên Firebase
       const avatarUrl = await uploadFile(file);
 
       const response = await api.post("/profile/my", { avatarUrl });
 
       if (response.status === 200 || response.status === 201) {
-        // Cập nhật avatar trong state local
         setUserAvatar(avatarUrl);
 
         // Cập nhật Redux store
@@ -154,7 +151,6 @@ function UserProfile() {
     setEditedFields((prev) => new Set([...prev, fieldName]));
   };
 
-  // Hàm xử lý khi nhấn Cancel
   const handleCancel = () => {
     // Reset form về giá trị gốc
     form.setFieldsValue(originalValues);
@@ -171,7 +167,6 @@ function UserProfile() {
     setEditedFields(new Set());
   };
 
-  // Hàm xử lý khi submit form
   const handleSubmit = async (values) => {
     try {
       setLoading(true);
@@ -189,7 +184,6 @@ function UserProfile() {
         }
       });
 
-      // Gửi API với header tự động từ interceptor
       const response = await api.post("/profile/my", updatedData);
 
       if (response.status === 200 || response.status === 201) {
