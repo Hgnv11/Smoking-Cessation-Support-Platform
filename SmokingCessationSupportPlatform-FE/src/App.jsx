@@ -12,7 +12,7 @@ import Register from "./pages/Authentication/Register/register.jsx";
 import ForgotPass from "./pages/Authentication/ForgotPass/forgotPass.jsx";
 import ForgotPassCode from "./pages/Authentication/ForgotPass-code/forgotPass-code.jsx";
 import VerifyCode from "./pages/Authentication/VerifyCode/verifyCode.jsx";
-import MakePlan from "./pages/QuitPlan/makePlan.jsx";
+import MakePlan from "./pages/QuitPlan/MakePlan/makePlan.jsx";
 import Community from "./pages/Community/PostList/community.jsx";
 import UserCoach from "./pages/UserCoach/userCoach.jsx";
 import Layout from "./components/layout/layout";
@@ -30,6 +30,8 @@ import OthersProfile from "./pages/Profile/othersProfile/profile/othersProfile.j
 import OthersPosts from "./pages/Profile/othersProfile/posts/othersPosts.jsx";
 import UserPosts from "./pages/Profile/UserProfile/posts/userPosts.jsx";
 import { message, notification } from "antd";
+import PlanDetail from "./pages/QuitPlan/PlanDetail/planDetail.jsx";
+import Membership from "./pages/Profile/UserProfile/membership/membership.jsx";
 
 const ProtectRouteAuth = ({ children }) => {
   const user = useSelector((store) => store.user);
@@ -185,14 +187,6 @@ function App() {
           ),
         },
         {
-          path: "user-profile/change-pass",
-          element: (
-            <ProtectUserProfile>
-              <ChangePass />
-            </ProtectUserProfile>
-          ),
-        },
-        {
           path: "user-profile",
           element: (
             <ProtectUserProfile>
@@ -201,10 +195,26 @@ function App() {
           ),
         },
         {
+          path: "user-profile/change-pass",
+          element: (
+            <ProtectUserProfile>
+              <ChangePass />
+            </ProtectUserProfile>
+          ),
+        },
+        {
           path: "user-profile/posts",
           element: (
             <ProtectUserProfile>
               <UserPosts />
+            </ProtectUserProfile>
+          ),
+        },
+        {
+          path: "user-profile/membership",
+          element: (
+            <ProtectUserProfile>
+              <Membership />
             </ProtectUserProfile>
           ),
         },
@@ -221,6 +231,14 @@ function App() {
           element: (
             <ProtectMakePlan>
               <MakePlan />
+            </ProtectMakePlan>
+          ),
+        },
+        {
+          path: "plan-detail",
+          element: (
+            <ProtectMakePlan>
+              <PlanDetail />
             </ProtectMakePlan>
           ),
         },

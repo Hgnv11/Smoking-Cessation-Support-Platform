@@ -36,7 +36,7 @@ public class PostController {
             summary = "Xem list bài viết của người khác"
     )
     @GetMapping("/{profileName}")
-    public ResponseEntity<List<PostDTO>> getPostsByUser(String profileName) {
+    public ResponseEntity<List<PostDTO>> getPostsByUser(@PathVariable String profileName) {
         List<PostDTO> posts = postService.getPostsByUserProfileName(profileName);
         return ResponseEntity.ok(posts);
     }
@@ -52,17 +52,6 @@ public class PostController {
         String email = principal.getName();
         PostDTO createdPost = postService.addNewPost(email, request);
         return ResponseEntity.ok(createdPost);
-    }
-
-    // API admin duyệt bài viết
-    @Operation(
-            summary = "duyệt bài role admin"
-    )
-    @PatchMapping("/{postId}/approve")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PostDTO> approvePost(@PathVariable int postId) {
-        PostDTO approvedPost = postService.approvePost(postId);
-        return ResponseEntity.ok(approvedPost);
     }
 
     @Operation(

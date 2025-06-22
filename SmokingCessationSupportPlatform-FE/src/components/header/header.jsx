@@ -57,7 +57,6 @@ function Header() {
             <SearchOutlined className="search" />
             <BellOutlined className="noti" />
             {user ? (
-              // Hiển thị khi user đã đăng nhập
               <div className="user-info">
                 {user.avatarUrl ? (
                   <Avatar
@@ -83,7 +82,6 @@ function Header() {
                 </Button>
               </div>
             ) : (
-              // Hiển thị khi user chưa đăng nhập
               <>
                 <Button
                   type="primary"

@@ -1,4 +1,13 @@
-import { Affix, Avatar, Form, Input, Select, Empty, message } from "antd";
+import {
+  Affix,
+  Avatar,
+  Form,
+  Input,
+  Select,
+  Empty,
+  message,
+  Skeleton,
+} from "antd";
 import Header from "../../../../components/header/header";
 import Footer from "../../../../components/footer/footer";
 import "./othersProfile.css";
@@ -12,14 +21,18 @@ import api from "../../../../config/axios";
 function OthersProfile() {
   const { profileName } = useParams();
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchUserData = async () => {
     try {
+      setLoading(true);
       const response = await api.get(`/profile/by-name/${profileName}`);
       setUser(response.data);
     } catch (error) {
       console.error("Error fetching user data:", error);
       message.error("Failed to fetch user profile. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -28,6 +41,26 @@ function OthersProfile() {
       fetchUserData();
     }
   }, [profileName]);
+
+  if (loading) {
+    return (
+      <>
+        <Affix offsetTop={0}>
+          <Header />
+        </Affix>
+        <div className="wrapper">
+          <div className="wrapper__title1">
+            <p>Account</p>
+          </div>
+          <div className="wrapper__profile">
+            <OthersAccountNav />
+            <Skeleton active avatar paragraph={{ rows: 10 }} />
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   if (!user) {
     return (

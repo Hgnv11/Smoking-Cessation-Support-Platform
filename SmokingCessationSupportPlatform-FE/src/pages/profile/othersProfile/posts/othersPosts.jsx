@@ -1,4 +1,4 @@
-import { Affix, Empty, message } from "antd";
+import { Affix, Empty, message, Skeleton } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Footer from "../../../../components/footer/footer";
@@ -12,6 +12,7 @@ function OthersPosts() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchUserData = async () => {
     try {
@@ -38,12 +39,40 @@ function OthersPosts() {
     }
   };
 
+  const fetchAllData = async () => {
+    try {
+      setLoading(true);
+      await Promise.all([fetchUserData(), fetchUserPosts()]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (profileName) {
-      fetchUserData();
-      fetchUserPosts();
+      fetchAllData();
     }
   }, [profileName]);
+
+  if (loading) {
+    return (
+      <>
+        <Affix offsetTop={0}>
+          <Header />
+        </Affix>
+        <div className="wrapper">
+          <div className="wrapper__title1">
+            <p>Account</p>
+          </div>
+          <div className="wrapper__profile">
+            <OthersAccountNav />
+            <Skeleton active />
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   if (!user) {
     return (

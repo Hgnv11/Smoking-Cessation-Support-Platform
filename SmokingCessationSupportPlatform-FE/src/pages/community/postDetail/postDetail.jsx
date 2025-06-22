@@ -12,6 +12,7 @@ import {
   Input,
   Select,
   Upload,
+  Skeleton,
 } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -30,6 +31,7 @@ function PostDetail() {
   const [author, setAuthor] = useState(null);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -38,6 +40,7 @@ function PostDetail() {
 
   const fetchPostDetail = async () => {
     try {
+      setPageLoading(true);
       const response = await api.get(`/post/detail/${postId}`);
       const postData = response.data;
 
@@ -60,6 +63,8 @@ function PostDetail() {
     } catch (error) {
       console.error("Error fetching post detail:", error);
       message.error("Failed to fetch post details. Please try again later.");
+    } finally {
+      setPageLoading(false);
     }
   };
 
@@ -90,6 +95,20 @@ function PostDetail() {
       message.error("Failed to delete post. Please try again.");
     }
   };
+
+  if (pageLoading) {
+    return (
+      <>
+        <Affix offsetTop={0}>
+          <Header />
+        </Affix>
+        <div className="wrapper">
+          <Skeleton active avatar paragraph={{ rows: 10 }} />
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   if (!post) {
     return (
@@ -223,7 +242,7 @@ function PostDetail() {
               </p>
             </div>
 
-            {author?.userId === user?.userId && (
+            {user && author?.userId === user?.userId && (
               <div className="wrapper__post-container-author-actions">
                 <Button
                   className="wrapper__post-container-author-actions-btn"

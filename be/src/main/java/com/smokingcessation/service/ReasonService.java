@@ -27,30 +27,34 @@ public class ReasonService {
         return reasonMapper.toReasonDTOList(reasons);
     }
 
-    public void addReasonForUser(String email, Integer reasonId) {
+    public void addMultipleReasonsForUser(String email, List<Integer> reasonIds) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
 
-        ReasonsQuit reason = reasonsQuitRepository.findById(reasonId)
-                .orElseThrow(() -> new RuntimeException("Reason not found with ID: " + reasonId));
+        for (Integer reasonId : reasonIds) {
+            ReasonsQuit reason = reasonsQuitRepository.findById(reasonId)
+                    .orElseThrow(() -> new RuntimeException("Reason not found with ID: " + reasonId));
 
-        if (!reason.getIsActive()) {
-            throw new RuntimeException("Reason with ID " + reasonId + " is not active");
+            if (!reason.getIsActive()) {
+                continue; // Bỏ qua nếu lý do không active
+            }
+
+            boolean alreadyExists = userReasonsRepository.existsByUserUserIdAndReasonReasonId(user.getUserId(), reasonId);
+            if (alreadyExists) {
+                continue; // Bỏ qua nếu lý do đã tồn tại cho người dùng
+            }
+
+            UserReasons userReason = new UserReasons();
+            UserReasons.UserReasonsId id = new UserReasons.UserReasonsId();
+            id.setUserId(user.getUserId());
+            id.setReasonId(reasonId);
+
+            userReason.setId(id);
+            userReason.setUser(user);
+            userReason.setReason(reason);
+
+            userReasonsRepository.save(userReason);
         }
-
-        if (userReasonsRepository.existsByUserUserIdAndReasonReasonId(user.getUserId(), reasonId)) {
-            throw new RuntimeException("User already has this reason");
-        }
-
-        UserReasons userReasons = new UserReasons();
-        UserReasons.UserReasonsId id = new UserReasons.UserReasonsId();
-        id.setUserId(user.getUserId());
-        id.setReasonId(reasonId);
-        userReasons.setId(id);
-        userReasons.setUser(user);
-        userReasons.setReason(reason);
-
-        userReasonsRepository.save(userReasons);
     }
 
     public List<ReasonDTO> getMyReasons(String email) {

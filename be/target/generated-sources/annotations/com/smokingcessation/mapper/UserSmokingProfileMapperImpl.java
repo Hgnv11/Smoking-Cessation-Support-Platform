@@ -1,0 +1,53 @@
+package com.smokingcessation.mapper;
+
+import com.smokingcessation.dto.UserSmokingProfileRequest;
+import com.smokingcessation.model.UserSmokingProfile;
+import javax.annotation.processing.Generated;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Generated(
+    value = "org.mapstruct.ap.MappingProcessor",
+    date = "2025-06-22T21:13:53+0700",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.7 (Oracle Corporation)"
+)
+@Component
+public class UserSmokingProfileMapperImpl implements UserSmokingProfileMapper {
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Override
+    public UserSmokingProfileRequest toDto(UserSmokingProfile entity) {
+        if ( entity == null ) {
+            return null;
+        }
+
+        UserSmokingProfileRequest userSmokingProfileRequest = new UserSmokingProfileRequest();
+
+        userSmokingProfileRequest.setUser( userMapper.toDto( entity.getUser() ) );
+        userSmokingProfileRequest.setCigarettesPerDay( entity.getCigarettesPerDay() );
+        userSmokingProfileRequest.setCigarettesPerPack( entity.getCigarettesPerPack() );
+        userSmokingProfileRequest.setCigarettePackCost( entity.getCigarettePackCost() );
+        userSmokingProfileRequest.setQuitDate( entity.getQuitDate() );
+
+        return userSmokingProfileRequest;
+    }
+
+    @Override
+    public UserSmokingProfile toEntity(UserSmokingProfileRequest dto) {
+        if ( dto == null ) {
+            return null;
+        }
+
+        UserSmokingProfile userSmokingProfile = new UserSmokingProfile();
+
+        userSmokingProfile.setUser( userMapper.toEntity( dto.getUser() ) );
+        userSmokingProfile.setCigarettesPerDay( dto.getCigarettesPerDay() );
+        userSmokingProfile.setCigarettesPerPack( dto.getCigarettesPerPack() );
+        userSmokingProfile.setCigarettePackCost( dto.getCigarettePackCost() );
+        userSmokingProfile.setQuitDate( dto.getQuitDate() );
+
+        return userSmokingProfile;
+    }
+}

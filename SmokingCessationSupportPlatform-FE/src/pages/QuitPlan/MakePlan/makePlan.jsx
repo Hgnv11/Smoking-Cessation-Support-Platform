@@ -1,5 +1,5 @@
-import Header from "../../components/header/header";
-import Footer from "../../components/footer/footer";
+import Header from "../../../components/header/header";
+import Footer from "../../../components/footer/footer";
 import "./makePlan.css";
 import {
   Affix,
@@ -203,7 +203,7 @@ function MakePlan() {
           </div>
         </div>
         <Button type="primary" className="wrapper__btn">
-          Submit
+          Create Plan
         </Button>
       </div>
       <Footer />

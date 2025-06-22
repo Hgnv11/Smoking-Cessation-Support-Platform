@@ -35,8 +35,11 @@ function MyAccountNav() {
       >
         Posts
       </a>
-      <a href="/#" className={isActivePage("/#") ? "active" : ""}>
-        Plan
+      <a
+        href="/user-profile/membership"
+        className={isActivePage("/user-profile/membership") ? "active" : ""}
+      >
+        Membership
       </a>
       <a href="/#" className={isActivePage("/#") ? "active" : ""}>
         Badges
