@@ -54,17 +54,6 @@ public class PostController {
         return ResponseEntity.ok(createdPost);
     }
 
-    // API admin duyệt bài viết
-    @Operation(
-            summary = "duyệt bài role admin"
-    )
-    @PatchMapping("/{postId}/approve")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PostDTO> approvePost(@PathVariable int postId) {
-        PostDTO approvedPost = postService.approvePost(postId);
-        return ResponseEntity.ok(approvedPost);
-    }
-
     @Operation(
             summary = "xóa post"
     )

@@ -1,6 +1,6 @@
-// config/SecurityConfig.java
 package com.smokingcessation.config;
 
+import com.smokingcessation.config.JwtAuthenticationFilter;
 import com.smokingcessation.util.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,20 +42,27 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/swagger-ui/**",
+                                "/api/post/all",
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
                                 "/webjars/**",
-                                "/swagger-ui.html").permitAll()
+                                "/swagger-ui.html",
+                                "/login/oauth2/code/google"
+                        ).permitAll()
                         .requestMatchers("/api/profile").hasRole("ADMIN")
                         .requestMatchers("/api/profile/**").hasAnyRole("USER", "MENTOR", "ADMIN")
                         .requestMatchers("/api/user-smoking-profile/**").hasAnyRole("USER", "MENTOR")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("/api/auth/google/success", true)
+                        .failureUrl("/api/auth/failure")
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())); // Updated CORS configuration
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         return http.build();
     }
