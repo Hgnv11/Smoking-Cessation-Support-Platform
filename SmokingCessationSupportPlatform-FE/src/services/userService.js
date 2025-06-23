@@ -30,4 +30,10 @@ export const userService = {
     const response = await api.delete(`/users/${id}`);
     return response.data;
   },
+
+  // Lấy danh sách user cho admin
+  fetchAdminUsers: async () => {
+    const response = await api.get('/admin/users');
+    return response.data;
+  },
 }; 

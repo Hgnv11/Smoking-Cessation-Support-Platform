@@ -16,53 +16,7 @@ import {
 } from "antd";
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
-
-const initialUsers = [
-  {
-    id: "U001",
-    name: "Emma Sarah",
-    author: "emma.jack@example.com",
-    profile: "Emma158",
-    role: "Customer",
-    membership: "Premium",
-    joinDate: "16/1/2023",
-    lastActivity: "2024-10-15",
-    status: "locked",
-  },
-  {
-    id: "U002",
-    name: "David Sad",
-    author: "david.sad@example.com",
-    profile: "David_S",
-    role: "Coach",
-    membership: "Free",
-    joinDate: "01/2/2023",
-    lastActivity: "2024-10-14",
-    status: "active",
-  },
-  {
-    id: "U003",
-    name: "John Doe",
-    author: "john.doe@example.com",
-    profile: "JDoe",
-    role: "Customer",
-    membership: "Premium",
-    joinDate: "05/3/2023",
-    lastActivity: "2024-10-16",
-    status: "active",
-  },
-  {
-    id: "U004",
-    name: "Jane Smith",
-    author: "jane.smith@example.com",
-    profile: "JaneS",
-    role: "Coach",
-    membership: "Free",
-    joinDate: "10/4/2023",
-    lastActivity: "2024-10-13",
-    status: "locked",
-  },
-];
+import { userService } from '../../../services/userService';
 
 const membershipOptions = [
   { value: "", label: "Filter membership packages" },
@@ -81,7 +35,7 @@ const roleOptions = [
 ];
 
 const UserManagement = () => {
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState([]);
   const [filters, setFilters] = useState({
     search: "",
     membership: "",
@@ -93,6 +47,32 @@ const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    // Gọi API lấy danh sách user khi vào trang
+    const getUsers = async () => {
+      try {
+        const data = await userService.fetchAdminUsers();
+        setUsers(
+          data.map((u) => ({
+            id: u.userId,
+            name: u.fullName,
+            author: u.email,
+            profile: u.profileName,
+            role: u.role,
+            membership: u.typeLogin,
+            joinDate: u.createdAt,
+            lastActivity: u.lastLogin,
+            status: u.block ? "locked" : "active",
+          }))
+        );
+      } catch (err) {
+        // Quăng lỗi khi axios false
+        console.error("Failed to fetch users", err);
+      }
+    };
+    getUsers();
+  }, []);
 
   useEffect(() => {
     let result = users.filter((user) => {
