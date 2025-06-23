@@ -61,7 +61,7 @@ public class AuthService {
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
             throw new RuntimeException("Incorrect username or password");
         }
-        if (user.isBlock()) {
+        if (user.getIsBlock()) {
             throw new RuntimeException("Your account has been locked");
         }
         if (user.getIsDelete()) {

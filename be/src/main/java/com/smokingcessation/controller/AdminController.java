@@ -2,7 +2,6 @@ package com.smokingcessation.controller;
 
 import com.smokingcessation.dto.res.ConsultationDTO;
 import com.smokingcessation.dto.res.ConsultationSlotDTO;
-import com.smokingcessation.dto.res.PostDTO;
 import com.smokingcessation.dto.res.ReasonDTO;
 import com.smokingcessation.model.Consultation;
 import com.smokingcessation.model.ConsultationSlot;
@@ -29,41 +28,69 @@ public class AdminController {
     private final ConsultationSlotService slotService;
     private final ConsultationService consultationService;
 
-    @Operation(summary = "Duyệt bài viết")
-    @PatchMapping("/post/{postId}/approve")
-    public ResponseEntity<PostDTO> approvePost(@PathVariable int postId) {
-        PostDTO approvedPost = postService.approvePost(postId);
-        return ResponseEntity.ok(approvedPost);
-    }
-
-    @Operation(summary = "Cập nhật vai trò người dùng")
-    @PutMapping("/user/{userId}/role")
-    public ResponseEntity<String> updateUserRole(
-            @PathVariable Long userId,
-            @RequestParam String newRole) {
-        userService.updateUserRoleByUserId(userId, newRole);
-        return ResponseEntity.ok("User role updated successfully");
-    }
+    // ========== USER CRUD ==========
 
     @Operation(summary = "Lấy danh sách tất cả người dùng")
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @Operation(summary = "Lấy thông tin người dùng theo ID")
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<User> getUserById(@PathVariable Integer userId) {
+        return ResponseEntity.ok(userService.findUserEntityById(userId));
+    }
+
+    @Operation(summary = "Cập nhật người dùng (không cập nhật email & password)")
+    @PutMapping("/users/{userId}")
+    public ResponseEntity<User> updateUser(@PathVariable Integer userId, @RequestBody User updatedUser) {
+        return ResponseEntity.ok(userService.updateUserEntity(userId, updatedUser));
+    }
+
+    @Operation(summary = "Xoá mềm người dùng (theo ID)")
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<String> softDeleteUser(@PathVariable Integer userId) {
+        userService.softDeleteUserById(userId);
+        return ResponseEntity.ok("User soft deleted successfully");
+    }
+
+    @Operation(summary = "Tạo người dùng mới (chỉ dành cho admin)")
+    @PostMapping("/users")
+    public ResponseEntity<User> createUser(@RequestBody User newUser) {
+        return ResponseEntity.ok(userService.saveUser(newUser));
+    }
+
+    @Operation(summary = "Cập nhật vai trò người dùng (bằng chuỗi)")
+    @PutMapping("/users/{userId}/role")
+    public ResponseEntity<String> updateUserRole(
+            @PathVariable Long userId,
+            @RequestParam String newRole
+    ) {
+        userService.updateUserRoleByUserId(userId, newRole);
+        return ResponseEntity.ok("User role updated successfully");
     }
 
     @Operation(summary = "Lấy danh sách tất cả mentor")
     @GetMapping("/mentors")
     public ResponseEntity<List<User>> getAllMentors() {
-        List<User> mentors = userService.getAllMentors();
-        return ResponseEntity.ok(mentors);
+        return ResponseEntity.ok(userService.getAllMentors());
     }
+
+    // ========== POST ==========
+
+    @Operation(summary = "Duyệt bài viết")
+    @PatchMapping("/posts/{postId}/approve")
+    public ResponseEntity<?> approvePost(@PathVariable int postId) {
+        return ResponseEntity.ok(postService.approvePost(postId));
+    }
+
+    // ========== REASONS ==========
 
     @Operation(summary = "Tạo lý do bỏ thuốc mới")
     @PostMapping("/reasons")
     public ResponseEntity<ReasonDTO> createReason(@RequestBody ReasonDTO reasonDTO) {
-        ReasonDTO createdReason = reasonService.createReason(reasonDTO);
-        return ResponseEntity.ok(createdReason);
+        return ResponseEntity.ok(reasonService.createReason(reasonDTO));
     }
 
     @Operation(summary = "Cập nhật lý do bỏ thuốc")
@@ -71,8 +98,7 @@ public class AdminController {
     public ResponseEntity<ReasonDTO> updateReason(
             @PathVariable Integer reasonId,
             @RequestBody ReasonDTO reasonDTO) {
-        ReasonDTO updatedReason = reasonService.updateReason(reasonId, reasonDTO);
-        return ResponseEntity.ok(updatedReason);
+        return ResponseEntity.ok(reasonService.updateReason(reasonId, reasonDTO));
     }
 
     @Operation(summary = "Xóa lý do bỏ thuốc (soft delete)")
@@ -82,14 +108,15 @@ public class AdminController {
         return ResponseEntity.ok("Reason soft deleted successfully");
     }
 
+    // ========== CONSULTATION SLOTS ==========
+
     @Operation(summary = "Tạo một slot tư vấn")
     @PostMapping("/consultation-slots")
     public ResponseEntity<ConsultationSlotDTO> createSlot(
             @RequestParam String mentorEmail,
             @RequestParam Integer slotNumber,
             @RequestParam LocalDate slotDate) {
-        ConsultationSlotDTO slot = slotService.createSlot(mentorEmail, slotNumber, slotDate);
-        return ResponseEntity.ok(slot);
+        return ResponseEntity.ok(slotService.createSlot(mentorEmail, slotNumber, slotDate));
     }
 
     @Operation(summary = "Tạo nhiều slot tư vấn")
@@ -98,8 +125,7 @@ public class AdminController {
             @RequestParam String mentorEmail,
             @RequestParam List<Integer> slotNumbers,
             @RequestParam List<LocalDate> dates) {
-        List<ConsultationSlotDTO> slots = slotService.createMultipleSlots(mentorEmail, slotNumbers, dates);
-        return ResponseEntity.ok(slots);
+        return ResponseEntity.ok(slotService.createMultipleSlots(mentorEmail, slotNumbers, dates));
     }
 
     @Operation(summary = "Cập nhật slot tư vấn")
@@ -109,8 +135,7 @@ public class AdminController {
             @RequestParam(required = false) Integer slotNumber,
             @RequestParam(required = false) LocalDate slotDate,
             @RequestParam(required = false) String mentorEmail) {
-        ConsultationSlotDTO slot = slotService.updateSlot(slotId, slotNumber, slotDate, mentorEmail);
-        return ResponseEntity.ok(slot);
+        return ResponseEntity.ok(slotService.updateSlot(slotId, slotNumber, slotDate, mentorEmail));
     }
 
     @Operation(summary = "Xóa slot tư vấn")
@@ -120,15 +145,17 @@ public class AdminController {
         return ResponseEntity.ok("Slot deleted successfully");
     }
 
+    // ========== CONSULTATION ==========
+
     @Operation(summary = "Lấy danh sách feedback và rating của mentor")
-    @GetMapping("/mentor/{mentorId}/feedback")
+    @GetMapping("/mentors/{mentorId}/feedback")
     public ResponseEntity<List<ConsultationDTO>> getMentorFeedback(@PathVariable Integer mentorId) {
         return ResponseEntity.ok(consultationService.getMentorRatingsAndFeedback(mentorId));
     }
 
     @Operation(summary = "Cập nhật trạng thái tư vấn")
     @PatchMapping("/consultations/{consultationId}/status")
-    public ResponseEntity<ConsultationDTO> updateStatus(
+    public ResponseEntity<ConsultationDTO> updateConsultationStatus(
             @RequestParam String updaterEmail,
             @PathVariable Integer consultationId,
             @RequestParam Consultation.Status status) {

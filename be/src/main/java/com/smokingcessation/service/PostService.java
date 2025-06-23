@@ -96,7 +96,7 @@ public class PostService {
         post.setContent(request.getContent());
         post.setPostType(request.getPostType());
         post.setImageUrl(request.getImageUrl());
-        post.setIsApproved(false); // chuyển trạng thái duyệt về false
+        post.setIsApproved(false);
         post.setUpdatedAt(LocalDateTime.now());
 
         CommunityPost updatedPost = postRepository.save(post);
