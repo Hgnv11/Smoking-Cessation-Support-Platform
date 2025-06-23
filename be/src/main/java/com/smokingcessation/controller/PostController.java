@@ -22,7 +22,7 @@ public class PostController {
 
     // Xem bài viết của chính mình
     @Operation(
-            summary = "Xem bài viết của chính mình"
+            summary = "Xem list bài viết của chính mình"
     )
     @GetMapping("/my")
     public ResponseEntity<List<PostDTO>> getMyPosts(Principal principal) {
@@ -31,9 +31,9 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
-    //Xem bai viet của người khác qua profile name
+    //Xem bai viet của người khác
     @Operation(
-            summary = "Xem bài viết của người khác qua profile name"
+            summary = "Xem list bài viết của người khác"
     )
     @GetMapping("/{profileName}")
     public ResponseEntity<List<PostDTO>> getPostsByUser(@PathVariable String profileName) {
@@ -54,23 +54,12 @@ public class PostController {
         return ResponseEntity.ok(createdPost);
     }
 
-    // API admin duyệt bài viết
-    @Operation(
-            summary = "duyệt bài role admin"
-    )
-    @PatchMapping("/{postId}/approve")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PostDTO> approvePost(@PathVariable int postId) {
-        PostDTO approvedPost = postService.approvePost(postId);
-        return ResponseEntity.ok(approvedPost);
-    }
-
     @Operation(
             summary = "xóa post"
     )
     @DeleteMapping("/{postId}")
-    public ResponseEntity<?> deletePost(@PathVariable int postId,Principal principal
-                                        ) {
+    public ResponseEntity<?> deletePost(@PathVariable int postId, Principal principal
+    ) {
         String userEmail = principal.getName();
         postService.deletePost(postId, userEmail);
         return ResponseEntity.ok().body("Post deleted successfully");
@@ -98,6 +87,13 @@ public class PostController {
         return ResponseEntity.ok(updatedPost);
     }
 
+    @Operation(
+            summary = "Xem chi tiet post"
+    )
+    @GetMapping("/detail/{postId}")
+    public PostDTO getPostById(@PathVariable int postId) {
+        return postService.getPostById(postId);
+    }
 
 
 }

@@ -23,30 +23,38 @@ public class ReasonService {
     private final ReasonMapper reasonMapper;
 
     public List<ReasonDTO> getAllReasons() {
-        List<ReasonsQuit> reasons = reasonsQuitRepository.findAll();
+        List<ReasonsQuit> reasons = reasonsQuitRepository.findAllByIsActiveTrue();
         return reasonMapper.toReasonDTOList(reasons);
     }
 
-    public void addReasonForUser(String email, Integer reasonId) {
+    public void addMultipleReasonsForUser(String email, List<Integer> reasonIds) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
 
-        ReasonsQuit reason = reasonsQuitRepository.findById(reasonId)
-                .orElseThrow(() -> new RuntimeException("Reason not found with ID: " + reasonId));
+        for (Integer reasonId : reasonIds) {
+            ReasonsQuit reason = reasonsQuitRepository.findById(reasonId)
+                    .orElseThrow(() -> new RuntimeException("Reason not found with ID: " + reasonId));
 
-        if (userReasonsRepository.existsByUserUserIdAndReasonReasonId(user.getUserId(), reasonId)) {
-            throw new RuntimeException("User already has this reason");
+            if (!reason.getIsActive()) {
+                continue; // Bỏ qua nếu lý do không active
+            }
+
+            boolean alreadyExists = userReasonsRepository.existsByUserUserIdAndReasonReasonId(user.getUserId(), reasonId);
+            if (alreadyExists) {
+                continue; // Bỏ qua nếu lý do đã tồn tại cho người dùng
+            }
+
+            UserReasons userReason = new UserReasons();
+            UserReasons.UserReasonsId id = new UserReasons.UserReasonsId();
+            id.setUserId(user.getUserId());
+            id.setReasonId(reasonId);
+
+            userReason.setId(id);
+            userReason.setUser(user);
+            userReason.setReason(reason);
+
+            userReasonsRepository.save(userReason);
         }
-
-        UserReasons userReasons = new UserReasons();
-        UserReasons.UserReasonsId id = new UserReasons.UserReasonsId();
-        id.setUserId(user.getUserId());
-        id.setReasonId(reasonId);
-        userReasons.setId(id);
-        userReasons.setUser(user);
-        userReasons.setReason(reason);
-
-        userReasonsRepository.save(userReasons);
     }
 
     public List<ReasonDTO> getMyReasons(String email) {
@@ -55,5 +63,54 @@ public class ReasonService {
 
         List<UserReasons> userReasons = userReasonsRepository.findByUser(user);
         return reasonMapper.toUserReasonDTOList(userReasons);
+    }
+
+    public ReasonDTO createReason(ReasonDTO reasonDTO) {
+        if (reasonDTO.getReasonText() == null || reasonDTO.getReasonText().trim().isEmpty()) {
+            throw new RuntimeException("Reason text cannot be empty");
+        }
+
+        ReasonsQuit existingReason = reasonsQuitRepository.findByReasonText(reasonDTO.getReasonText());
+        if (existingReason != null) {
+            throw new RuntimeException("Reason with text '" + reasonDTO.getReasonText() + "' already exists");
+        }
+
+        ReasonsQuit reason = reasonMapper.toReasonsQuit(reasonDTO);
+        reason.setIsActive(reasonDTO.getIsActive() != null ? reasonDTO.getIsActive() : true);
+        ReasonsQuit savedReason = reasonsQuitRepository.save(reason);
+
+        return reasonMapper.toReasonDTO(savedReason);
+    }
+
+    public ReasonDTO updateReason(Integer reasonId, ReasonDTO reasonDTO) {
+        ReasonsQuit reason = reasonsQuitRepository.findById(reasonId)
+                .orElseThrow(() -> new RuntimeException("Reason not found with ID: " + reasonId));
+
+        if (reasonDTO.getReasonText() == null || reasonDTO.getReasonText().trim().isEmpty()) {
+            throw new RuntimeException("Reason text cannot be empty");
+        }
+
+        ReasonsQuit existingReason = reasonsQuitRepository.findByReasonText(reasonDTO.getReasonText());
+        if (existingReason != null && !existingReason.getReasonId().equals(reasonId)) {
+            throw new RuntimeException("Reason with text '" + reasonDTO.getReasonText() + "' already exists");
+        }
+
+        reason.setReasonText(reasonDTO.getReasonText());
+        reason.setIsActive(reasonDTO.getIsActive() != null ? reasonDTO.getIsActive() : reason.getIsActive());
+        ReasonsQuit updatedReason = reasonsQuitRepository.save(reason);
+
+        return reasonMapper.toReasonDTO(updatedReason);
+    }
+
+    public void deleteReason(Integer reasonId) {
+        ReasonsQuit reason = reasonsQuitRepository.findById(reasonId)
+                .orElseThrow(() -> new RuntimeException("Reason not found with ID: " + reasonId));
+
+        if (!reason.getIsActive()) {
+            throw new RuntimeException("Reason with ID " + reasonId + " is already inactive");
+        }
+
+        reason.setIsActive(false);
+        reasonsQuitRepository.save(reason);
     }
 }

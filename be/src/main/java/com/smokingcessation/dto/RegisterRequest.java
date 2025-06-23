@@ -17,4 +17,9 @@ public class RegisterRequest {
     @NotBlank
     @Size(max = 100)
     private String fullName;
+
+    @NotBlank
+    @Size(max = 100)
+    private String profileName;
+
 }

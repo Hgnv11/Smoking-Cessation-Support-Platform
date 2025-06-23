@@ -103,6 +103,13 @@ public class PostService {
         return postMapper.toDto(updatedPost);
     }
 
+    public PostDTO getPostById(int postId) {
+        CommunityPost post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
+        return postMapper.toDto(post);
+    }
+
+
 
 
 
