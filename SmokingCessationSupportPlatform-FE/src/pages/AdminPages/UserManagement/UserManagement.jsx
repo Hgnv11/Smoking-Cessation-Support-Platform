@@ -16,7 +16,7 @@ import {
 } from "antd";
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
-import { userService } from '../../../services/userService';
+import { userService } from "../../../services/userService.js"; 
 
 const membershipOptions = [
   { value: "", label: "Filter membership packages" },
