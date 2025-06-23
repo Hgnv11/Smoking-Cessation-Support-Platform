@@ -43,29 +43,45 @@ It supports:
 Create a file: `src/main/resources/application.properties`
 
 ```properties
-# ========== SERVER ==========
-server.port=8080
+spring.datasource.url=${SPRING_DATASOURCE_URL}
+spring.datasource.username=${SPRING_DATASOURCE_USERNAME}
+spring.datasource.password=${SPRING_DATASOURCE_PASSWORD}
+spring.datasource.driver-class-name=${SPRING_DATASOURCE_DRIVER_CLASS_NAME}
 
-# ========== DATABASE ==========
-spring.datasource.url=jdbc:mysql://localhost:3306/smoking_cessation_db
-spring.datasource.username=your_root
-spring.datasource.password=your_pass
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+spring.jpa.properties.hibernate.format_sql=true
 
-# ========== JWT ==========
-jwt.secret=your_jwt_secret_key
-jwt.expiration=86400000
+spring.mail.host=${SPRING_MAIL_HOST}
+spring.mail.port=${SPRING_MAIL_PORT}
+spring.mail.username=${SPRING_MAIL_USERNAME}
+spring.mail.password=${SPRING_MAIL_PASSWORD}
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail.properties.mail.transport.protocol=smtp
 
-# ========== GOOGLE OAUTH ==========
-spring.security.oauth2.client.registration.google.client-id=your-client-id
-spring.security.oauth2.client.registration.google.client-secret=your-client-secret
+spring.security.oauth2.client.registration.google.client-id=${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID}
+spring.security.oauth2.client.registration.google.client-secret=${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET}
+spring.security.oauth2.client.registration.google.redirect-uri=${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_REDIRECT_URI}
+spring.security.oauth2.client.registration.google.scope=${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_SCOPE}
+logging.level.org.springframework.security=DEBUG
+
+jwt.secret=${JWT_SECRET}
+jwt.expiration=${JWT_EXPIRATION}
+app.otp.expiration-minutes=${APP_OTP_EXPIRATION_MINUTES}
+app.otp.length=${APP_OTP_LENGTH}
+
+server.port=${PORT:8080}
 
 # ========== SWAGGER ==========
+springdoc.api-docs.enabled=true
+springdoc.swagger-ui.enabled=true
 springdoc.swagger-ui.path=/swagger-ui.html
 
+```
 
-### Connect me via :  Hoangnvab@gmail.com
+### Connect me via :  Hoangnvse172524@fpt.edu.vn
 
 #### &#169; 2025 Hgnv11
 
