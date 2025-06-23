@@ -161,7 +161,6 @@ public class AuthService {
         String email = principal.getAttribute("email");
         String fullName = principal.getAttribute("name");
         String avatarUrl = principal.getAttribute("picture");
-        String givenName = principal.getAttribute("given_name");
 
         if (email == null || fullName == null) {
             throw new IllegalArgumentException("Email or full name is missing from Google response");
@@ -175,7 +174,8 @@ public class AuthService {
             newUser.setEmail(email);
             newUser.setFullName(fullName);
             newUser.setAvatarUrl(avatarUrl);
-            newUser.setProfileName(givenName);
+            newUser.setProfileName("user" + UUID.randomUUID().toString().substring(0, 6));
+            newUser.setPasswordHash(UUID.randomUUID().toString());
             newUser.setRole(User.Role.user);
             newUser.setIsVerified(true);
             newUser.setHasActive(false);
