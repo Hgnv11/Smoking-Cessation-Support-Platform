@@ -20,4 +20,6 @@ public class GoogleAuthController {
     public LoginDTO handleGoogleSuccess(@AuthenticationPrincipal OAuth2User principal) {
         return authService.handleGoogleLogin(principal);
     }
+
+
 }

@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/api/post/all",
                                 "/api/post/detail/**",
+                                "/api/post/by-name/**",
                                 "/api/post/{profileName}",
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
@@ -59,6 +60,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
                 .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/oauth2/authorization/google")
                         .defaultSuccessUrl("/api/auth/google/success", true)
                         .failureUrl("/api/auth/failure")
                 )

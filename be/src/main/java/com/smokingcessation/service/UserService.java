@@ -45,6 +45,7 @@ public class UserService {
 
         if (userDTO.getBirthDate() != null) user.setBirthDate(userDTO.getBirthDate());
         if (userDTO.getAvatarUrl() != null) user.setAvatarUrl(userDTO.getAvatarUrl());
+        if (userDTO.getNote() != null) user.setNote(userDTO.getNote());
 
         if (userDTO.getGender() != null) {
             try {
@@ -126,6 +127,7 @@ public class UserService {
 
         if (updatedInfo.getRole() != null) user.setRole(updatedInfo.getRole());
         if (updatedInfo.getTypeLogin() != null) user.setTypeLogin(updatedInfo.getTypeLogin());
+        if (updatedInfo.getNote() != null) user.setNote(updatedInfo.getNote());
 
         return userRepository.save(user);
     }

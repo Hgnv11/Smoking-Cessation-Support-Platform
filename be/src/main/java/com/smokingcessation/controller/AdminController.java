@@ -86,6 +86,12 @@ public class AdminController {
         return ResponseEntity.ok(postService.approvePost(postId));
     }
 
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<String> deletePostByAdmin(@PathVariable int postId) {
+        postService.deletePostByAdmin(postId);
+        return ResponseEntity.ok("Post deleted successfully by admin");
+    }
+
     // ========== REASONS ==========
 
     @Operation(summary = "Tạo lý do bỏ thuốc mới")

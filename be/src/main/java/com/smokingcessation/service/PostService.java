@@ -109,6 +109,12 @@ public class PostService {
         return postMapper.toDto(post);
     }
 
+    public void deletePostByAdmin(int postId) {
+        CommunityPost post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+        postRepository.delete(post);
+    }
+
 
 
 

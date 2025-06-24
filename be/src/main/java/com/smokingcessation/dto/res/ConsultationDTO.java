@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @Builder
 public class ConsultationDTO {
     private int consultationId;
+    private ConsultationSlotDTO consultationSlot;
     private UserDTO user;
-    private UserDTO mentor;
     private String status;
     private LocalDateTime createdAt;
     private Integer rating;

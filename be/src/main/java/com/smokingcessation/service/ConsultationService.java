@@ -55,6 +55,18 @@ public class ConsultationService {
             throw new RuntimeException("Slot is already booked");
         }
 
+        boolean isSlotClashing = consultationRepository
+                .findByUser(user).stream()
+                .anyMatch(c ->
+                        c.getSlot().getSlotDate().equals(slotDate)
+                                && c.getSlot().getSlotNumber().equals(slotNumber)
+                                && !c.getStatus().equals(Consultation.Status.cancelled)
+                );
+
+        if (isSlotClashing) {
+            throw new RuntimeException("You already have a consultation booked for this time slot.");
+        }
+
         Consultation consultation = Consultation.builder()
                 .slot(slot)
                 .user(user)
@@ -190,4 +202,38 @@ public class ConsultationService {
                 .map(consultationMapper::toDto)
                 .toList();
     }
+
+    public void cancelConsultation(String userEmail, Integer consultationId) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (!Boolean.TRUE.equals(user.getHasActive())) {
+            throw new RuntimeException("User account is inactive");
+        }
+
+        Consultation consultation = consultationRepository.findById(consultationId)
+                .orElseThrow(() -> new RuntimeException("Consultation not found"));
+
+        // Chỉ chủ sở hữu (user) mới được phép hủy
+        if (!consultation.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("You are not authorized to cancel this consultation");
+        }
+
+        // Nếu đã completed hoặc đã hủy thì không được hủy lại
+        if (consultation.getStatus() == Consultation.Status.completed) {
+            throw new RuntimeException("Cannot cancel a completed consultation");
+        }
+        if (consultation.getStatus() == Consultation.Status.cancelled) {
+            throw new RuntimeException("Consultation is already cancelled");
+        }
+
+        consultation.setStatus(Consultation.Status.cancelled);
+
+        // Gỡ đánh dấu slot đã book → để người khác có thể đặt
+        ConsultationSlot slot = consultation.getSlot();
+        slot.setIsBooked(false);
+        slotRepository.save(slot);
+
+        consultationRepository.save(consultation);
+    }
+
 }

@@ -45,6 +45,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role = Role.guest;
 
+    private String note;
+
     private Boolean hasActive = false;
     private Boolean isDelete=false;
     private String typeLogin;

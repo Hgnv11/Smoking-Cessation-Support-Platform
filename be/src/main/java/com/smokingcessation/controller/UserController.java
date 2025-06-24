@@ -58,24 +58,13 @@ public class UserController {
         return ResponseEntity.ok(userDTO);
     }
 
-
-
     @Operation(
-            summary = "set status user is_delete(xóa trên web), user role=admin"
+            summary = "set status user is_delete "
     )
     @DeleteMapping("/me")
     public ResponseEntity<String> deleteUser(Principal principal) {
         String email = principal.getName();
         userService.softDeleteUser(email);
         return ResponseEntity.ok("User deleted successfully");
-    }
-
-    @PutMapping("/{userId}/role")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> updateUserRole(
-            @PathVariable Long userId,
-            @RequestParam String newRole) {
-        userService.updateUserRoleByUserId(userId, newRole);
-        return ResponseEntity.ok("User role updated successfully");
     }
 }
