@@ -1,14 +1,18 @@
 package com.smokingcessation.service;
 
+import com.smokingcessation.dto.res.MentorWithRatingDTO;
 import com.smokingcessation.dto.res.UserDTO;
 import com.smokingcessation.mapper.UserMapper;
+import com.smokingcessation.model.Consultation;
 import com.smokingcessation.model.User;
+import com.smokingcessation.repository.ConsultationRepository;
 import com.smokingcessation.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +22,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final ConsultationRepository consultationRepository;
     private final PasswordEncoder passwordEncoder;
 
     // Get profile by email
@@ -91,13 +96,39 @@ public class UserService {
                 .toList();
     }
 
-    // Get mentors (DTO for user)
-    public List<UserDTO> getAllMentorsForUser() {
-        return userRepository.findAll().stream()
+    public List<MentorWithRatingDTO> getAllMentorsForUser() {
+        List<User> mentors = userRepository.findAll().stream()
                 .filter(user -> "mentor".equals(user.getRole().name()))
-                .map(userMapper::toDto)
                 .toList();
+
+        List<MentorWithRatingDTO> result = new ArrayList<>();
+
+        for (User mentor : mentors) {
+            List<Consultation> consultations = consultationRepository.findByMentor(mentor);
+            int total = 0;
+            int count = 0;
+
+            for (Consultation c : consultations) {
+                Integer rating = c.getRating();
+                if (c.getStatus() == Consultation.Status.completed && rating != null && rating >= 1 && rating <= 5) {
+                    total += rating;
+                    count++;
+                }
+            }
+
+            double avgRating = count == 0 ? 0.0 : Math.round((double) total / count * 10.0) / 10.0;
+
+            MentorWithRatingDTO dto = MentorWithRatingDTO.builder()
+                    .mentor(userMapper.toDto(mentor))
+                    .averageRating(avgRating)
+                    .build();
+
+            result.add(dto);
+        }
+
+        return result;
     }
+
 
     // Admin update: full quyền chỉnh user (trừ email, password)
     public User updateUserEntity(Integer userId, User updatedInfo) {
