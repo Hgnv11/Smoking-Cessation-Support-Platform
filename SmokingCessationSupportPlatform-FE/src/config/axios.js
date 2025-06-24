@@ -7,6 +7,7 @@ const api = axios.create({
 //làm 1 hành động gì đó trc khi call api
 const handleBefore = (config) => {
     const token = localStorage.getItem("token")?.replaceAll('"', "");
+    console.log("Using token for request:", token); // log lại để kiểm tra token trong localStorage
     config.headers["Authorization"] = `Bearer ${token}`;
     return config;
   };
