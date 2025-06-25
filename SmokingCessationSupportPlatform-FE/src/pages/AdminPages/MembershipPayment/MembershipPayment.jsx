@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./MembershipPayment.module.css";
 import AdminLayout from "../../../components/layout/AdminLayout.jsx";
+import FilterBar from '../../../components/admin/AdminReusableUI/FilterBar';
+import BulkActionBar from '../../../components/admin/AdminReusableUI/BulkActionBar';
+import ActionDropdown from '../../../components/admin/AdminReusableUI/ActionDropdown';
+import ReusableTable from '../../../components/admin/ReusableTable/ReusableTable';
+import dayjs from 'dayjs';
 
 const MembershipPayment = () => {
   // Mock data cho summary
@@ -63,6 +68,12 @@ const MembershipPayment = () => {
   // Tab state
   const [activeTab, setActiveTab] = useState("history");
 
+  // New state for search and filter
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [filteredPayments, setFilteredPayments] = useState(payments);
+
   // Hàm render badge status
   const renderStatus = (status) => {
     if (status === "COMPLETED")
@@ -71,6 +82,36 @@ const MembershipPayment = () => {
       return <span className={`${styles["status-badge"]} ${styles["status-pending"]}`}>PENDING</span>;
     return <span className={`${styles["status-badge"]} ${styles["status-fail"]}`}>FAIL</span>;
   };
+
+  useEffect(() => {
+    let result = payments.filter(payment => {
+      const matchSearch = payment.email.toLowerCase().includes(search.toLowerCase()) || payment.userId.toLowerCase().includes(search.toLowerCase());
+      const matchStatus = filterStatus ? payment.status === filterStatus : true;
+      return matchSearch && matchStatus;
+    });
+    setFilteredPayments(result);
+  }, [search, filterStatus, payments]);
+
+  const columns = [
+    { title: 'Transaction ID', dataIndex: 'id' },
+    { title: 'Package name', dataIndex: 'package' },
+    { title: 'User ID', dataIndex: 'userId' },
+    { title: 'Email Users', dataIndex: 'email' },
+    { title: 'Amount', dataIndex: 'amount' },
+    { title: 'Payment Date', dataIndex: 'date', render: value => dayjs(value, ["D/M/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"]).format("DD/MM/YYYY") },
+    { title: 'Status', dataIndex: 'status', render: renderStatus },
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      render: (value, row) => (
+        <ActionDropdown
+          actions={[
+            { key: 'view', label: 'View/Process', onClick: () => {} },
+          ]}
+        />
+      ),
+    },
+  ];
 
   return (
     <AdminLayout title="Membership & Payment">
@@ -100,44 +141,36 @@ const MembershipPayment = () => {
             Payment Plan Management
           </div>
         </div>
-        <div className={styles["search-filter-row"]}>
-          <select className={styles["filter-select"]}><option>Registration package</option></select>
-          <select className={styles["filter-select"]}><option>Account status</option></select>
-          <input className={styles["date-input"]} placeholder="Start date" type="date" />
-          <input className={styles["date-input"]} placeholder="End date" type="date" />
-        </div>
-        <div className={styles["payment-table-wrapper"]}>
-          <table className={styles["payment-table"]}>
-            <thead>
-              <tr>
-                <th>Transaction ID</th>
-                <th>Package name</th>
-                <th>User ID</th>
-                <th>Email Users</th>
-                <th>Amount</th>
-                <th>Payment Date</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {payments.map((p, idx) => (
-                <tr key={idx}>
-                  <td>{p.id}</td>
-                  <td>{p.package}</td>
-                  <td>{p.userId}</td>
-                  <td>{p.email}</td>
-                  <td>{p.amount}</td>
-                  <td>{p.date}</td>
-                  <td>{renderStatus(p.status)}</td>
-                  <td>
-                    <button className={`${styles["action-btn"]} ${styles["view"]}`}>👁 View/Process</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <FilterBar
+          searchPlaceholder="Search by email, user ID..."
+          searchValue={search}
+          onSearchChange={e => setSearch(e.target.value)}
+          filters={[{
+            placeholder: 'Filter status',
+            value: filterStatus,
+            onChange: setFilterStatus,
+            options: [
+              { value: '', label: 'All status' },
+              { value: 'COMPLETED', label: 'Completed' },
+              { value: 'PENDING', label: 'Pending' },
+              { value: 'FAIL', label: 'Fail' },
+            ]
+          }]}
+        />
+        {selectedRows.length > 0 && (
+          <BulkActionBar
+            selectedCount={selectedRows.length}
+            onAction={() => {}}
+            actions={[]}
+          />
+        )}
+        <ReusableTable
+          columns={columns}
+          data={filteredPayments}
+          selectedRowKeys={selectedRows}
+          onSelectAll={checked => setSelectedRows(checked ? filteredPayments.map(p => p.id) : [])}
+          onSelectRow={(id, checked) => setSelectedRows(prev => checked ? [...prev, id] : prev.filter(pid => pid !== id))}
+        />
       </div>
     </AdminLayout>
   );

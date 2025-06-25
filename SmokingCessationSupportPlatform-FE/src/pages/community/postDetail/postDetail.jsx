@@ -49,17 +49,7 @@ function PostDetail() {
         return;
       }
       setPost(postData);
-
-      if (postData.user?.profileName) {
-        try {
-          const response = await api.get(
-            `/profile/by-name/${postData.user.profileName}`
-          );
-          setAuthor(response.data);
-        } catch (authorError) {
-          console.error("Error fetching author:", authorError);
-        }
-      }
+      setAuthor(postData.user);
     } catch (error) {
       console.error("Error fetching post detail:", error);
       message.error("Failed to fetch post details. Please try again later.");

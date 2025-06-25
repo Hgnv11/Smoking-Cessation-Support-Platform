@@ -1,5 +1,5 @@
+import "./membership.css";
 import { Affix } from "antd";
-import "././membership.css";
 import Header from "../../../../components/header/header";
 import Footer from "../../../../components/footer/footer";
 import MyAccountNav from "../../../../components/myAccount-nav/myAccount-nav";

@@ -1,13 +1,9 @@
-/* Overview.module.css */
-
-/* Layout tổng thể */
 .app-layout {
   display: flex;
   min-height: 100vh;
   background: #f7f8fa;
 }
 
-/* Phần nội dung chính */
 .overview-page {
   flex: 1;
   padding: 40px 48px 32px 48px;

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-22T21:13:53+0700",
+    date = "2025-06-25T23:34:48+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.7 (Oracle Corporation)"
 )
 @Component
@@ -16,6 +16,8 @@ public class ConsultationMapperImpl implements ConsultationMapper {
 
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private ConsultationSlotMapper consultationSlotMapper;
 
     @Override
     public ConsultationDTO toDto(Consultation consultation) {
@@ -29,7 +31,7 @@ public class ConsultationMapperImpl implements ConsultationMapper {
             consultationDTO.consultationId( consultation.getConsultationId() );
         }
         consultationDTO.user( userMapper.toDto( consultation.getUser() ) );
-        consultationDTO.mentor( userMapper.toDto( consultation.getMentor() ) );
+        consultationDTO.consultationSlot( consultationSlotMapper.toDto( consultation.getSlot() ) );
         if ( consultation.getStatus() != null ) {
             consultationDTO.status( consultation.getStatus().name() );
         }

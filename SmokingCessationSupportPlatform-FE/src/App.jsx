@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import "./App.css";
 import { useSelector } from "react-redux";
+import { message, notification } from "antd";
 import Home from "./pages/Home/home.jsx";
 import Login from "./pages/Authentication/Login/login.jsx";
 import Register from "./pages/Authentication/Register/register.jsx";
@@ -14,7 +15,7 @@ import ForgotPassCode from "./pages/Authentication/ForgotPass-code/forgotPass-co
 import VerifyCode from "./pages/Authentication/VerifyCode/verifyCode.jsx";
 import MakePlan from "./pages/QuitPlan/MakePlan/makePlan.jsx";
 import Community from "./pages/Community/PostList/community.jsx";
-import UserCoach from "./pages/UserCoach/userCoach.jsx";
+import UserCoach from "./pages/UserCoach/CoachList/userCoach.jsx";
 import Layout from "./components/layout/layout";
 import UserProfile from "./pages/Profile/UserProfile/profile/userProfile.jsx";
 import ChangePass from "./pages/Profile/UserProfile/changePass/changePass.jsx";
@@ -26,12 +27,14 @@ import MembershipPayment from "./pages/AdminPages/MembershipPayment/MembershipPa
 import CoachManagement from "./pages/AdminPages/CoachManagement/CoachManagement.jsx";
 import Overview from "./pages/AdminPages/Dashboard/Overview.jsx";
 import ChangePassCode from "./pages/Authentication/ChangePass-code/changePass-code.jsx";
-import OthersProfile from "./pages/Profile/othersProfile/profile/othersProfile.jsx";
-import OthersPosts from "./pages/Profile/othersProfile/posts/othersPosts.jsx";
+import OthersProfile from "./pages/Profile/OthersProfile/profile/othersProfile.jsx";
+import OthersPosts from "./pages/Profile/OthersProfile/posts/othersPosts.jsx";
 import UserPosts from "./pages/Profile/UserProfile/posts/userPosts.jsx";
-import { message, notification } from "antd";
+import UserBookings from "./pages/Profile/UserProfile/bookings/bookings.jsx";
 import PlanDetail from "./pages/QuitPlan/PlanDetail/planDetail.jsx";
 import Membership from "./pages/Profile/UserProfile/membership/membership.jsx";
+import UserCoachDetail from "./pages/UserCoach/CoachDetail/userCoachDetail.jsx";
+import UserBadges from "./pages/Profile/UserProfile/badges/badges.jsx";
 
 const ProtectRouteAuth = ({ children }) => {
   const user = useSelector((store) => store.user);
@@ -131,6 +134,22 @@ const ProtectAdminRoute = ({ children }) => {
   return children;
 };
 
+const ProtectCoachRoute = ({ children }) => {
+  const user = useSelector((store) => store.user);
+  if (user == null) {
+    return <Navigate to="/" />;
+  }
+  if (user.role !== "mentor") {
+    notification.error({
+      message: "Access denied!",
+      description: "Coach privileges required.",
+      duration: 2,
+    });
+    return <Navigate to="/" />;
+  }
+  return children;
+};
+
 function App() {
   const router = createBrowserRouter([
     {
@@ -219,6 +238,22 @@ function App() {
           ),
         },
         {
+          path: "user-profile/badges",
+          element: (
+            <ProtectUserProfile>
+              <UserBadges />
+            </ProtectUserProfile>
+          ),
+        },
+        {
+          path: "user-profile/bookings",
+          element: (
+            <ProtectUserProfile>
+              <UserBookings />
+            </ProtectUserProfile>
+          ),
+        },
+        {
           path: "users/:profileName",
           element: <OthersProfile />,
         },
@@ -245,6 +280,7 @@ function App() {
         { path: "community", element: <Community /> },
         { path: "community/:postId", element: <PostDetail /> },
         { path: "user-coach", element: <UserCoach /> },
+        { path: "coach-detail", element: <UserCoachDetail /> },
         {
           path: "admin",
           element: (

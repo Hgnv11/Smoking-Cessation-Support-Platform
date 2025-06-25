@@ -1,8 +1,8 @@
 import "./userCoach.css";
-import Footer from "../../components/footer/footer";
-import Header from "../../components/header/header";
-import { Affix, Button, Card, Divider } from "antd";
-import CoachData from "../../config/coachData";
+import Footer from "../../../components/footer/footer";
+import Header from "../../../components/header/header";
+import { Affix, Button, Card, Divider, Rate } from "antd";
+import CoachData from "../../../config/coachData";
 import { RightOutlined } from "@ant-design/icons";
 
 function UserCoach() {
@@ -40,10 +40,13 @@ function UserCoach() {
                     alt="Coach Avatar"
                     className="wrapper__content-coach-card-info-avatar"
                   />
-                  <h2 className="wrapper__content-coach-card-info-name">
-                    {coach.gender === "MALE" ? "Mr. " : "Mrs. "}
-                    {coach.profile_name}
-                  </h2>
+                  <div>
+                    <h2 className="wrapper__content-coach-card-info-name">
+                      {coach.gender === "MALE" ? "Mr. " : "Mrs. "}
+                      {coach.profile_name}
+                    </h2>
+                    <Rate disabled allowHalf defaultValue={2.5} />
+                  </div>
                 </div>
                 <p className="wrapper__content-coach-card-note">{coach.note}</p>
                 <Button

@@ -1,9 +1,9 @@
 import "./planDetail.css";
-import { Affix, Col, DatePicker, Divider, Row } from "antd";
+import { Affix, Button, Col, DatePicker, Divider, Row } from "antd";
 import Header from "../../../components/header/header";
 import Footer from "../../../components/footer/footer";
 import {
-  CalendarOutlined,
+  CalendarTwoTone,
   CrownOutlined,
   DollarOutlined,
   FireOutlined,
@@ -46,7 +46,7 @@ function PlanDetail() {
             </p>
             <div className="wrapper__content-detail-saving">
               <p className="wrapper__content-detail-saving-title">
-                <CalendarOutlined className="wrapper__content-detail-saving-title-icon" />
+                <CalendarTwoTone className="wrapper__content-detail-saving-title-icon" />
                 1 week smoke-free :
                 <span className="wrapper__content-detail-saving-value">
                   $50.00
@@ -55,7 +55,7 @@ function PlanDetail() {
             </div>
             <div className="wrapper__content-detail-saving">
               <p className="wrapper__content-detail-saving-title">
-                <CalendarOutlined className="wrapper__content-detail-saving-title-icon" />
+                <CalendarTwoTone className="wrapper__content-detail-saving-title-icon" />
                 1 month smoke-free :
                 <span className="wrapper__content-detail-saving-value">
                   $50.00
@@ -65,7 +65,7 @@ function PlanDetail() {
 
             <div className="wrapper__content-detail-saving">
               <p className="wrapper__content-detail-saving-title">
-                <CalendarOutlined className="wrapper__content-detail-saving-title-icon" />
+                <CalendarTwoTone className="wrapper__content-detail-saving-title-icon" />
                 1 year smoke-free :
                 <span className="wrapper__content-detail-saving-value">
                   $50.00
@@ -122,6 +122,13 @@ function PlanDetail() {
                   </p>
                 </Col>
               </Row>
+              <Button
+                color="danger"
+                variant="filled"
+                className="wrapper__content-detail-progress-btn"
+              >
+                I Have Smoked Today!
+              </Button>
             </div>
           </div>
 

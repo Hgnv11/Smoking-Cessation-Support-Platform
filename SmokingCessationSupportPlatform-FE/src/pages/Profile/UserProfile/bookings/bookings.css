@@ -1,0 +1,71 @@
+.wrapper__profile-bookings {
+    width: 100%;
+}
+
+.wrapper__profile-bookings-card {
+    border: 2px solid #f0eeee;
+    border-radius: 20px;
+    margin-bottom: 30px;
+}
+
+.wrapper__profile-bookings-card-note {
+    color: #6D6E76;
+    margin-top: -5px;
+}
+
+.wrapper__profile-bookings-card-date {
+    display: flex;
+
+    margin-top: 15px;
+}
+
+.wrapper__profile-bookings-card-date-details {
+    font-size: 16px;
+    margin-right: 30px;
+    font-weight: 600;
+}
+
+.wrapper__profile-bookings-card-date-details-icon {
+    font-size: 20px;
+    margin-right: 5px;
+}
+
+.wrapper__profile-bookings-card-coach {
+
+    margin-top: 20px;
+}
+
+.wrapper__profile-bookings-card-coach-info {
+    display: flex;
+    justify-content: space-between;
+}
+
+.wrapper__profile-bookings-card-coach-info-des {
+    display: flex;
+}
+
+.wrapper__profile-bookings-card-coach-avatar {
+    min-width: 60px;
+    min-height: 60px;
+    max-width: 60px;
+    max-height: 60px;
+    margin-right: 20px;
+}
+
+.wrapper__profile-bookings-card-coach-info-des-name {
+    color: #0A52B5;
+    margin-bottom: 3px;
+}
+
+.wrapper__profile-bookings-card-coach-info-des-email {
+    color: #7D7987;
+}
+
+.wrapper__profile-bookings-card-coach-info-des-email-icon {
+    margin-right: 7px;
+}
+
+.wrapper__profile-bookings-card-coach-info-rate-number {
+    color: #7D7987;
+    margin-top: 3px;
+}

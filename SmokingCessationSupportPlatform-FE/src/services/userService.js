@@ -1,15 +1,10 @@
 import api from "../config/axios";
 
 export const userService = {
-  // Lấy danh sách người dùng
-  getUsers: async (params) => {
-    const response = await api.get('/users', { params });
-    return response.data;
-  },
 
   // Lấy thông tin chi tiết một người dùng
   getUserById: async (id) => {
-    const response = await api.get(`/users/${id}`);
+    const response = await api.get(`/admin/users/${id}`);
     return response.data;
   },
 
@@ -21,13 +16,19 @@ export const userService = {
 
   // Cập nhật thông tin người dùng
   updateUser: async (id, userData) => {
-    const response = await api.put(`/users/${id}`, userData);
+    const response = await api.put(`/admin/users/${id}`, userData);
     return response.data;
   },
 
   // Xóa người dùng
   deleteUser: async (id) => {
-    const response = await api.delete(`/users/${id}`);
+    const response = await api.delete(`/admin/users/${id}`);
+    return response.data;
+  },
+
+  // Lấy danh sách user cho admin
+  fetchAdminUsers: async () => {
+    const response = await api.get('/admin/users');
     return response.data;
   },
 }; 

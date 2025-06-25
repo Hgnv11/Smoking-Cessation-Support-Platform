@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-22T21:13:53+0700",
+    date = "2025-06-25T23:34:48+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.7 (Oracle Corporation)"
 )
 @Component
@@ -25,13 +25,14 @@ public class PostMapperImpl implements PostMapper {
 
         PostDTO postDTO = new PostDTO();
 
-        postDTO.setUser( userMapper.toDto( post.getUser() ) );
-        postDTO.setIsApproved( post.getIsApproved() );
         postDTO.setPostId( post.getPostId() );
+        postDTO.setUser( userMapper.toDto( post.getUser() ) );
         postDTO.setTitle( post.getTitle() );
         postDTO.setContent( post.getContent() );
         postDTO.setImageUrl( post.getImageUrl() );
         postDTO.setPostType( post.getPostType() );
+        postDTO.setUpdatedAt( post.getUpdatedAt() );
+        postDTO.setIsApproved( post.getIsApproved() );
 
         return postDTO;
     }
@@ -45,11 +46,13 @@ public class PostMapperImpl implements PostMapper {
         CommunityPost communityPost = new CommunityPost();
 
         communityPost.setPostId( dto.getPostId() );
+        communityPost.setUser( userMapper.toEntity( dto.getUser() ) );
         communityPost.setTitle( dto.getTitle() );
         communityPost.setContent( dto.getContent() );
         communityPost.setPostType( dto.getPostType() );
         communityPost.setIsApproved( dto.getIsApproved() );
         communityPost.setImageUrl( dto.getImageUrl() );
+        communityPost.setUpdatedAt( dto.getUpdatedAt() );
 
         return communityPost;
     }

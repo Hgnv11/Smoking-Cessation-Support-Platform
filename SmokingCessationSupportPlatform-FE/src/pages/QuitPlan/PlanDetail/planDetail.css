@@ -53,4 +53,9 @@
     margin: 0 10px;
 }
 
+.wrapper__content-detail-progress-btn {
+    height: 40px;
+    margin-top: 30px;
+    font-weight: 600;
+}
 

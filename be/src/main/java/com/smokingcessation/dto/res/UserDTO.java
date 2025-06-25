@@ -19,5 +19,6 @@ public class UserDTO {
     private LocalDate birthDate;
     private String avatarUrl;
     private String gender;
+    private String note;
 
 }

@@ -137,22 +137,6 @@ export const Reports = () => {
         <Col span={6}>
           <Card className={styles.card}>
             <Statistic
-              title="Active Clients"
-              value={18}
-              prefix={<UserOutlined />}
-              valueStyle={{ color: "#0d9488" }}
-              suffix={
-                <Space>
-                  <RiseOutlined style={{ color: "#52c41a" }} />
-                  <Text style={{ color: "#52c41a", fontSize: 12 }}>+3</Text>
-                </Space>
-              }
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card className={styles.card}>
-            <Statistic
               title="Monthly Revenue"
               value={3200}
               prefix={<DollarOutlined />}
@@ -192,10 +176,16 @@ export const Reports = () => {
               pagination={false}
               size="middle"
             />
+            <div style={{ marginTop: "16px", maxWidth: "80%"}}>
+              <Text italic type="secondary" style={{ fontSize: 12 }}>
+                *Sessions Attended: Number of counseling sessions attended by the client. 
+                This is an important indicator of client commitment and is closely correlated with the 
+                likelihood of successfully quitting smoking.</Text>
+            </div>
           </Card>
 
           {/* Monthly Performance */}
-          <Card 
+          {/* <Card 
             title="Monthly Performance" 
             className={styles.monthlyPerformance}
           >
@@ -224,7 +214,7 @@ export const Reports = () => {
                 </Col>
               ))}
             </Row>
-          </Card>
+          </Card> */}
         </Col>
 
         <Col span={8}>

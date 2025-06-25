@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-22T21:13:53+0700",
+    date = "2025-06-25T23:34:48+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.7 (Oracle Corporation)"
 )
 @Component
@@ -32,6 +32,7 @@ public class UserMapperImpl implements UserMapper {
         if ( user.getGender() != null ) {
             userDTO.gender( user.getGender().name() );
         }
+        userDTO.note( user.getNote() );
 
         return userDTO.build();
     }
@@ -42,18 +43,19 @@ public class UserMapperImpl implements UserMapper {
             return null;
         }
 
-        User user = new User();
+        User.UserBuilder user = User.builder();
 
-        user.setUserId( userDTO.getUserId() );
-        user.setEmail( userDTO.getEmail() );
-        user.setProfileName( userDTO.getProfileName() );
-        user.setFullName( userDTO.getFullName() );
-        user.setAvatarUrl( userDTO.getAvatarUrl() );
-        user.setBirthDate( userDTO.getBirthDate() );
+        user.userId( userDTO.getUserId() );
+        user.email( userDTO.getEmail() );
+        user.profileName( userDTO.getProfileName() );
+        user.fullName( userDTO.getFullName() );
+        user.avatarUrl( userDTO.getAvatarUrl() );
+        user.birthDate( userDTO.getBirthDate() );
         if ( userDTO.getGender() != null ) {
-            user.setGender( Enum.valueOf( User.Gender.class, userDTO.getGender() ) );
+            user.gender( Enum.valueOf( User.Gender.class, userDTO.getGender() ) );
         }
+        user.note( userDTO.getNote() );
 
-        return user;
+        return user.build();
     }
 }

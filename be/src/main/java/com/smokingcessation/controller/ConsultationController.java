@@ -97,4 +97,13 @@ public class ConsultationController {
         }
         return ResponseEntity.ok(updatedConsultation);
     }
+
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<String> cancelConsultation(
+            @PathVariable("id") Integer consultationId,
+            Principal principal) {
+        String userEmail = principal.getName();
+        consultationService.cancelConsultation(userEmail, consultationId);
+        return ResponseEntity.ok("Consultation cancelled successfully");
+    }
 }

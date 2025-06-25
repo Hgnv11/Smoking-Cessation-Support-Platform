@@ -47,10 +47,6 @@ function Header() {
               >
                 Community
               </a>
-
-              <a href="/#" className={isActivePage("/#") ? "active" : ""}>
-                Article & Information
-              </a>
             </nav>
           </div>
           <div className="header__login-register">

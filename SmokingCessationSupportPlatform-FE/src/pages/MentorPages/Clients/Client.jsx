@@ -19,6 +19,7 @@ import {
   MailOutlined,
   CalendarOutlined,
 } from "@ant-design/icons";
+import { useNavigate } from 'react-router-dom';
 import styles from './Client.module.css';
 
 const { Title, Text } = Typography;
@@ -27,6 +28,7 @@ const { Option } = Select;
 export const Clients = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const navigate = useNavigate();
 
   // Mock client data based on the image
   const clients = [
@@ -217,6 +219,7 @@ export const Clients = () => {
                           type="primary" 
                           size="small"
                           className={styles.actionButton}
+                          onClick={() => navigate(`/mentor/clients/${client.id}`)}
                         >
                           View Details
                         </Button>
