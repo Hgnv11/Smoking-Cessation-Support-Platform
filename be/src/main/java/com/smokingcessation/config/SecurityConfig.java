@@ -44,7 +44,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/api/post/all",
                                 "/api/post/detail/**",
-                                "/api/post/by-name/**",
+                                "/api/profile/by-name/**",
                                 "/api/post/{profileName}",
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
