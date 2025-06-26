@@ -360,7 +360,9 @@ const CoachManagement = () => {
             <div className={styles["summary-label"]}>Active Coaches</div>
             <div className={styles["summary-value"]}>
               <span className={styles["summary-icon"]}>👥</span>
-              {statistics.activeCoaches}
+              {
+                filteredCoaches.filter(coach => coach.status === "ACTIVE").length
+              }
             </div>
           </div>
           <div className={styles["summary-card"]}>
@@ -470,7 +472,8 @@ const CoachManagement = () => {
           </div>
         )}
       </div>
-    </AdminLayout>  );
+    </AdminLayout>
+  );
 };
 
 export default CoachManagement;

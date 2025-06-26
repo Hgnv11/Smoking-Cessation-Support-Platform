@@ -34,6 +34,7 @@ const EditPostModal = ({ post, isOpen, onClose, onSave }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!formData.title.trim()) {
       alert("Title is required");
       return;

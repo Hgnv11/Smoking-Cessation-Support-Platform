@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import "./App.css";
 import { useSelector } from "react-redux";
+import { message, notification } from "antd";
 import Home from "./pages/Home/home.jsx";
 import Login from "./pages/Authentication/Login/login.jsx";
 import Register from "./pages/Authentication/Register/register.jsx";
@@ -37,19 +38,12 @@ import UserBadges from "./pages/Profile/UserProfile/badges/badges.jsx";
 
 const ProtectRouteAuth = ({ children }) => {
   const user = useSelector((store) => store.user);
-  
-  // Nếu chưa đăng nhập, cho phép truy cập trang auth
   if (user == null) {
     return children;
-  }
-  
-  // Nếu đã đăng nhập, chuyển hướng dựa theo role
-  if (user.role === "admin") {
-    return <Navigate to="/admin" replace />;
-  } else if (user.role === "mentor") {
-    return <Navigate to="/mentor" replace />;
+  } else if (user && user.role === "admin") {
+    return <Navigate to="/admin" />;
   } else {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/" />;
   }
 };
 
@@ -326,23 +320,6 @@ function App() {
               <CoachManagement />
             </ProtectAdminRoute>
           ),
-        },
-        // Mentor Routes
-        {
-          path: "mentor",
-          element: (
-            <ProtectMentorRoute>
-              <MentorLayout />
-            </ProtectMentorRoute>
-          ),
-          children: [
-            { index: true, element: <MentorOverview /> },
-            { path: "overview", element: <MentorOverview /> },
-            { path: "appointments", element: <MentorAppointments /> },
-            { path: "clients", element: <MentorClients /> },
-            { path: "clients/:clientId", element: <MentorClientDetails /> },
-            { path: "reports", element: <MentorReports /> },
-          ]
         },
       ],
     },
