@@ -7,7 +7,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = {UserMapper.class, ConsultationSlotMapper.class})
 public interface ConsultationMapper {
-    
+
     ConsultationDTO toDto(Consultation consultation);
 }
 
