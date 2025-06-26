@@ -13,11 +13,13 @@ import api from "../../../config/axios";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "../../../store/redux/features/userSlice";
+import { useState } from "react";
 
 function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (values) => {
     try {
@@ -26,7 +28,7 @@ function Login() {
       console.log(response.data);
       dispatch(login(response.data));
       const { role, token } = response.data;
-      localStorage.setItem("token", token); // Store token in localStorage
+      localStorage.setItem("token", token);
       if (role === "admin") {
         navigate("/admin");
       } else if (role === "mentor") {
@@ -42,7 +44,13 @@ function Login() {
         duration: 2,
       });
       console.log(err);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleFinishFailed = () => {
+    setLoading(false);
   };
 
   return (
@@ -54,6 +62,7 @@ function Login() {
             span: 24,
           }}
           onFinish={handleLogin}
+          onFinishFailed={handleFinishFailed}
         >
           <h1>Sign In</h1>
           <FormItem
@@ -78,6 +87,7 @@ function Login() {
             rules={[{ required: true, message: "Please enter your password." }]}
           >
             <Input.Password
+              className="input"
               variant="filled"
               type="password"
               placeholder="Enter your password"
@@ -95,6 +105,8 @@ function Login() {
             type="primary"
             htmlType="submit"
             className="register-login__btn"
+            loading={loading}
+            onClick={() => setLoading(true)}
           >
             Sign in
           </Button>

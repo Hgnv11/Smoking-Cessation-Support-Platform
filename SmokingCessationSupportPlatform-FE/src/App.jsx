@@ -6,38 +6,34 @@ import {
 } from "react-router-dom";
 import "./App.css";
 import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
-// Import mentor pages từ các file có sẵn
-import MentorLayout from "./components/mentor/Layout";
-import MentorOverview from "./pages/MentorPages/Overview/Overview.jsx";
-import MentorAppointments from "./pages/MentorPages/Appointments/Appointment.jsx";
-import MentorClients from "./pages/MentorPages/Clients/Client.jsx";
-import MentorReports from "./pages/MentorPages/Reports/Report.jsx";
-import { MentorClientDetails } from "./pages/MentorPages/Clients/ClientDetails.jsx";
 import Home from "./pages/Home/home.jsx";
 import Login from "./pages/Authentication/Login/login.jsx";
 import Register from "./pages/Authentication/Register/register.jsx";
 import ForgotPass from "./pages/Authentication/ForgotPass/forgotPass.jsx";
 import ForgotPassCode from "./pages/Authentication/ForgotPass-code/forgotPass-code.jsx";
 import VerifyCode from "./pages/Authentication/VerifyCode/verifyCode.jsx";
-import MakePlan from "./pages/QuitPlan/makePlan.jsx";
+import MakePlan from "./pages/QuitPlan/MakePlan/makePlan.jsx";
 import Community from "./pages/Community/PostList/community.jsx";
-import UserCoach from "./pages/UserCoach/userCoach.jsx";
+import UserCoach from "./pages/UserCoach/CoachList/userCoach.jsx";
 import Layout from "./components/layout/layout";
 import UserProfile from "./pages/Profile/UserProfile/profile/userProfile.jsx";
 import ChangePass from "./pages/Profile/UserProfile/changePass/changePass.jsx";
 import NewPass from "./pages/Authentication/NewPass/newPass.jsx";
-import PostDetail from "./pages/Community/postDetail/postDetail.jsx";
+import PostDetail from "./pages/Community/PostDetail/postDetail.jsx";
 import UserManagement from "./pages/AdminPages/UserManagement/UserManagement.jsx";
 import BlogManagement from "./pages/AdminPages/BlogManagement/BlogManagement.jsx";
 import MembershipPayment from "./pages/AdminPages/MembershipPayment/MembershipPayment.jsx";
 import CoachManagement from "./pages/AdminPages/CoachManagement/CoachManagement.jsx";
 import Overview from "./pages/AdminPages/Dashboard/Overview.jsx";
 import ChangePassCode from "./pages/Authentication/ChangePass-code/changePass-code.jsx";
-import OthersProfile from "./pages/Profile/othersProfile/profile/othersProfile.jsx";
-import OthersPosts from "./pages/Profile/othersProfile/posts/othersPosts.jsx";
+import OthersProfile from "./pages/Profile/OthersProfile/profile/othersProfile.jsx";
+import OthersPosts from "./pages/Profile/OthersProfile/posts/othersPosts.jsx";
 import UserPosts from "./pages/Profile/UserProfile/posts/userPosts.jsx";
-import { message, notification } from "antd";
+import UserBookings from "./pages/Profile/UserProfile/bookings/bookings.jsx";
+import PlanDetail from "./pages/QuitPlan/PlanDetail/planDetail.jsx";
+import Membership from "./pages/Profile/UserProfile/membership/membership.jsx";
+import UserCoachDetail from "./pages/UserCoach/CoachDetail/userCoachDetail.jsx";
+import UserBadges from "./pages/Profile/UserProfile/badges/badges.jsx";
 
 const ProtectRouteAuth = ({ children }) => {
   const user = useSelector((store) => store.user);
@@ -113,6 +109,21 @@ const ProtectNewPassword = ({ children }) => {
   return children;
 };
 
+const ProtectMakePlan = ({ children }) => {
+  const user = useSelector((store) => store.user);
+  if (user != null) {
+    return children;
+  }
+  notification.warning({
+    message: "Login or Register to make your plan!",
+    description:
+      "Please register or login with your account to make your own quitting plan.",
+    placement: "top",
+    duration: 3,
+  });
+  return <Navigate to={"/"} />;
+};
+
 const ProtectAdminRoute = ({ children }) => {
   const user = useSelector((store) => store.user);
   if (user == null) {
@@ -129,13 +140,17 @@ const ProtectAdminRoute = ({ children }) => {
   return children;
 };
 
-const ProtectMentorRoute = ({ children }) => {
+const ProtectCoachRoute = ({ children }) => {
   const user = useSelector((store) => store.user);
   if (user == null) {
     return <Navigate to="/" />;
   }
   if (user.role !== "mentor") {
-    toast.error("Access denied! Mentor privileges required.");
+    notification.error({
+      message: "Access denied!",
+      description: "Coach privileges required.",
+      duration: 2,
+    });
     return <Navigate to="/" />;
   }
   return children;
@@ -197,18 +212,18 @@ function App() {
           ),
         },
         {
-          path: "user-profile/change-pass",
-          element: (
-            <ProtectUserProfile>
-              <ChangePass />
-            </ProtectUserProfile>
-          ),
-        },
-        {
           path: "user-profile",
           element: (
             <ProtectUserProfile>
               <UserProfile />
+            </ProtectUserProfile>
+          ),
+        },
+        {
+          path: "user-profile/change-pass",
+          element: (
+            <ProtectUserProfile>
+              <ChangePass />
             </ProtectUserProfile>
           ),
         },
@@ -221,6 +236,30 @@ function App() {
           ),
         },
         {
+          path: "user-profile/membership",
+          element: (
+            <ProtectUserProfile>
+              <Membership />
+            </ProtectUserProfile>
+          ),
+        },
+        {
+          path: "user-profile/badges",
+          element: (
+            <ProtectUserProfile>
+              <UserBadges />
+            </ProtectUserProfile>
+          ),
+        },
+        {
+          path: "user-profile/bookings",
+          element: (
+            <ProtectUserProfile>
+              <UserBookings />
+            </ProtectUserProfile>
+          ),
+        },
+        {
           path: "users/:profileName",
           element: <OthersProfile />,
         },
@@ -228,11 +267,26 @@ function App() {
           path: "users/:profileName/posts",
           element: <OthersPosts />,
         },
-        { path: "make-plan", element: <MakePlan /> },
+        {
+          path: "make-plan",
+          element: (
+            <ProtectMakePlan>
+              <MakePlan />
+            </ProtectMakePlan>
+          ),
+        },
+        {
+          path: "plan-detail",
+          element: (
+            <ProtectMakePlan>
+              <PlanDetail />
+            </ProtectMakePlan>
+          ),
+        },
         { path: "community", element: <Community /> },
         { path: "community/:postId", element: <PostDetail /> },
         { path: "user-coach", element: <UserCoach /> },
-        // Admin Routes
+        { path: "coach-detail", element: <UserCoachDetail /> },
         {
           path: "admin",
           element: (

@@ -24,22 +24,23 @@ const defaultStats = {
   coachGrowth: "0%",
   revenueGrowth: "0%",
   consultationsGrowth: "0%",
-  newUsersGrowth: "0%"
+  newUsersGrowth: "0%",
 };
 
 const OverviewStats = () => {
   const [statsData, setStatsData] = useState(defaultStats);
   const [loading, setLoading] = useState(true);
-    // Function to fetch and process revenue data
+  // Function to fetch and process revenue data
   const fetchRevenueData = async () => {
     try {
-      const paymentsResponse = await membershipService.getPayments({ 
-        period: 'month', 
-        status: 'completed' 
+      const paymentsResponse = await membershipService.getPayments({
+        period: "month",
+        status: "completed",
       });
-      
+
       return paymentsResponse.reduce(
-        (sum, payment) => sum + (payment.amount || 0), 0
+        (sum, payment) => sum + (payment.amount || 0),
+        0
       );
     } catch (error) {
       console.error("Error fetching payment data:", error);
@@ -51,33 +52,36 @@ const OverviewStats = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch users from User Management page
         const usersResponse = await userService.fetchAdminUsers();
-        
+
         if (usersResponse && Array.isArray(usersResponse)) {
           // Normalize data for consistent processing
           const users = normalizeUserData(usersResponse);
-          
+
           // Calculate statistics using helper functions
           const totalUsers = countTotalUsers(users);
           const premiumUsers = countPremiumUsers(users);
           const activeCoaches = countActiveCoaches(users);
           const newUsersThisWeek = countNewUsers(users);
-          
+
           // Get revenue data
           const monthlyRevenue = await fetchRevenueData();
-          
+
           // Get consultation count
           const todayConsultations = getConsultationCount();
-          
+
           // Calculate growth percentages
           const previousTotalUsers = totalUsers - newUsersThisWeek;
-          const userGrowth = calculateGrowth(newUsersThisWeek, previousTotalUsers);
-          
+          const userGrowth = calculateGrowth(
+            newUsersThisWeek,
+            previousTotalUsers
+          );
+
           // Historical data could be fetched from an API in the future
           // For now using calculated or static values where needed
-          
+
           // Update the stats with real data from User Management
           setStatsData({
             totalUsers,
@@ -91,29 +95,29 @@ const OverviewStats = () => {
             coachGrowth: "20%",
             revenueGrowth: "60%",
             consultationsGrowth: "40%",
-            newUsersGrowth: "100%"
+            newUsersGrowth: "100%",
           });
         } else {
           throw new Error("Invalid user data format");
         }
       } catch (error) {
         console.error("Error in primary data fetch:", error);
-        
+
         // Try again with fallback approach
         try {
           const userData = await userService.fetchAdminUsers();
-          
+
           if (userData && Array.isArray(userData)) {
             // Use the same normalization and processing functions for consistency
             const users = normalizeUserData(userData);
-            
+
             const totalUsers = countTotalUsers(users);
             const premiumUsers = countPremiumUsers(users);
             const activeCoaches = countActiveCoaches(users);
             const newUsersThisWeek = countNewUsers(users);
-            
+
             const todayConsultations = getConsultationCount();
-            
+
             setStatsData({
               totalUsers,
               premiumUsers,
@@ -121,12 +125,15 @@ const OverviewStats = () => {
               monthlyRevenue: "$2,340", // Fallback value
               todayConsultations,
               newUsersThisWeek,
-              userGrowth: calculateGrowth(newUsersThisWeek, totalUsers - newUsersThisWeek),
+              userGrowth: calculateGrowth(
+                newUsersThisWeek,
+                totalUsers - newUsersThisWeek
+              ),
               premiumGrowth: "40%",
               coachGrowth: "20%",
               revenueGrowth: "60%",
               consultationsGrowth: "40%",
-              newUsersGrowth: "100%"
+              newUsersGrowth: "100%",
             });
           } else {
             throw new Error("Invalid user data format in fallback");
@@ -146,20 +153,20 @@ const OverviewStats = () => {
   // Normalize user data from API response to consistent format
   const normalizeUserData = (rawData) => {
     if (!Array.isArray(rawData) || rawData.length === 0) return [];
-    
-    return rawData.map(user => ({
+
+    return rawData.map((user) => ({
       id: user.userId,
-      role: user.role || '',
-      membership: user.typeLogin || user.membership || '',
+      role: user.role || "",
+      membership: user.typeLogin || user.membership || "",
       createdAt: user.createdAt || user.joinDate,
-      email: user.email
+      email: user.email,
     }));
   };
 
   // Count total unique users
   const countTotalUsers = (users) => {
     const userIds = new Set();
-    users.forEach(user => {
+    users.forEach((user) => {
       if (user && user.id) {
         userIds.add(user.id);
       }
@@ -169,93 +176,95 @@ const OverviewStats = () => {
 
   // Count premium users
   const countPremiumUsers = (users) => {
-    return users.filter(user => 
-      user.membership === 'PREMIUM' || 
-      user.membership === 'Premium'
+    return users.filter(
+      (user) => user.membership === "PREMIUM" || user.membership === "Premium"
     ).length;
   };
 
   // Count active coaches
   const countActiveCoaches = (users) => {
-    return users.filter(user => 
-      user.role === 'mentor' || 
-      user.role === 'MENTOR' || 
-      user.role === 'coach' || 
-      user.role === 'COACH'
+    return users.filter(
+      (user) =>
+        user.role === "mentor" ||
+        user.role === "MENTOR" ||
+        user.role === "coach" ||
+        user.role === "COACH"
     ).length;
   };
-  
+
   // Calculate new users in the last week
   const countNewUsers = (users, days = 7) => {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
-    
-    return users.filter(user => {
+
+    return users.filter((user) => {
       if (!user.createdAt) return false;
       const createdAt = new Date(user.createdAt);
       return createdAt >= cutoffDate;
     }).length;
   };
-  
+
   // Calculate growth percentage
   const calculateGrowth = (current, previous) => {
-    if (previous <= 0) return '0%';
+    if (previous <= 0) return "0%";
     const growth = Math.round((current / previous - 1) * 100);
-    return `${growth}%`;
+    return `${growth > 0 ? "+" : ""}${growth}%`;
   };
-  
+
   // Get consultation count for today
   const getConsultationCount = () => {
-    const today = new Date().toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      month: 'long', 
-      day: 'numeric', 
-      year: 'numeric' 
+    const today = new Date().toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
     });
-    
-    const todaySchedule = scheduleData.find(schedule => 
-      schedule.date === today || schedule.date.includes(today)
+
+    const todaySchedule = scheduleData.find(
+      (schedule) => schedule.date === today || schedule.date.includes(today)
     );
-    
-    return todaySchedule ? 
-      todaySchedule.timeSlots.filter(slot => !slot.isAvailable).length : 0;
+
+    return todaySchedule
+      ? todaySchedule.timeSlots.filter((slot) => !slot.isAvailable).length
+      : 0;
   };
+
   const stats = [
     {
       title: "Total Users",
       value: loading ? "Loading..." : statsData.totalUsers.toString(),
       icon: <FaUsers />,
-      note: statsData.userGrowth,
+      note: `Increased by ${statsData.userGrowth}`,
     },
     {
       title: "Premium Users",
       value: loading ? "Loading..." : statsData.premiumUsers.toString(),
       icon: <FaUserFriends />,
-      note: statsData.premiumGrowth,
+      note: `Decreased by ${statsData.premiumGrowth}`,
     },
     {
       title: "Active Coaches",
       value: loading ? "Loading..." : statsData.activeCoaches.toString(),
       icon: <FaChalkboardTeacher />,
-      note: statsData.coachGrowth,
+      note: `Increased by ${statsData.coachGrowth}`,
     },
     {
       title: "Monthly Revenue",
       value: loading ? "Loading..." : statsData.monthlyRevenue,
       icon: <FaDollarSign />,
-      note: statsData.revenueGrowth,
+      note: `Increased by ${statsData.revenueGrowth}`,
     },
     {
       title: "Today's Consultations",
       value: loading ? "Loading..." : statsData.todayConsultations.toString(),
       icon: <FaChartBar />,
-      note: statsData.consultationsGrowth,
+      note: `Increased by ${statsData.consultationsGrowth}`,
     },
     {
       title: "New Users (This Week)",
       value: loading ? "Loading..." : statsData.newUsersThisWeek.toString(),
       icon: <FaChartBar />,
-      note: statsData.newUsersGrowth,
+      note: `Increased by ${statsData.newUsersGrowth}`,
     },
   ];
 

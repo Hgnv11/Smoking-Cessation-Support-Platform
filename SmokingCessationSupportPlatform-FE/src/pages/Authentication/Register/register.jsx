@@ -3,9 +3,11 @@ import { Button, Divider, Form, Input, message, notification } from "antd";
 import FormItem from "antd/es/form/FormItem";
 import { useNavigate } from "react-router-dom";
 import api from "../../../config/axios";
+import { useState } from "react";
 
 function Register() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleRegister = async (values) => {
     try {
@@ -27,8 +29,15 @@ function Register() {
           description: "Please try again later.",
           duration: 2,
         });
+    } finally {
+      setLoading(false);
     }
   };
+
+  const handleFinishFailed = () => {
+    setLoading(false);
+  };
+
   return (
     <>
       <AuthenTemplate>
@@ -37,6 +46,7 @@ function Register() {
             span: 24,
           }}
           onFinish={handleRegister}
+          onFinishFailed={handleFinishFailed}
         >
           <h1>Create Account</h1>
           <FormItem
@@ -55,6 +65,25 @@ function Register() {
               className="input"
               type="text"
               placeholder="Enter your full name"
+            />
+          </FormItem>
+
+          <FormItem
+            label="Username"
+            className="input-box custom-label"
+            name="profileName"
+            rules={[
+              {
+                required: true,
+                message: "Please enter your username.",
+              },
+            ]}
+          >
+            <Input
+              variant="filled"
+              className="input"
+              type="text"
+              placeholder="Enter your username"
             />
           </FormItem>
 
@@ -128,6 +157,8 @@ function Register() {
             type="primary"
             htmlType="submit"
             className="register-login__btn"
+            loading={loading}
+            onClick={() => setLoading(true)}
           >
             Sign Up
           </Button>

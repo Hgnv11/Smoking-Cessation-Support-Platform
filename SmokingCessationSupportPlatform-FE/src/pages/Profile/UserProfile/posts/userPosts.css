@@ -1,5 +1,46 @@
+.wrapper__community-posts-create {
+   
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    color: #0A52B5;
+}
+
+.wrapper__community-posts-create-input { 
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 40px;
+    border-radius: 5px;
+    outline: none;
+    font-size: 16px;
+}
+
+.wrapper__community-posts-create-category {
+    max-width: 50%;
+    height: 40px;
+    border-radius: 5px;
+    outline: none;
+    font-size: 16px;
+    margin-top: 5px;
+}
+
+.wrapper__community-posts-create-textarea {
+    width: 100%;
+    border-radius: 5px;
+    outline: none;
+    font-size: 16px;
+    margin-top: 5px;
+}
+
+.wrapper__community-posts-create-label {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
 .new-post-btn {
     height: 40px;
     color: #458FF6;
     font-weight: 600;
+    margin-bottom: 30px;
 }

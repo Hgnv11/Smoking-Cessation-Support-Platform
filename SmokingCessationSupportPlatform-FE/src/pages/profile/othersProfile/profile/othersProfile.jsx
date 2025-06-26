@@ -1,4 +1,13 @@
-import { Affix, Avatar, Button, Form, Image, Input, Select, Empty } from "antd";
+import {
+  Affix,
+  Avatar,
+  Form,
+  Input,
+  Select,
+  Empty,
+  message,
+  Skeleton,
+} from "antd";
 import Header from "../../../../components/header/header";
 import Footer from "../../../../components/footer/footer";
 import "./othersProfile.css";
@@ -6,20 +15,52 @@ import { UserOutlined } from "@ant-design/icons";
 import FormItem from "antd/es/form/FormItem";
 import { useParams } from "react-router";
 import { useState, useEffect } from "react";
-import UsersData from "../../../../config/userData";
 import OthersAccountNav from "../../../../components/othersAccount-nav/othersAccount-nav";
+import api from "../../../../config/axios";
 
 function OthersProfile() {
   const { profileName } = useParams();
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchUserData = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/profile/by-name/${profileName}`);
+      setUser(response.data);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      message.error("Failed to fetch user profile. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const decodedProfileName = decodeURIComponent(profileName);
-    const foundUser = UsersData.find(
-      (u) => u.profile_name === decodedProfileName
-    );
-    setUser(foundUser);
+    if (profileName) {
+      fetchUserData();
+    }
   }, [profileName]);
+
+  if (loading) {
+    return (
+      <>
+        <Affix offsetTop={0}>
+          <Header />
+        </Affix>
+        <div className="wrapper">
+          <div className="wrapper__title1">
+            <p>Account</p>
+          </div>
+          <div className="wrapper__profile">
+            <OthersAccountNav />
+            <Skeleton active avatar paragraph={{ rows: 10 }} />
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   if (!user) {
     return (
@@ -27,7 +68,9 @@ function OthersProfile() {
         <Affix offsetTop={0}>
           <Header />
         </Affix>
-        <Empty className="empty-user" description="User Not Found" />
+        <div className="wrapper">
+          <Empty className="empty-user" description="User Not Found" />
+        </div>
         <Footer />
       </>
     );
@@ -40,16 +83,16 @@ function OthersProfile() {
       </Affix>
       <div className="wrapper">
         <div className="wrapper__title1">
-          <p>{user.profile_name}'s Account</p>
+          <p>{user.profileName}'s Account</p>
         </div>
         <div className="wrapper__profile">
           <OthersAccountNav />
           <div className="wrapper__profile-details">
             <div className="wrapper__profile-details-avatar">
-              {user.avatar_url ? (
+              {user.avatarUrl ? (
                 <Avatar
                   className="wrapper__profile-details-avatar-img"
-                  src={user.avatar_url}
+                  src={user.avatarUrl}
                   alt="User Avatar"
                 />
               ) : (
@@ -70,8 +113,8 @@ function OthersProfile() {
                   span: 24,
                 }}
                 initialValues={{
-                  fullName: user.full_name,
-                  profileName: user.profile_name,
+                  fullName: user.fullName,
+                  profileName: user.profileName,
                   email: user.email,
                   gender: user.gender,
                 }}
@@ -132,8 +175,9 @@ function OthersProfile() {
                     variant="filled"
                     style={{ height: 40 }}
                     options={[
-                      { value: "MALE", label: "Male" },
-                      { value: "FEMALE", label: "Female" },
+                      { value: "male", label: "Male" },
+                      { value: "female", label: "Female" },
+                      { value: "other", label: "Other" },
                     ]}
                   />
                 </FormItem>

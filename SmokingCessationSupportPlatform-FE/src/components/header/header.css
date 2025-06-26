@@ -1,6 +1,6 @@
 .header {
-    padding-top: 20px;
-    padding-bottom: 20px;
+    padding-top: 15px;
+    padding-bottom: 15px;
     border-bottom: 2px solid #f0eeee;
     background-color: #ffff;
 }
@@ -48,7 +48,15 @@
 }
 
 .header__login-register .search {
+    font-size: larger;
     margin-right: 20px;
+    color: #adacac;
+}
+
+.noti {
+    font-size: larger;
+    margin-right: 20px;
+    color: #adacac;
 }
 
 .header__nav a.active {

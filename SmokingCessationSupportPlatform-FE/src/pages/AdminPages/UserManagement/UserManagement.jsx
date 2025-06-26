@@ -13,10 +13,11 @@ import {
   Dropdown,
   Menu,
   Input,
+  message,
 } from "antd";
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
-import { userService } from "../../../services/userService.js"; 
+import { userService } from "../../../services/userService.js";
 
 const membershipOptions = [
   { value: "", label: "Filter membership packages" },
@@ -69,6 +70,7 @@ const UserManagement = () => {
       } catch (err) {
         // Quăng lỗi khi axios false
         console.error("Failed to fetch users", err);
+        message.error("Failed to fetch users");
       }
     };
     getUsers();
@@ -81,8 +83,12 @@ const UserManagement = () => {
         user.name.toLowerCase().includes(search) ||
         user.author.toLowerCase().includes(search) ||
         user.profile.toLowerCase().includes(search);
-      const matchMembership = filters.membership ? user.membership === filters.membership : true;
-      const matchStatus = filters.status ? user.status === filters.status : true;
+      const matchMembership = filters.membership
+        ? user.membership === filters.membership
+        : true;
+      const matchStatus = filters.status
+        ? user.status === filters.status
+        : true;
       const matchRole = filters.role ? user.role === filters.role : true;
       return matchSearch && matchMembership && matchStatus && matchRole;
     });
@@ -90,18 +96,61 @@ const UserManagement = () => {
     setSelectedRowKeys([]);
   }, [filters, users]);
 
+  // Delete single user
+  const handleDeleteUser = async (userId) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this user? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await userService.deleteUser(userId);
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+      message.success("User deleted successfully");
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      message.error("Failed to delete user. Please try again.");
+    }
+  };
+
   const handleSelectAll = (checked) => {
     setSelectedRowKeys(checked ? filteredUsers.map((u) => u.id) : []);
   };
+
   const handleSelectRow = (id, checked) => {
     setSelectedRowKeys((prev) =>
       checked ? [...prev, id] : prev.filter((key) => key !== id)
     );
   };
-  const handleBulkDelete = () => {
-    setUsers((prev) => prev.filter((u) => !selectedRowKeys.includes(u.id)));
-    setSelectedRowKeys([]);
+
+  // Bulk delete users
+  const handleBulkDelete = async () => {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete ${selectedRowKeys.length} users? This action cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      // Delete multiple users using Promise.all
+      await Promise.all(
+        selectedRowKeys.map((userId) => userService.deleteUser(userId))
+      );
+
+      setUsers((prev) => prev.filter((u) => !selectedRowKeys.includes(u.id)));
+      setSelectedRowKeys([]);
+      message.success(`${selectedRowKeys.length} users deleted successfully`);
+    } catch (error) {
+      console.error("Failed to delete users:", error);
+      message.error("Failed to delete some users. Please try again.");
+    }
   };
+
   const handleBulkLock = () => {
     setUsers((prev) =>
       prev.map((u) =>
@@ -109,7 +158,9 @@ const UserManagement = () => {
       )
     );
     setSelectedRowKeys([]);
+    message.success(`${selectedRowKeys.length} users locked successfully`);
   };
+
   const handleBulkUnlock = () => {
     setUsers((prev) =>
       prev.map((u) =>
@@ -117,8 +168,10 @@ const UserManagement = () => {
       )
     );
     setSelectedRowKeys([]);
+    message.success(`${selectedRowKeys.length} users unlocked successfully`);
   };
 
+  // ...existing mock data...
   const mockSubscriptionHistory = [
     { plan: "Premium", startDate: "2024-01-01", endDate: "2024-02-01" },
     { plan: "Free", startDate: "2023-12-01", endDate: "2023-12-31" },
@@ -181,12 +234,18 @@ const UserManagement = () => {
     {
       title: "Joining date",
       dataIndex: "joinDate",
-      render: (value) => dayjs(value, ["D/M/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"]).format("DD/MM/YYYY"),
+      render: (value) =>
+        dayjs(value, ["D/M/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"]).format(
+          "DD/MM/YYYY"
+        ),
     },
     {
       title: "Last activity",
       dataIndex: "lastActivity",
-      render: (value) => dayjs(value, ["D/M/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"]).format("DD/MM/YYYY"),
+      render: (value) =>
+        dayjs(value, ["D/M/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"]).format(
+          "DD/MM/YYYY"
+        ),
     },
     {
       title: "Action",
@@ -197,19 +256,29 @@ const UserManagement = () => {
             <Menu.Item key="edit" onClick={() => {}}>
               Edit
             </Menu.Item>
-            <Menu.Item key="details" onClick={() => { setSelectedUser(row); setIsModalVisible(true); }}>
+            <Menu.Item
+              key="details"
+              onClick={() => {
+                setSelectedUser(row);
+                setIsModalVisible(true);
+              }}
+            >
               See Details
             </Menu.Item>
-            <Menu.Item key="delete" onClick={() => setUsers((prev) => prev.filter((u) => u.id !== row.id))} danger>
+            <Menu.Item
+              key="delete"
+              onClick={() => handleDeleteUser(row.id)}
+              danger
+            >
               Delete
             </Menu.Item>
             {row.status === "locked" ? (
-              <Menu.Item key="lock" style={{ color: '#e74c3c' }}>
-                Account Lock
+              <Menu.Item key="unlock" style={{ color: "#1677ff" }}>
+                Unlock account
               </Menu.Item>
             ) : (
-              <Menu.Item key="unlock" style={{ color: '#1677ff' }}>
-                Unlock account
+              <Menu.Item key="lock" style={{ color: "#e74c3c" }}>
+                Lock account
               </Menu.Item>
             )}
           </Menu>
@@ -228,20 +297,39 @@ const UserManagement = () => {
       <div className={styles["user-management-page"]}>
         <h2>User Management</h2>
         <div className={styles["search-filter-header"]}>Search and Filter</div>
-        <div style={{ display: 'flex', gap: 20, alignItems: 'center', marginBottom: 24 }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 20,
+            alignItems: "center",
+            marginBottom: 24,
+          }}
+        >
           <Input.Search
             placeholder="Search by name, email, profile name..."
             allowClear
-            style={{ minWidth: 260, borderRadius: 12, boxShadow: '0 1px 4px rgba(99,102,241,0.08)' }}
+            style={{
+              minWidth: 260,
+              borderRadius: 12,
+              boxShadow: "0 1px 4px rgba(99,102,241,0.08)",
+            }}
             value={filters.search}
-            onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
+            onChange={(e) =>
+              setFilters((f) => ({ ...f, search: e.target.value }))
+            }
           />
           <Select
             showSearch
             allowClear
             placeholder="Filter membership packages"
-            style={{ minWidth: 220, borderRadius: 12, boxShadow: '0 1px 4px rgba(99,102,241,0.08)' }}
-            onChange={value => setFilters(f => ({ ...f, membership: value || "" }))}
+            style={{
+              minWidth: 220,
+              borderRadius: 12,
+              boxShadow: "0 1px 4px rgba(99,102,241,0.08)",
+            }}
+            onChange={(value) =>
+              setFilters((f) => ({ ...f, membership: value || "" }))
+            }
             value={filters.membership || undefined}
             options={membershipOptions}
           />
@@ -249,8 +337,14 @@ const UserManagement = () => {
             showSearch
             allowClear
             placeholder="Filter account status"
-            style={{ minWidth: 220, borderRadius: 12, boxShadow: '0 1px 4px rgba(99,102,241,0.08)' }}
-            onChange={value => setFilters(f => ({ ...f, status: value || "" }))}
+            style={{
+              minWidth: 220,
+              borderRadius: 12,
+              boxShadow: "0 1px 4px rgba(99,102,241,0.08)",
+            }}
+            onChange={(value) =>
+              setFilters((f) => ({ ...f, status: value || "" }))
+            }
             value={filters.status || undefined}
             options={statusOptions}
           />
@@ -258,36 +352,46 @@ const UserManagement = () => {
             showSearch
             allowClear
             placeholder="Filter roles"
-            style={{ minWidth: 220, borderRadius: 12, boxShadow: '0 1px 4px rgba(99,102,241,0.08)' }}
-            onChange={value => setFilters(f => ({ ...f, role: value || "" }))}
+            style={{
+              minWidth: 220,
+              borderRadius: 12,
+              boxShadow: "0 1px 4px rgba(99,102,241,0.08)",
+            }}
+            onChange={(value) =>
+              setFilters((f) => ({ ...f, role: value || "" }))
+            }
             value={filters.role || undefined}
             options={roleOptions}
           />
         </div>
         {selectedRowKeys.length > 0 && (
-          <div style={{
-            marginBottom: 16,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 16,
-            background: '#f9fbff',
-            borderRadius: 12,
-            padding: '12px 20px',
-            boxShadow: '0 1px 4px rgba(99,102,241,0.06)'
-          }}>
-            <span style={{ fontWeight: 500 }}>{selectedRowKeys.length} users selected</span>
+          <div
+            style={{
+              marginBottom: 16,
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
+              background: "#f9fbff",
+              borderRadius: 12,
+              padding: "12px 20px",
+              boxShadow: "0 1px 4px rgba(99,102,241,0.06)",
+            }}
+          >
+            <span style={{ fontWeight: 500 }}>
+              {selectedRowKeys.length} users selected
+            </span>
             <Select
-              placeholder='Bulk Actions'
+              placeholder="Bulk Actions"
               style={{ minWidth: 160 }}
-              onChange={action => {
-                if (action === 'delete') handleBulkDelete();
-                if (action === 'lock') handleBulkLock();
-                if (action === 'unlock') handleBulkUnlock();
+              onChange={(action) => {
+                if (action === "delete") handleBulkDelete();
+                if (action === "lock") handleBulkLock();
+                if (action === "unlock") handleBulkUnlock();
               }}
               options={[
-                { value: 'delete', label: 'Delete' },
-                { value: 'lock', label: 'Lock' },
-                { value: 'unlock', label: 'Unlock' }
+                { value: "delete", label: "Delete" },
+                { value: "lock", label: "Lock" },
+                { value: "unlock", label: "Unlock" },
               ]}
             />
           </div>
@@ -301,6 +405,8 @@ const UserManagement = () => {
             onSelectRow={handleSelectRow}
           />
         </div>
+
+        {/* ...existing modal code... */}
         <Modal
           title={
             selectedUser ? `User Details: ${selectedUser.name}` : "User Details"

@@ -35,11 +35,23 @@ function MyAccountNav() {
       >
         Posts
       </a>
-      <a href="/#" className={isActivePage("/#") ? "active" : ""}>
-        Plan
+      <a
+        href="/user-profile/membership"
+        className={isActivePage("/user-profile/membership") ? "active" : ""}
+      >
+        Membership
       </a>
-      <a href="/#" className={isActivePage("/#") ? "active" : ""}>
+      <a
+        href="/user-profile/badges"
+        className={isActivePage("/user-profile/badges") ? "active" : ""}
+      >
         Badges
+      </a>
+      <a
+        href="/user-profile/bookings"
+        className={isActivePage("/user-profile/bookings") ? "active" : ""}
+      >
+        Bookings
       </a>
       <Popconfirm
         onConfirm={() => dispatch(logout())}

@@ -5,8 +5,8 @@ const EditPostModal = ({ post, isOpen, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    status: "UNDER REVIEW",
-    author: ""
+    status: false,
+    author: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -17,23 +17,23 @@ const EditPostModal = ({ post, isOpen, onClose, onSave }) => {
       setFormData({
         title: post.title || "",
         content: post.content || "",
-        status: post.status || "UNDER REVIEW",
-        author: post.author || ""
+        status: post.status || false,
+        author: post.author || "",
       });
     }
   }, [post]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
+    const { name, value, type } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]:
+        type === "select-one" && name === "status" ? value === "true" : value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!formData.title.trim()) {
       alert("Title is required");
       return;
@@ -45,7 +45,7 @@ const EditPostModal = ({ post, isOpen, onClose, onSave }) => {
       await onSave({
         ...post,
         ...formData,
-        updated: new Date().toISOString()
+        updated: new Date().toISOString(),
       });
       onClose();
     } catch (error) {
@@ -61,8 +61,8 @@ const EditPostModal = ({ post, isOpen, onClose, onSave }) => {
       setFormData({
         title: post.title || "",
         content: post.content || "",
-        status: post.status || "UNDER REVIEW",
-        author: post.author || ""
+        status: post.status || false,
+        author: post.author || "",
       });
     }
     onClose();
@@ -75,8 +75,8 @@ const EditPostModal = ({ post, isOpen, onClose, onSave }) => {
       <div className={styles["modal-content"]}>
         <div className={styles["modal-header"]}>
           <h2>Edit Post</h2>
-          <button 
-            className={styles["close-btn"]} 
+          <button
+            className={styles["close-btn"]}
             onClick={handleCancel}
             disabled={loading}
           >
@@ -130,26 +130,25 @@ const EditPostModal = ({ post, isOpen, onClose, onSave }) => {
             <select
               id="status"
               name="status"
-              value={formData.status}
+              value={formData.status.toString()}
               onChange={handleInputChange}
               disabled={loading}
             >
-              <option value="UNDER REVIEW">Under Review</option>
-              <option value="PUBLISHED">Published</option>
-              <option value="REJECTED">Rejected</option>
+              <option value="false">Not Published</option>
+              <option value="true">Published</option>
             </select>
           </div>
 
           <div className={styles["modal-actions"]}>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className={styles["save-btn"]}
               disabled={loading}
             >
               {loading ? "Saving..." : "Save Changes"}
             </button>
-            <button 
-              type="button" 
+            <button
+              type="button"
               className={styles["cancel-btn"]}
               onClick={handleCancel}
               disabled={loading}

@@ -3,15 +3,22 @@ import {
   Avatar,
   Button,
   DatePicker,
+  Divider,
   Form,
   Input,
   message,
+  Modal,
   Select,
+  Space,
 } from "antd";
 import Header from "../../../../components/header/header";
 import Footer from "../../../../components/footer/footer";
 import "./userProfile.css";
-import { CameraOutlined, UserOutlined } from "@ant-design/icons";
+import {
+  CameraOutlined,
+  ExclamationCircleFilled,
+  UserOutlined,
+} from "@ant-design/icons";
 import FormItem from "antd/es/form/FormItem";
 import MyAccountNav from "../../../../components/myAccount-nav/myAccount-nav";
 import { useState, useEffect, useRef } from "react";
@@ -22,13 +29,17 @@ import { login } from "../../../../store/redux/features/userSlice";
 import uploadFile from "../../../../store/utils/file";
 
 function UserProfile() {
-  const dateFormat = "DD/MM/YYYY";
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
   const [userAvatar, setUserAvatar] = useState(null);
+
   const user = useSelector((store) => store.user);
   const dispatch = useDispatch();
+
+  const dateFormat = "DD/MM/YYYY";
+
+  const { confirm } = Modal;
 
   // Ref cho input file ẩn
   const fileInputRef = useRef(null);
@@ -49,7 +60,6 @@ function UserProfile() {
 
   const fetchUserProfile = async () => {
     try {
-      setLoading(true);
       const response = await api.get("/profile/my");
 
       const profileData = response.data;
@@ -70,8 +80,6 @@ function UserProfile() {
     } catch (error) {
       console.error("Error fetching profile:", error);
       message.error("Failed to fetch profile data");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -79,7 +87,6 @@ function UserProfile() {
     fetchUserProfile();
   }, []);
 
-  // Hàm xử lý khi click Change Avatar
   const handleChangeAvatar = () => {
     fileInputRef.current?.click();
   };
@@ -107,13 +114,11 @@ function UserProfile() {
     try {
       setAvatarLoading(true);
 
-      // Upload file lên Firebase
       const avatarUrl = await uploadFile(file);
 
       const response = await api.post("/profile/my", { avatarUrl });
 
       if (response.status === 200 || response.status === 201) {
-        // Cập nhật avatar trong state local
         setUserAvatar(avatarUrl);
 
         // Cập nhật Redux store
@@ -135,7 +140,6 @@ function UserProfile() {
     }
   };
 
-  // Hàm xử lý khi nhấn nút Update
   const handleUpdateClick = (fieldName) => {
     setFieldStates((prev) => ({
       ...prev,
@@ -146,7 +150,6 @@ function UserProfile() {
     setEditedFields((prev) => new Set([...prev, fieldName]));
   };
 
-  // Hàm xử lý khi nhấn Cancel
   const handleCancel = () => {
     // Reset form về giá trị gốc
     form.setFieldsValue(originalValues);
@@ -163,13 +166,6 @@ function UserProfile() {
     setEditedFields(new Set());
   };
 
-  // Chỉ gửi API nếu có field được update
-  // if (Object.keys(updatedData).length === 0) {
-  //   toast.info("No changes to save");
-  //   return;
-  // }
-
-  // Hàm xử lý khi submit form
   const handleSubmit = async (values) => {
     try {
       setLoading(true);
@@ -187,7 +183,6 @@ function UserProfile() {
         }
       });
 
-      // Gửi API với header tự động từ interceptor
       const response = await api.post("/profile/my", updatedData);
 
       if (response.status === 200 || response.status === 201) {
@@ -226,6 +221,47 @@ function UserProfile() {
   const hasActiveEdits = Object.values(fieldStates).some(
     (disabled) => !disabled
   );
+
+  const handleDeleteAccount = async () => {
+    try {
+      setLoading(true);
+
+      const response = await api.delete("/profile/me");
+
+      if (response.status === 200 || response.status === 204) {
+        message.success("Your account has been deleted successfully.");
+        console.log("Your account has been deleted successfully.");
+        // Clear user data from Redux store
+        dispatch(login(null));
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      message.error("Failed to delete account. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const showDeleteConfirm = () => {
+    confirm({
+      title: "Are you sure delete your Account?",
+      icon: <ExclamationCircleFilled />,
+      content:
+        "Deleting your account is permanent and cannot be undone. All your data will be lost.",
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
+      onOk() {
+        handleDeleteAccount();
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
+  };
 
   return (
     <>
@@ -421,6 +457,24 @@ function UserProfile() {
                   Cancel
                 </Button>
               </Form>
+            </div>
+            <Divider className="divider" />
+            <div className="delete-account">
+              <h2 className="delete-account-title">Delete My Account !</h2>
+              <p className="delete-account-description">
+                If you no longer wish to use our services, you can permanently
+                delete your account.
+              </p>
+              <Space wrap>
+                <Button
+                  color="danger"
+                  variant="solid"
+                  className="delete-account-btn"
+                  onClick={showDeleteConfirm}
+                >
+                  Delete Account
+                </Button>
+              </Space>
             </div>
           </div>
         </div>

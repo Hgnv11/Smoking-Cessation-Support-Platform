@@ -1,7 +1,7 @@
 import { Button, Avatar } from "antd";
 import "./header.css";
-import { SearchOutlined, UserOutlined } from "@ant-design/icons";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { BellOutlined, SearchOutlined, UserOutlined } from "@ant-design/icons";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 function Header() {
@@ -47,16 +47,12 @@ function Header() {
               >
                 Community
               </a>
-
-              <a href="/#" className={isActivePage("/#") ? "active" : ""}>
-                Article & Information
-              </a>
             </nav>
           </div>
           <div className="header__login-register">
             <SearchOutlined className="search" />
+            <BellOutlined className="noti" />
             {user ? (
-              // Hiển thị khi user đã đăng nhập
               <div className="user-info">
                 {user.avatarUrl ? (
                   <Avatar
@@ -82,7 +78,6 @@ function Header() {
                 </Button>
               </div>
             ) : (
-              // Hiển thị khi user chưa đăng nhập
               <>
                 <Button
                   type="primary"
