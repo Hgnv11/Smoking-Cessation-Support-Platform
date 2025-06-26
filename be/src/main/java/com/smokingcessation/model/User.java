@@ -2,7 +2,10 @@
 package com.smokingcessation.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
@@ -11,6 +14,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "users")
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,6 +45,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role = Role.guest;
 
+    private String note;
+
     private Boolean hasActive = false;
     private Boolean isDelete=false;
     private String typeLogin;
@@ -46,7 +54,7 @@ public class User {
     private Boolean isVerified = false;
 
 
-    private boolean isBlock = false;
+    private Boolean isBlock = false;
 
     @CreationTimestamp
     @Column(updatable = false)

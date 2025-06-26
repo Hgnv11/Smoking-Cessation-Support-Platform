@@ -201,7 +201,7 @@ const OverviewStats = () => {
   const calculateGrowth = (current, previous) => {
     if (previous <= 0) return '0%';
     const growth = Math.round((current / previous - 1) * 100);
-    return `${growth > 0 ? '+' : ''}${growth}%`;
+    return `${growth}%`;
   };
   
   // Get consultation count for today
@@ -220,43 +220,42 @@ const OverviewStats = () => {
     return todaySchedule ? 
       todaySchedule.timeSlots.filter(slot => !slot.isAvailable).length : 0;
   };
-
   const stats = [
     {
       title: "Total Users",
       value: loading ? "Loading..." : statsData.totalUsers.toString(),
       icon: <FaUsers />,
-      note: `Increased by ${statsData.userGrowth}`,
+      note: statsData.userGrowth,
     },
     {
       title: "Premium Users",
       value: loading ? "Loading..." : statsData.premiumUsers.toString(),
       icon: <FaUserFriends />,
-      note: `Decreased by ${statsData.premiumGrowth}`,
+      note: statsData.premiumGrowth,
     },
     {
       title: "Active Coaches",
       value: loading ? "Loading..." : statsData.activeCoaches.toString(),
       icon: <FaChalkboardTeacher />,
-      note: `Increased by ${statsData.coachGrowth}`,
+      note: statsData.coachGrowth,
     },
     {
       title: "Monthly Revenue",
       value: loading ? "Loading..." : statsData.monthlyRevenue,
       icon: <FaDollarSign />,
-      note: `Increased by ${statsData.revenueGrowth}`,
+      note: statsData.revenueGrowth,
     },
     {
       title: "Today's Consultations",
       value: loading ? "Loading..." : statsData.todayConsultations.toString(),
       icon: <FaChartBar />,
-      note: `Increased by ${statsData.consultationsGrowth}`,
+      note: statsData.consultationsGrowth,
     },
     {
       title: "New Users (This Week)",
       value: loading ? "Loading..." : statsData.newUsersThisWeek.toString(),
       icon: <FaChartBar />,
-      note: `Increased by ${statsData.newUsersGrowth}`,
+      note: statsData.newUsersGrowth,
     },
   ];
 
@@ -271,7 +270,7 @@ const OverviewStats = () => {
               <span className="overview-stats__icon">{item.icon}</span>
               <span className="overview-stats__value">{item.value}</span>
             </div>
-            <div className="overview-stats__note">{item.note}</div>
+            {/* <div className="overview-stats__note">{item.note}</div> */}
           </div>
         ))}
       </div>

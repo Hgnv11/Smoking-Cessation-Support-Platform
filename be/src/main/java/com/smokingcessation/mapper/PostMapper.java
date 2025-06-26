@@ -8,11 +8,9 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface PostMapper {
 
-    @Mapping(source = "user", target = "user")
-    @Mapping(source = "isApproved", target = "isApproved")
     PostDTO toDto(CommunityPost post);
 
 
-    @Mapping(target = "user", ignore = true)
+
     CommunityPost toEntity(PostDTO dto);
 }

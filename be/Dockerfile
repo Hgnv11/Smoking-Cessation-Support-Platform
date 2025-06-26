@@ -1,13 +1,12 @@
-# Dùng JDK 21 làm base image
-FROM eclipse-temurin:21-jdk-jammy
-
+# Stage 1: Build ứng dụng bằng Maven
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Copy file jar (bạn cần build jar trước)
-COPY target/your-app.jar app.jar
-
-# Copy file .env (nếu cần, hoặc dùng docker-compose để đọc)
-COPY .env .env
-
-# Chạy app, load biến môi trường từ .env
-CMD ["sh", "-c", "export $(grep -v '^#' .env | xargs) && java -jar app.jar"]
+# Stage 2: Chạy ứng dụng với JDK nhẹ
+FROM eclipse-temurin:21-jdk
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]

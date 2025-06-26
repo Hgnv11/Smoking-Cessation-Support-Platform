@@ -1,3 +1,48 @@
+# 🚭 Smoking Cessation Support - Backend API
+
+This is the **Spring Boot backend API** for the Smoking Cessation Support platform, helping users quit smoking through consultations, motivation, and support.
+
+It supports:
+- Google Login via OAuth2
+- JWT authentication
+- User & mentor management
+- Booking consultations
+- Sending feedback
+- WebSocket for real-time communication
+- Swagger for API documentation
+
+---
+
+## 🧱 Tech Stack
+
+- Java 21
+- Spring Boot 3.5.0
+- Maven 3.9.9
+- MySQL 8
+- Spring Security + OAuth2 (Google Login)
+- JWT (jjwt)
+- WebSocket (STOMP)
+- Lombok, MapStruct
+- Swagger UI (`springdoc-openapi`)
+
+---
+
+## ⚙️ Environment Setup
+
+### 🔧 Requirements
+
+- Java 21 installed and added to PATH  
+- Maven 3.9.9+  
+- MySQL 8 running  
+- IntelliJ IDEA (recommended)
+
+---
+
+## 📦 Configuration
+
+Create a file: `src/main/resources/application.properties`
+
+```properties
 spring.datasource.url=${SPRING_DATASOURCE_URL}
 spring.datasource.username=${SPRING_DATASOURCE_USERNAME}
 spring.datasource.password=${SPRING_DATASOURCE_PASSWORD}
@@ -27,9 +72,17 @@ jwt.expiration=${JWT_EXPIRATION}
 app.otp.expiration-minutes=${APP_OTP_EXPIRATION_MINUTES}
 app.otp.length=${APP_OTP_LENGTH}
 
+server.port=${PORT:8080}
+
+# ========== SWAGGER ==========
 springdoc.api-docs.enabled=true
 springdoc.swagger-ui.enabled=true
-springdoc.api-docs.path=/v3/api-docs
 springdoc.swagger-ui.path=/swagger-ui.html
 
-server.port=${PORT:8080}
+```
+
+### Connect me via :  Hoangnvse172524@fpt.edu.vn
+
+#### &#169; 2025 Hgnv11
+
+
