@@ -14,7 +14,7 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .addServersItem(new io.swagger.v3.oas.models.servers.Server()
-                        .url("https://smokingcessationsupport.space")) 
+                        .url("https://smokingcessationsupport.space"))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(
                         new Components()
