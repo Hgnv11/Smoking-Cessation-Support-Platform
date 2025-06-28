@@ -23,10 +23,6 @@ public class TriggerService {
         return categoryRepository.findAll();
     }
 
-    public Optional<TriggerCategory> getCategoryById(Integer id) {
-        return categoryRepository.findById(id);
-    }
-
     public TriggerCategory createCategory(TriggerCategory category) {
         return categoryRepository.save(category);
     }
@@ -38,10 +34,13 @@ public class TriggerService {
                     category.setDescription(updatedCategory.getDescription());
                     return categoryRepository.save(category);
                 })
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new RuntimeException("Danh mục không tồn tại"));
     }
 
     public void deleteCategory(Integer id) {
+        if (!categoryRepository.existsById(id)) {
+            throw new RuntimeException("Danh mục không tồn tại");
+        }
         categoryRepository.deleteById(id);
     }
 
@@ -57,7 +56,7 @@ public class TriggerService {
 
     public Trigger createTrigger(String name, String description, Integer categoryId) {
         TriggerCategory category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("TriggerCategory not found"));
+                .orElseThrow(() -> new RuntimeException("Danh mục không tồn tại"));
 
         Trigger trigger = Trigger.builder()
                 .name(name)
@@ -70,7 +69,7 @@ public class TriggerService {
 
     public Trigger updateTrigger(Integer id, String name, String description, Integer categoryId) {
         TriggerCategory category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("TriggerCategory not found"));
+                .orElseThrow(() -> new RuntimeException("Danh mục không tồn tại"));
 
         return triggerRepository.findById(id)
                 .map(trigger -> {
@@ -79,10 +78,13 @@ public class TriggerService {
                     trigger.setCategory(category);
                     return triggerRepository.save(trigger);
                 })
-                .orElseThrow(() -> new RuntimeException("Trigger not found"));
+                .orElseThrow(() -> new RuntimeException("Trigger không tồn tại"));
     }
 
     public void deleteTrigger(Integer id) {
+        if (!triggerRepository.existsById(id)) {
+            throw new RuntimeException("Trigger không tồn tại");
+        }
         triggerRepository.deleteById(id);
     }
 }

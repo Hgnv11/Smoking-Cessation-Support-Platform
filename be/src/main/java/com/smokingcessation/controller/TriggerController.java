@@ -19,18 +19,10 @@ public class TriggerController {
 
     // ====== TRIGGER CATEGORY ======
 
-    @Operation(summary = "Lấy tất cả danh mục trigger")
+    @Operation(summary = "Lấy tất cả danh mục trigger kèm danh sách trigger")
     @GetMapping("/categories")
     public ResponseEntity<List<TriggerCategory>> getAllCategories() {
         return ResponseEntity.ok(triggerService.getAllCategories());
-    }
-
-    @Operation(summary = "Lấy chi tiết danh mục trigger theo ID")
-    @GetMapping("/categories/{id}")
-    public ResponseEntity<TriggerCategory> getCategoryById(@PathVariable Integer id) {
-        return triggerService.getCategoryById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
     }
 
     @Operation(summary = "Tạo mới danh mục trigger")
