@@ -35,6 +35,11 @@ import PlanDetail from "./pages/QuitPlan/PlanDetail/planDetail.jsx";
 import Membership from "./pages/Profile/UserProfile/membership/membership.jsx";
 import UserCoachDetail from "./pages/UserCoach/CoachDetail/userCoachDetail.jsx";
 import UserBadges from "./pages/Profile/UserProfile/badges/badges.jsx";
+import MentorLayout from "./components/mentor/Layout.jsx";
+import MentorOverview from "./pages/MentorPages/Overview/Overview.jsx";
+import MentorAppointments from "./pages/MentorPages/Appointments/Appointment.jsx";
+import MentorClients from "./pages/MentorPages/Clients/Client.jsx";
+import MentorReports from "./pages/MentorPages/Reports/Report.jsx";
 
 const ProtectRouteAuth = ({ children }) => {
   const user = useSelector((store) => store.user);
@@ -42,6 +47,8 @@ const ProtectRouteAuth = ({ children }) => {
     return children;
   } else if (user && user.role === "admin") {
     return <Navigate to="/admin" />;
+  } else if (user && user.role === "mentor") {
+    return <Navigate to="/mentor" />;
   } else {
     return <Navigate to="/" />;
   }
@@ -320,6 +327,21 @@ function App() {
               <CoachManagement />
             </ProtectAdminRoute>
           ),
+        },
+        {
+          path: "mentor",
+          element: (
+            <ProtectCoachRoute>
+              <MentorLayout />
+            </ProtectCoachRoute>
+          ),
+          children: [
+            { index: true, element: <MentorOverview /> },
+            { path: "overview", element: <MentorOverview /> },
+            { path: "appointments", element: <MentorAppointments /> },
+            { path: "clients", element: <MentorClients /> },
+            { path: "reports", element: <MentorReports /> },
+          ],
         },
       ],
     },
