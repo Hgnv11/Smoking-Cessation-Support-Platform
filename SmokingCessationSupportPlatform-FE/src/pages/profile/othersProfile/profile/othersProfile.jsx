@@ -13,7 +13,7 @@ import Footer from "../../../../components/footer/footer";
 import "./othersProfile.css";
 import { UserOutlined } from "@ant-design/icons";
 import FormItem from "antd/es/form/FormItem";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import OthersAccountNav from "../../../../components/othersAccount-nav/othersAccount-nav";
 import api from "../../../../config/axios";
@@ -68,7 +68,7 @@ function OthersProfile() {
         <Affix offsetTop={0}>
           <Header />
         </Affix>
-        <div className="wrapper">
+        <div className="wrapper empty-container">
           <Empty className="empty-user" description="User Not Found" />
         </div>
         <Footer />

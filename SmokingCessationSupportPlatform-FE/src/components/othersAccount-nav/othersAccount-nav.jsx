@@ -1,5 +1,5 @@
 import "./othersAccount-nav.css";
-import { useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 
 function OthersAccountNav() {
   const location = useLocation();
@@ -14,8 +14,8 @@ function OthersAccountNav() {
 
   return (
     <div className="wrapper__profile-nav">
-      <a
-        href={`/users/${encodeURIComponent(profileName)}`}
+      <Link
+        to={`/users/${encodeURIComponent(profileName)}`}
         className={
           isActivePage(`/users/${encodeURIComponent(profileName)}`)
             ? "active"
@@ -23,9 +23,9 @@ function OthersAccountNav() {
         }
       >
         Profile
-      </a>
-      <a
-        href={`/users/${encodeURIComponent(profileName)}/posts`}
+      </Link>
+      <Link
+        to={`/users/${encodeURIComponent(profileName)}/posts`}
         className={
           isActivePage(`/users/${encodeURIComponent(profileName)}/posts`)
             ? "active"
@@ -33,10 +33,10 @@ function OthersAccountNav() {
         }
       >
         Posts
-      </a>
-      <a href="/#" className={isActivePage("/#") ? "active" : ""}>
+      </Link>
+      <Link to="/#" className={isActivePage("/#") ? "active" : ""}>
         Badges
-      </a>
+      </Link>
     </div>
   );
 }

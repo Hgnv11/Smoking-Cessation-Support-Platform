@@ -14,9 +14,9 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .addServersItem(new Server()
-                        .url("https://smokingcessationsupport.space") // Ép dùng HTTPS
-                        .description("Production server"))
+//                .addServersItem(new Server()
+//                        .url("https://smokingcessationsupport.space") // Ép dùng HTTPS
+//                        .description("Production server"))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth",

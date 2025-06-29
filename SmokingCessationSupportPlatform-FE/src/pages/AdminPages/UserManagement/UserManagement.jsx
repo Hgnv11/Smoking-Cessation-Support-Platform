@@ -14,6 +14,7 @@ import {
   Menu,
   Input,
   message,
+  Card,
 } from "antd";
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
@@ -416,11 +417,9 @@ const UserManagement = () => {
           />
         </div>
 
-        {/* ...existing modal code... */}
+        {/* ...MODAL CODE... */}
         <Modal
-          title={
-            selectedUser ? `User Details: ${selectedUser.name}` : "User Details"
-          }
+          title={null}
           open={isModalVisible}
           onCancel={() => setIsModalVisible(false)}
           footer={[
@@ -428,8 +427,66 @@ const UserManagement = () => {
               Close
             </Button>,
           ]}
-          width={800}
+          width={850}
         >
+          {/* Header: Avatar, Name, Email, Status, Membership */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 24,
+              marginBottom: 24,
+              borderBottom: "1px solid #f0f0f0",
+              paddingBottom: 18,
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: "50%",
+                  background: "#e0e7ff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 36,
+                  color: "#6366f1",
+                  fontWeight: 700,
+                }}
+              >
+                {selectedUser?.name?.[0] || "U"}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 700 }}>
+                {selectedUser?.name}
+              </div>
+              <div style={{ color: "#888", fontSize: 15 }}>
+                {selectedUser?.author}
+              </div>
+              <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+                <Tag
+                  color={selectedUser?.status === "active" ? "green" : "red"}
+                >
+                  {selectedUser?.status === "active" ? "Active" : "Locked"}
+                </Tag>
+                <Tag
+                  color={
+                    selectedUser?.membership === "Premium" ? "gold" : "blue"
+                  }
+                >
+                  {selectedUser?.membership}
+                </Tag>
+                <Tag
+                  color={selectedUser?.role === "Coach" ? "purple" : "geekblue"}
+                >
+                  {selectedUser?.role}
+                </Tag>
+              </div>
+            </div>
+          </div>
+
           <Tabs
             defaultActiveKey="membership"
             items={[
@@ -438,42 +495,87 @@ const UserManagement = () => {
                 label: "Membership Information",
                 children: (
                   <div>
-                    <div style={{ marginBottom: 24 }}>
-                      <h3>Current Membership</h3>
+                    <Card
+                      title="Current Membership"
+                      style={{ marginBottom: 24 }}
+                      bordered={false}
+                      bodyStyle={{ padding: 16 }}
+                    >
                       <Tag
                         color={
                           selectedUser?.membership === "Premium"
                             ? "gold"
                             : "default"
                         }
+                        style={{ fontSize: 16, padding: "6px 18px" }}
                       >
                         {selectedUser?.membership}
                       </Tag>
-                    </div>
+                    </Card>
 
-                    <div style={{ marginBottom: 24 }}>
-                      <h3>Subscription History</h3>
+                    <Card
+                      title="Subscription History"
+                      style={{ marginBottom: 24 }}
+                      bordered={false}
+                      bodyStyle={{ padding: 0 }}
+                    >
                       <List
                         dataSource={mockSubscriptionHistory}
                         renderItem={(item) => (
-                          <List.Item>
+                          <List.Item style={{ padding: "14px 0" }}>
                             <List.Item.Meta
-                              title={item.plan}
-                              description={`${item.startDate} to ${item.endDate}`}
+                              title={
+                                <b style={{ paddingLeft: 24 }}>{item.plan}</b>
+                              }
+                              description={
+                                <span
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 12,
+                                    paddingLeft: 12,
+                                    fontSize: 16,
+                                    color: "#555",
+                                  }}
+                                >
+                                  <Tag
+                                    color={
+                                      item.plan === "Premium"
+                                        ? "gold"
+                                        : "default"
+                                    }
+                                    style={{
+                                      margin: 0,
+                                      fontSize: 15,
+                                      height: 28,
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    {item.plan}
+                                  </Tag>
+                                  {dayjs(item.startDate).format("DD.MM.YYYY")}{" "}
+                                  &rarr;{" "}
+                                  {dayjs(item.endDate).format("DD.MM.YYYY")}
+                                </span>
+                              }
                             />
                           </List.Item>
                         )}
                       />
-                    </div>
+                    </Card>
 
-                    <div>
-                      <h3>Update Membership Plan</h3>
+                    <Card
+                      title="Update Membership Plan"
+                      bordered={false}
+                      bodyStyle={{ padding: 16 }}
+                    >
                       <Form
                         form={form}
                         onFinish={() => {
                           /* handleUpdatePlan */
                         }}
-                        layout="vertical"
+                        layout="inline"
                       >
                         <Form.Item
                           name="newPlan"
@@ -482,7 +584,7 @@ const UserManagement = () => {
                             { required: true, message: "Please select a plan" },
                           ]}
                         >
-                          <Select>
+                          <Select style={{ minWidth: 120 }}>
                             <Select.Option value="Premium">
                               Premium
                             </Select.Option>
@@ -495,7 +597,7 @@ const UserManagement = () => {
                           </Button>
                         </Form.Item>
                       </Form>
-                    </div>
+                    </Card>
                   </div>
                 ),
               },
@@ -504,70 +606,161 @@ const UserManagement = () => {
                 label: "Smoking Cessation Info",
                 children: (
                   <div>
-                    <Descriptions title="Smoking Profile" bordered>
-                      <Descriptions.Item label="Status">
-                        {mockSmokingProfile.status}
-                      </Descriptions.Item>
-                      <Descriptions.Item label="Initial Daily Cigarettes">
-                        {mockSmokingProfile.initialDailyCigarettes}
-                      </Descriptions.Item>
-                      <Descriptions.Item label="Quit Start Date">
-                        {mockSmokingProfile.quitStartDate}
-                      </Descriptions.Item>
-                    </Descriptions>
-
-                    <div style={{ marginTop: 24 }}>
-                      <h3>User Goals</h3>
-                      <List
-                        dataSource={mockGoals}
-                        renderItem={(item) => (
-                          <List.Item>
-                            <List.Item.Meta
-                              title={item.goal}
-                              description={`Target Date: ${item.targetDate} | Status: ${item.status}`}
-                            />
-                          </List.Item>
-                        )}
-                      />
-                    </div>
-
-                    <div style={{ marginTop: 24 }}>
-                      <h3>Current Progress</h3>
-                      <Descriptions bordered>
-                        <Descriptions.Item label="Days Smoke-Free">
-                          {mockProgress.daysSmokeFree}
+                    <Card
+                      title="Smoking Profile"
+                      bordered={false}
+                      style={{ marginBottom: 24 }}
+                      bodyStyle={{ padding: 16 }}
+                    >
+                      <Descriptions column={3} bordered size="small">
+                        <Descriptions.Item label="Status">
+                          <Tag
+                            color={
+                              mockSmokingProfile.status === "Active"
+                                ? "green"
+                                : "red"
+                            }
+                          >
+                            {mockSmokingProfile.status}
+                          </Tag>
                         </Descriptions.Item>
-                        <Descriptions.Item label="Money Saved">
-                          {mockProgress.moneySaved}
+                        <Descriptions.Item label="Initial Daily Cigarettes">
+                          {mockSmokingProfile.initialDailyCigarettes}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Quit Start Date">
+                          {mockSmokingProfile.quitStartDate}
                         </Descriptions.Item>
                       </Descriptions>
-                    </div>
+                    </Card>
 
-                    <div style={{ marginTop: 24 }}>
-                      <h3>Badges Achieved</h3>
-                      <div style={{ display: "flex", gap: 8 }}>
+                    {/* Smoking Cessation Goals */}
+                    <Card
+                      title="User Goals"
+                      style={{ marginBottom: 24 }}
+                      bodyStyle={{ padding: 0 }}
+                    >
+                      <div>
+                        {mockGoals.map((item, idx) => (
+                          <div
+                            key={idx}
+                            style={{
+                              borderBottom:
+                                idx !== mockGoals.length - 1
+                                  ? "1px solid #f0f0f0"
+                                  : undefined,
+                              padding: "16px 0 12px 0",
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontWeight: 700,
+                                fontSize: 17,
+                                marginBottom: 6,
+                              }}
+                            >
+                              {item.goal}
+                            </div>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 12,
+                                marginBottom: 4,
+                              }}
+                            >
+                              <Tag
+                                color={
+                                  item.status === "Completed"
+                                    ? "green"
+                                    : item.status === "In Progress"
+                                    ? "blue"
+                                    : "default"
+                                }
+                                style={{
+                                  fontSize: 15,
+                                  height: 28,
+                                  display: "flex",
+                                  alignItems: "center",
+                                  margin: 0,
+                                }}
+                              >
+                                {item.status}
+                              </Tag>
+                              <span style={{ color: "#888", fontSize: 15 }}>
+                                Target:{" "}
+                                {dayjs(item.targetDate).format("DD.MM.YYYY")}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+
+                    <Card
+                      title="Current Progress"
+                      bordered={false}
+                      style={{ marginBottom: 24 }}
+                      bodyStyle={{ padding: 16 }}
+                    >
+                      <Descriptions column={2} bordered size="small">
+                        <Descriptions.Item label="Days Smoke-Free">
+                          <b style={{ color: "#1677ff", fontSize: 18 }}>
+                            {mockProgress.daysSmokeFree}
+                          </b>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Money Saved">
+                          <b style={{ color: "#52c41a", fontSize: 18 }}>
+                            {mockProgress.moneySaved}
+                          </b>
+                        </Descriptions.Item>
+                      </Descriptions>
+                    </Card>
+
+                    <Card
+                      title="Badges Achieved"
+                      bordered={false}
+                      style={{ marginBottom: 24 }}
+                      bodyStyle={{ padding: 12 }}
+                    >
+                      <div
+                        style={{ display: "flex", gap: 12, flexWrap: "wrap" }}
+                      >
                         {mockBadges.map((badge) => (
-                          <Tag key={badge} color="blue">
+                          <Tag
+                            key={badge}
+                            color="blue"
+                            style={{ fontSize: 15, padding: "6px 18px" }}
+                          >
                             {badge}
                           </Tag>
                         ))}
                       </div>
-                    </div>
+                    </Card>
 
-                    <div style={{ marginTop: 24 }}>
-                      <h3>Consultation History</h3>
+                    <Card
+                      title="Consultation History"
+                      bordered={false}
+                      bodyStyle={{ padding: 0 }}
+                    >
                       <List
                         dataSource={mockConsultations}
                         renderItem={(item) => (
                           <List.Item>
                             <List.Item.Meta
-                              title={item.coachName}
-                              description={`Date: ${item.date} | Topic: ${item.topic}`}
+                              title={<b>{item.coachName}</b>}
+                              description={
+                                <>
+                                  <span>
+                                    <Tag color="geekblue">{item.topic}</Tag>
+                                    Date: {item.date}
+                                  </span>
+                                </>
+                              }
                             />
                           </List.Item>
                         )}
                       />
-                    </div>
+                    </Card>
                   </div>
                 ),
               },

@@ -280,6 +280,7 @@ function App() {
         { path: "community", element: <Community /> },
         { path: "community/:postId", element: <PostDetail /> },
         { path: "user-coach", element: <UserCoach /> },
+        { path: "user-coach/:profileName", element: <UserCoachDetail /> },
         { path: "coach-detail", element: <UserCoachDetail /> },
         {
           path: "admin",
