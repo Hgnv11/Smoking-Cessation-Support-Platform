@@ -58,6 +58,7 @@ public class UserSmokingProfileService {
             profile.setCigarettePackCost(request.getCigarettePackCost());
             profile.setQuitDate(request.getQuitDate());
             profile.setUpdatedAt(LocalDateTime.now());
+            profile.setEndDate(request.getEndDate());
 
             UserSmokingProfile savedProfile = userSmokingProfileRepository.save(profile);
             return mapper.toDto(savedProfile);

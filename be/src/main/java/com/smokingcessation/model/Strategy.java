@@ -1,27 +1,24 @@
 package com.smokingcessation.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "triggers")
+@Table(name = "strategies")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Trigger {
+public class Strategy {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "trigger_id")
-    private Integer triggerId;
+    @Column(name = "strategy_id")
+    private Integer strategyId;
 
     private String name;
     private String description;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
-    private TriggerCategory category;
+    private com.smokingcessation.model.StrategyCategory category;
 }
