@@ -1,4 +1,16 @@
-import { Affix, Avatar, Button, Card, message, Rate, Spin, Empty } from "antd";
+import {
+  Affix,
+  Avatar,
+  Button,
+  Card,
+  message,
+  Rate,
+  Spin,
+  Empty,
+  Divider,
+  Space,
+  Modal,
+} from "antd";
 import "./bookings.css";
 import Header from "../../../../components/header/header";
 import Footer from "../../../../components/footer/footer";
@@ -6,6 +18,7 @@ import MyAccountNav from "../../../../components/myAccount-nav/myAccount-nav";
 import {
   CalendarTwoTone,
   ClockCircleTwoTone,
+  ExclamationCircleFilled,
   MailTwoTone,
 } from "@ant-design/icons";
 import api from "../../../../config/axios";
@@ -14,8 +27,11 @@ import { useNavigate } from "react-router-dom";
 
 function UserBookings() {
   const [bookings, setBookings] = useState([]);
+  const [filteredBookings, setFilteredBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState("scheduled");
   const navigate = useNavigate();
+  const { confirm } = Modal;
 
   // Function to get time range based on slot number
   const getSlotTimeRange = (slotNumber) => {
@@ -40,11 +56,23 @@ function UserBookings() {
     return date.toLocaleDateString("en-US", options);
   };
 
+  // Function to filter bookings by status
+  const filterBookings = (status) => {
+    setActiveFilter(status);
+    const filtered = bookings.filter((booking) => booking.status === status);
+    setFilteredBookings(filtered);
+  };
+
   const fetchBookings = async () => {
     try {
       setLoading(true);
       const response = await api.get("/consultations/user");
       setBookings(response.data);
+      // Default filter to scheduled
+      const scheduledBookings = response.data.filter(
+        (booking) => booking.status === "scheduled"
+      );
+      setFilteredBookings(scheduledBookings);
     } catch (error) {
       console.error("Error fetching bookings:", error);
       message.error("Failed to fetch bookings. Please try again later.");
@@ -62,6 +90,21 @@ function UserBookings() {
       console.error("Error cancelling appointment:", error);
       message.error("Failed to cancel appointment. Please try again.");
     }
+  };
+
+  const showCancelConfirm = () => {
+    confirm({
+      title: "Cancel this Appointment?",
+      icon: <ExclamationCircleFilled />,
+      content:
+        "Are you sure you want to cancel this appointment? This action cannot be undone.",
+      onOk() {
+        handleCancelAppointment();
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
   };
 
   const handleViewCoach = (profileName) => {
@@ -85,18 +128,47 @@ function UserBookings() {
           <MyAccountNav />
           <div className="wrapper__profile-bookings">
             <h1 className="wrapper__community-posts-title">Bookings</h1>
-
+            <div className="wrapper__profile-bookings-categor">
+              <Card
+                hoverable
+                className={`wrapper__profile-bookings-categor-card ${
+                  activeFilter === "scheduled" ? "active" : ""
+                }`}
+                onClick={() => filterBookings("scheduled")}
+              >
+                Scheduled
+              </Card>
+              <Card
+                hoverable
+                className={`wrapper__profile-bookings-categor-card ${
+                  activeFilter === "completed" ? "active" : ""
+                }`}
+                onClick={() => filterBookings("completed")}
+              >
+                Completed
+              </Card>
+              <Card
+                hoverable
+                className={`wrapper__profile-bookings-categor-card ${
+                  activeFilter === "cancelled" ? "active" : ""
+                }`}
+                onClick={() => filterBookings("cancelled")}
+              >
+                Cancelled
+              </Card>
+            </div>
+            <Divider className="divider" />
             {loading ? (
               <div style={{ textAlign: "center", padding: "50px" }}>
                 <Spin size="large" />
               </div>
-            ) : bookings.length === 0 ? (
-              <EmptY
-                description="No Appointments Booked Available!"
+            ) : filteredBookings.length === 0 ? (
+              <Empty
+                description={`No ${activeFilter} appointments found!`}
                 style={{ margin: "20px 0" }}
               />
             ) : (
-              bookings.map((booking) => (
+              filteredBookings.map((booking) => (
                 <Card
                   key={booking.consultationId}
                   className="wrapper__profile-bookings-card"
@@ -144,17 +216,21 @@ function UserBookings() {
                     </div>
                   </div>
                   <div className="wrapper__profile-bookings-card-btn">
-                    <Button
-                      color="default"
-                      variant="filled"
-                      className="wrapper__profile-bookings-card-btn-detail cancel-book"
-                      onClick={() =>
-                        handleCancelAppointment(booking.consultationId)
-                      }
-                      //disabled={booking.status !== "scheduled"}
+                    <Space
+                      className="wrapper__profile-bookings-card-btn-detail"
+                      wrap
                     >
-                      Cancel Appointment
-                    </Button>
+                      <Button
+                        color="default"
+                        variant="filled"
+                        className="cancel-book"
+                        onClick={showCancelConfirm}
+                        disabled={booking.status !== "scheduled"}
+                      >
+                        Cancel Appointment
+                      </Button>
+                    </Space>
+
                     <Button
                       color="primary"
                       variant="solid"

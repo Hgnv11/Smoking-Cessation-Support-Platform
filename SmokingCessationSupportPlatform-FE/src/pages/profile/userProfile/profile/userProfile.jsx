@@ -91,21 +91,18 @@ function UserProfile() {
     fileInputRef.current?.click();
   };
 
-  // Hàm xử lý khi chọn file avatar
   const handleAvatarChange = async (event) => {
     const file = event.target.files[0];
 
     if (!file) return;
 
-    // Kiểm tra định dạng file
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
     if (!allowedTypes.includes(file.type)) {
       message.error("Please select a valid image file (JPEG, PNG, GIF)");
       return;
     }
 
-    // Kiểm tra kích thước file (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
       message.error("File size must be less than 5MB");
       return;
