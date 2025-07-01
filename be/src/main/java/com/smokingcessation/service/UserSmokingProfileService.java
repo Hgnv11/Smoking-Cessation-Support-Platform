@@ -53,8 +53,6 @@ public class UserSmokingProfileService {
             throw new RuntimeException("Bạn đã có kế hoạch bỏ thuốc đang hoạt động. Hãy hoàn thành hoặc hủy trước khi tạo mới.");
         }
 
-
-
         UserSmokingProfile profile = new UserSmokingProfile();
         profile.setUser(user);
         profile.setCigarettesPerDay(request.getCigarettesPerDay());
@@ -86,7 +84,11 @@ public class UserSmokingProfileService {
         profile.setCigarettePackCost(request.getCigarettePackCost());
         profile.setStatus(request.getStatus());
         profile.setUpdatedAt(LocalDateTime.now());
-
+        if(request.getStatus().equals("completed")) {
+            profile.setEndDate(request.getEndDate() != null ? request.getEndDate() : LocalDate.now());
+        }else {
+            profile.setEndDate(request.getEndDate());
+        }
         UserSmokingProfile savedProfile = userSmokingProfileRepository.save(profile);
         return mapper.toDto(savedProfile);
     }
