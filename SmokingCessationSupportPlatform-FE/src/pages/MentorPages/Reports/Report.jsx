@@ -16,11 +16,11 @@ import {
   UserOutlined,
   DollarOutlined,
 } from "@ant-design/icons";
-import styles from './Report.module.css';
+import styles from "./Report.module.css";
 
 const { Title, Text } = Typography;
 
-export const Reports = () => {
+export const MentorReports = () => {
   // Mock data for reports
   const monthlyStats = [
     { month: "Jan", sessions: 45, clients: 12, revenue: 2400 },
@@ -75,7 +75,11 @@ export const Reports = () => {
       title: "Smoke-Free Days",
       dataIndex: "smokeFreedays",
       key: "smokeFreedays",
-      render: (days) => <Text strong style={{ color: "#0d9488" }}>{days}</Text>,
+      render: (days) => (
+        <Text strong style={{ color: "#0d9488" }}>
+          {days}
+        </Text>
+      ),
     },
     {
       title: "Sessions Attended",
@@ -90,7 +94,9 @@ export const Reports = () => {
         <Progress
           percent={rate}
           size="default"
-          strokeColor={rate >= 80 ? "#52c41a" : rate >= 60 ? "#faad14" : "#ff4d4f"}
+          strokeColor={
+            rate >= 80 ? "#52c41a" : rate >= 60 ? "#faad14" : "#ff4d4f"
+          }
         />
       ),
     },
@@ -103,7 +109,7 @@ export const Reports = () => {
         if (status === "Excellent") color = "green";
         else if (status === "Good") color = "blue";
         else if (status === "Needs Support") color = "orange";
-        
+
         return <Tag color={color}>{status}</Tag>;
       },
     },
@@ -166,8 +172,8 @@ export const Reports = () => {
       <Row gutter={24}>
         <Col span={16}>
           {/* Client Progress Table */}
-          <Card 
-            title="Client Progress Overview" 
+          <Card
+            title="Client Progress Overview"
             className={styles.clientProgressTable}
           >
             <Table
@@ -176,11 +182,13 @@ export const Reports = () => {
               pagination={false}
               size="middle"
             />
-            <div style={{ marginTop: "16px", maxWidth: "80%"}}>
+            <div style={{ marginTop: "16px", maxWidth: "80%" }}>
               <Text italic type="secondary" style={{ fontSize: 12 }}>
-                *Sessions Attended: Number of counseling sessions attended by the client. 
-                This is an important indicator of client commitment and is closely correlated with the 
-                likelihood of successfully quitting smoking.</Text>
+                *Sessions Attended: Number of counseling sessions attended by
+                the client. This is an important indicator of client commitment
+                and is closely correlated with the likelihood of successfully
+                quitting smoking.
+              </Text>
             </div>
           </Card>
 
@@ -219,20 +227,29 @@ export const Reports = () => {
 
         <Col span={8}>
           {/* Success Metrics */}
-          <Card 
-            title="Success Metrics" 
-            className={styles.successMetrics}
-          >
+          <Card title="Success Metrics" className={styles.successMetrics}>
             <Space direction="vertical" size={16} style={{ width: "100%" }}>
               <div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: 8,
+                  }}
+                >
                   <Text>Client Retention Rate</Text>
                 </div>
                 <Progress percent={94} strokeColor="#52c41a" />
               </div>
-              
+
               <div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: 8,
+                  }}
+                >
                   <Text>Session Completion Rate</Text>
                 </div>
                 <Progress percent={89} strokeColor="#52c41a" />
@@ -244,4 +261,4 @@ export const Reports = () => {
     </>
   );
 };
-export default Reports;
+export default MentorReports;

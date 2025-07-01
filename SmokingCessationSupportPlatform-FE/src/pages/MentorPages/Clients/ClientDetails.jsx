@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Avatar,
@@ -26,7 +26,7 @@ import {
   EditOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
-import styles from './ClientDetails.module.css';
+import styles from "./ClientDetails.module.css";
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -34,20 +34,24 @@ const { TextArea } = Input;
 // Mock detailed client data
 const getClientData = (id) => {
   const clients = {
-    "1": {
+    1: {
       id: 1,
       name: "Matthew Paul",
       email: "james.wilson@example.com",
-      avatar: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
+      avatar:
+        "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
       smokeFreedays: 15,
       moneySaved: 200,
       cravingIntensity: 8,
       status: "Premium",
       joinDate: "2023-12-10",
       totalConsultations: 8,
-      motivation: "I want to be healthy for my family and save money for important expenses.",
-      goals: "Quit smoking completely within 3 months, save $1000 by the end of the year.",
-      coachNotes: "Matthew is motivated but struggles with work stress. Focus on stress management techniques and positive reinforcement.",
+      motivation:
+        "I want to be healthy for my family and save money for important expenses.",
+      goals:
+        "Quit smoking completely within 3 months, save $1000 by the end of the year.",
+      coachNotes:
+        "Matthew is motivated but struggles with work stress. Focus on stress management techniques and positive reinforcement.",
       progressLog: {
         "2024-06-01": "smoke-free",
         "2024-06-02": "smoke-free",
@@ -71,36 +75,43 @@ const getClientData = (id) => {
           id: 1,
           date: "2024-06-10",
           type: "Video Session",
-          notes: "Discussed coping strategies for stress. Matthew is improving with breathing exercises."
+          notes:
+            "Discussed coping strategies for stress. Matthew is improving with breathing exercises.",
         },
         {
           id: 2,
           date: "2024-06-03",
           type: "Video Session",
-          notes: "Addressed relapse on June 3rd. Identified work triggers and created action plan."
+          notes:
+            "Addressed relapse on June 3rd. Identified work triggers and created action plan.",
         },
         {
           id: 3,
           date: "2024-05-26",
           type: "Video Session",
-          notes: "Weekly check-in. Matthew reported strong motivation despite challenges."
+          notes:
+            "Weekly check-in. Matthew reported strong motivation despite challenges.",
         },
-      ]
+      ],
     },
-    "2": {
+    2: {
       id: 2,
       name: "Sophia Rodriguez",
       email: "sophia.rodriguez@example.com",
-      avatar: "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
+      avatar:
+        "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
       smokeFreedays: 28,
       moneySaved: 420,
       cravingIntensity: 4,
       status: "Premium",
       joinDate: "2023-11-25",
       totalConsultations: 12,
-      motivation: "Health concerns and wanting to be a good role model for my children.",
-      goals: "Complete cessation and maintain smoke-free lifestyle for at least 6 months.",
-      coachNotes: "Sophia is very consistent and responds well to goal-setting. Continue with current approach.",
+      motivation:
+        "Health concerns and wanting to be a good role model for my children.",
+      goals:
+        "Complete cessation and maintain smoke-free lifestyle for at least 6 months.",
+      coachNotes:
+        "Sophia is very consistent and responds well to goal-setting. Continue with current approach.",
       progressLog: {
         "2024-06-01": "smoke-free",
         "2024-06-02": "smoke-free",
@@ -124,30 +135,35 @@ const getClientData = (id) => {
           id: 1,
           date: "2024-06-12",
           type: "Video Session",
-          notes: "Excellent progress. Discussed maintaining motivation long-term."
+          notes:
+            "Excellent progress. Discussed maintaining motivation long-term.",
         },
         {
           id: 2,
           date: "2024-06-05",
           type: "Video Session",
-          notes: "Weekly check-in. Sophia is doing very well with all aspects of the program."
+          notes:
+            "Weekly check-in. Sophia is doing very well with all aspects of the program.",
         },
-      ]
+      ],
     },
-    "3": {
+    3: {
       id: 3,
       name: "David Chen",
       email: "david.chen@example.com",
-      avatar: "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
+      avatar:
+        "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
       smokeFreedays: 7,
       moneySaved: 105,
       cravingIntensity: 3,
       status: "Basic",
       joinDate: "2024-01-05",
       totalConsultations: 4,
-      motivation: "I want to improve my health and set a good example for my family.",
+      motivation:
+        "I want to improve my health and set a good example for my family.",
       goals: "Quit smoking within 2 months, save money for family vacation.",
-      coachNotes: "David shows good progress with low craving intensity. Focus on maintaining motivation and building healthy habits.",
+      coachNotes:
+        "David shows good progress with low craving intensity. Focus on maintaining motivation and building healthy habits.",
       progressLog: {
         "2024-06-10": "smoke-free",
         "2024-06-11": "smoke-free",
@@ -162,30 +178,35 @@ const getClientData = (id) => {
           id: 1,
           date: "2024-06-14",
           type: "Video Session",
-          notes: "David is making excellent progress. Discussed strategies for maintaining motivation."
+          notes:
+            "David is making excellent progress. Discussed strategies for maintaining motivation.",
         },
         {
           id: 2,
           date: "2024-06-07",
           type: "Video Session",
-          notes: "Weekly check-in. David reported low cravings and good progress with habit replacement."
+          notes:
+            "Weekly check-in. David reported low cravings and good progress with habit replacement.",
         },
-      ]
+      ],
     },
-    "4": {
+    4: {
       id: 4,
       name: "Emily Johnson",
       email: "emily.johnson@example.com",
-      avatar: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
+      avatar:
+        "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
       smokeFreedays: 22,
       moneySaved: 330,
       cravingIntensity: 6,
       status: "Premium",
       joinDate: "2023-12-20",
       totalConsultations: 9,
-      motivation: "I want to improve my lung health and save money for my future.",
+      motivation:
+        "I want to improve my lung health and save money for my future.",
       goals: "Achieve 30 smoke-free days and maintain long-term cessation.",
-      coachNotes: "Emily has moderate cravings but good determination. Continue with current support plan.",
+      coachNotes:
+        "Emily has moderate cravings but good determination. Continue with current support plan.",
       progressLog: {
         "2024-05-26": "smoke-free",
         "2024-05-27": "smoke-free",
@@ -215,22 +236,24 @@ const getClientData = (id) => {
           id: 1,
           date: "2024-06-13",
           type: "Video Session",
-          notes: "Emily discussed challenges with social situations. Provided coping strategies."
+          notes:
+            "Emily discussed challenges with social situations. Provided coping strategies.",
         },
         {
           id: 2,
           date: "2024-06-06",
           type: "Video Session",
-          notes: "Good progress overall. Addressed concerns about weight gain after quitting."
+          notes:
+            "Good progress overall. Addressed concerns about weight gain after quitting.",
         },
         {
           id: 3,
           date: "2024-05-30",
           type: "Video Session",
-          notes: "Weekly check-in. Emily recovered well from recent relapse."
+          notes: "Weekly check-in. Emily recovered well from recent relapse.",
         },
-      ]
-    }
+      ],
+    },
   };
 
   return clients[id];
@@ -256,9 +279,11 @@ export const MentorClientDetails = () => {
   // Handle case where client is not found
   if (!clientData) {
     return (
-      <div style={{ padding: 24, textAlign: 'center' }}>
+      <div style={{ padding: 24, textAlign: "center" }}>
         <Title level={2}>Client Not Found</Title>
-        <Paragraph>The client with ID "{clientId}" could not be found.</Paragraph>
+        <Paragraph>
+          The client with ID "{clientId}" could not be found.
+        </Paragraph>
         <Button type="primary" onClick={() => navigate("/mentor/clients")}>
           Back to Clients List
         </Button>
@@ -297,9 +322,9 @@ export const MentorClientDetails = () => {
   };
 
   const dateCellRender = (value) => {
-    const dateStr = value.format('YYYY-MM-DD');
+    const dateStr = value.format("YYYY-MM-DD");
     const status = clientData.progressLog[dateStr];
-    
+
     if (status === "smoke-free") {
       return (
         <div className={styles.smokeFreeDay}>
@@ -335,9 +360,13 @@ export const MentorClientDetails = () => {
         </Button>
         <div className={styles.breadcrumb}>
           <Text type="secondary">Pages</Text>
-          <Text type="secondary" className={styles.separator}>/</Text>
+          <Text type="secondary" className={styles.separator}>
+            /
+          </Text>
           <Text type="secondary">Clients</Text>
-          <Text type="secondary" className={styles.separator}>/</Text>
+          <Text type="secondary" className={styles.separator}>
+            /
+          </Text>
           <Text strong>{clientData.name}</Text>
         </div>
       </div>
@@ -346,8 +375,15 @@ export const MentorClientDetails = () => {
       <Card className={styles.clientHeaderCard}>
         <Row gutter={16} align="middle">
           <Col span={4}>
-            <Avatar size={80} src={clientData.avatar} className={styles.clientAvatar}>
-              {clientData.name.split(" ").map(n => n[0]).join("")}
+            <Avatar
+              size={80}
+              src={clientData.avatar}
+              className={styles.clientAvatar}
+            >
+              {clientData.name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")}
             </Avatar>
           </Col>
           <Col span={16}>
@@ -369,9 +405,9 @@ export const MentorClientDetails = () => {
             </Space>
           </Col>
           <Col span={4}>
-            <Button 
-              type="primary" 
-              icon={<VideoCameraOutlined />} 
+            <Button
+              type="primary"
+              icon={<VideoCameraOutlined />}
               block
               className={styles.videoCallButton}
             >
@@ -417,7 +453,9 @@ export const MentorClientDetails = () => {
                         type="circle"
                         size={80}
                         percent={(clientData.cravingIntensity / 10) * 100}
-                        strokeColor={getCravingColor(clientData.cravingIntensity)}
+                        strokeColor={getCravingColor(
+                          clientData.cravingIntensity
+                        )}
                         format={() => `${clientData.cravingIntensity}/10`}
                       />
                     </div>
@@ -429,7 +467,11 @@ export const MentorClientDetails = () => {
                   <Statistic
                     title="Total Consultations"
                     value={clientData.totalConsultations}
-                    prefix={<VideoCameraOutlined className={styles.consultationIcon} />}
+                    prefix={
+                      <VideoCameraOutlined
+                        className={styles.consultationIcon}
+                      />
+                    }
                     valueStyle={{ color: "#722ed1" }}
                   />
                 </Card>
@@ -443,7 +485,8 @@ export const MentorClientDetails = () => {
                 Monthly Progress Calendar
               </Title>
               <Text type="secondary" className={styles.progressDescription}>
-                Green days indicate smoke-free days, red days indicate relapse days.
+                Green days indicate smoke-free days, red days indicate relapse
+                days.
               </Text>
             </div>
             <Calendar
@@ -455,8 +498,8 @@ export const MentorClientDetails = () => {
           <Tabs.TabPane tab="Plan & Notes" key="plan">
             <Row gutter={24}>
               <Col span={12}>
-                <Card 
-                  title="Motivation & Goals" 
+                <Card
+                  title="Motivation & Goals"
                   className={styles.motivationCard}
                 >
                   <div className={styles.motivationSection}>
@@ -478,13 +521,13 @@ export const MentorClientDetails = () => {
                 </Card>
               </Col>
               <Col span={12}>
-                <Card 
-                  title="Coach's Private Notes" 
+                <Card
+                  title="Coach's Private Notes"
                   className={styles.notesCard}
                   extra={
-                    <Button 
-                      type="primary" 
-                      size="small" 
+                    <Button
+                      type="primary"
+                      size="small"
                       icon={<EditOutlined />}
                       onClick={saveCoachNotes}
                       className={styles.saveNotesButton}
@@ -520,14 +563,14 @@ export const MentorClientDetails = () => {
                       className={styles.viewNotesButton}
                     >
                       View Notes
-                    </Button>
+                    </Button>,
                   ]}
                   className={styles.consultationItem}
                 >
                   <List.Item.Meta
                     avatar={
-                      <Avatar 
-                        icon={<VideoCameraOutlined />} 
+                      <Avatar
+                        icon={<VideoCameraOutlined />}
                         className={styles.consultationAvatar}
                       />
                     }
@@ -567,7 +610,9 @@ export const MentorClientDetails = () => {
             </div>
             <div className={styles.modalField}>
               <Text strong>Date: </Text>
-              <Text>{new Date(selectedConsultation.date).toLocaleDateString()}</Text>
+              <Text>
+                {new Date(selectedConsultation.date).toLocaleDateString()}
+              </Text>
             </div>
             <div className={styles.modalNotes}>
               <Text strong>Notes:</Text>

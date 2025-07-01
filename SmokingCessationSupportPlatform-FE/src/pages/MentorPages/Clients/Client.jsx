@@ -19,13 +19,13 @@ import {
   MailOutlined,
   CalendarOutlined,
 } from "@ant-design/icons";
-import { useNavigate } from 'react-router-dom';
-import styles from './Client.module.css';
+import { useNavigate } from "react-router-dom";
+import styles from "./Client.module.css";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-export const Clients = () => {
+export const MentorClients = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const navigate = useNavigate();
@@ -36,7 +36,8 @@ export const Clients = () => {
       id: 1,
       name: "Matthew Paul",
       email: "james.wilson@example.com",
-      avatar: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
+      avatar:
+        "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
       joinDate: "December 10, 2023",
       status: "Premium",
       smokeFreedays: 15,
@@ -49,7 +50,8 @@ export const Clients = () => {
       id: 2,
       name: "Sophia Rodriguez",
       email: "sophia.rodriguez@example.com",
-      avatar: "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
+      avatar:
+        "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
       joinDate: "November 25, 2023",
       status: "Premium",
       smokeFreedays: 28,
@@ -62,7 +64,8 @@ export const Clients = () => {
       id: 3,
       name: "David Chen",
       email: "david.chen@example.com",
-      avatar: "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
+      avatar:
+        "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
       joinDate: "January 5, 2024",
       status: "Basic",
       smokeFreedays: 7,
@@ -75,7 +78,8 @@ export const Clients = () => {
       id: 4,
       name: "Emily Johnson",
       email: "emily.johnson@example.com",
-      avatar: "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
+      avatar:
+        "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
       joinDate: "October 15, 2023",
       status: "Premium",
       smokeFreedays: 45,
@@ -104,10 +108,12 @@ export const Clients = () => {
   };
 
   const filteredClients = clients.filter((client) => {
-    const matchesSearch = client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         client.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === "all" || 
-                         client.status.toLowerCase() === filterStatus.toLowerCase();
+    const matchesSearch =
+      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter =
+      filterStatus === "all" ||
+      client.status.toLowerCase() === filterStatus.toLowerCase();
     return matchesSearch && matchesFilter;
   });
 
@@ -153,14 +159,14 @@ export const Clients = () => {
           <Col span={6}>
             <Statistic
               title="Premium Clients"
-              value={clients.filter(c => c.status === "Premium").length}
+              value={clients.filter((c) => c.status === "Premium").length}
               className={styles.premiumClientsStatistic}
             />
           </Col>
           <Col span={6}>
             <Statistic
               title="High Craving Clients"
-              value={clients.filter(c => c.cravingLevel === "High").length}
+              value={clients.filter((c) => c.cravingLevel === "High").length}
               className={styles.highCravingClientsStatistic}
             />
           </Col>
@@ -186,7 +192,10 @@ export const Clients = () => {
                   <Col>
                     <Space size={16}>
                       <Avatar size={64} src={client.avatar}>
-                        {client.name.split(" ").map(n => n[0]).join("")}
+                        {client.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
                       </Avatar>
                       <div>
                         <Title level={4} className={styles.clientName}>
@@ -195,13 +204,19 @@ export const Clients = () => {
                         <Space direction="vertical" size={2}>
                           <Space size={8}>
                             <MailOutlined className={styles.icon} />
-                            <Text type="secondary" className={styles.clientDetail}>
+                            <Text
+                              type="secondary"
+                              className={styles.clientDetail}
+                            >
                               {client.email}
                             </Text>
                           </Space>
                           <Space size={8}>
                             <CalendarOutlined className={styles.icon} />
-                            <Text type="secondary" className={styles.clientDetail}>
+                            <Text
+                              type="secondary"
+                              className={styles.clientDetail}
+                            >
                               Joined {client.joinDate}
                             </Text>
                           </Space>
@@ -215,17 +230,19 @@ export const Clients = () => {
                         {client.status}
                       </Tag>
                       <Space size={8}>
-                        <Button 
-                          type="primary" 
+                        <Button
+                          type="primary"
                           size="small"
                           className={styles.actionButton}
-                          onClick={() => navigate(`/mentor/clients/${client.id}`)}
+                          onClick={() =>
+                            navigate(`/mentor/clients/${client.id}`)
+                          }
                         >
                           View Details
                         </Button>
-                        <Button 
-                          type="default" 
-                          size="small" 
+                        <Button
+                          type="default"
+                          size="small"
                           icon={<MessageOutlined />}
                           className={styles.actionButton}
                         />
@@ -240,7 +257,7 @@ export const Clients = () => {
                 <Title level={5} className={styles.sectionTitle}>
                   Progress Overview
                 </Title>
-                
+
                 <Row gutter={24}>
                   <Col span={8}>
                     <div className={styles.statBox}>
@@ -294,9 +311,15 @@ export const Clients = () => {
                   className={styles.cravingProgress}
                 />
                 <div className={styles.cravingLabels}>
-                  <Text type="secondary" className={styles.cravingLabel}>Low</Text>
-                  <Text type="secondary" className={styles.cravingLabel}>Moderate</Text>
-                  <Text type="secondary" className={styles.cravingLabel}>High</Text>
+                  <Text type="secondary" className={styles.cravingLabel}>
+                    Low
+                  </Text>
+                  <Text type="secondary" className={styles.cravingLabel}>
+                    Moderate
+                  </Text>
+                  <Text type="secondary" className={styles.cravingLabel}>
+                    High
+                  </Text>
                 </div>
               </div>
             </Card>
@@ -306,4 +329,4 @@ export const Clients = () => {
     </>
   );
 };
-export default Clients;
+export default MentorClients;
