@@ -34,6 +34,7 @@ public class UserSmokingProfile {
 
     private LocalDate endDate;
 
+    private String status;
 
     @CreationTimestamp
     @Column(updatable = false)

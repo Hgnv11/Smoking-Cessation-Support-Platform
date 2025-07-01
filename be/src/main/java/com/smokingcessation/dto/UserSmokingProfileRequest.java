@@ -13,5 +13,6 @@ public class UserSmokingProfileRequest {
     private BigDecimal cigarettePackCost;
     private LocalDate quitDate;
     private LocalDate endDate;
+    private String status;
 }
 
