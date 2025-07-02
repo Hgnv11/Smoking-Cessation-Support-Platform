@@ -7,6 +7,7 @@ import ActionDropdown from "../../../components/admin/AdminReusableUI/ActionDrop
 import ReusableTable from "../../../components/admin/ReusableTable/ReusableTable";
 import dayjs from "dayjs";
 import api from "../../../config/axios.js";
+import { coachService } from "../../../services/coachService.js";
 
 const CoachManagement = () => {
   const [coaches, setCoaches] = useState([]);
@@ -27,19 +28,16 @@ const CoachManagement = () => {
   const fetchCoaches = async () => {
     try {
       setLoading(true);
-      console.log("Fetching coaches from API...");
-      const response = await api.get("/admin/mentors", {
-        // Thêm timeout để tránh request kéo dài quá lâu
-        timeout: 10000,
-      });
-      console.log("API response received:", response);
+      console.log("Fetching coaches from coachService...");
+      const response = await coachService.getCoaches();
+      console.log("coachService response received:", response);
 
       // Mapping the response to match the expected structure
-      const transformedData = response.data.map((mentor) => ({
+      const transformedData = response.map((mentor) => ({
         id: mentor.userId.toString(),
         name: mentor.fullName,
         email: mentor.email,
-        expertise: ["Quit Smoking", "Stress Management"],
+        expertise: mentor.note ? [mentor.note] : ["No expertise specified"],
         rating: mentor.rating || 0,
         todayConsults: 0, // Update with actual data if available
         currentCases: 0, // Update with actual data if available
@@ -299,7 +297,7 @@ const CoachManagement = () => {
     { title: "User ID", dataIndex: "id" },
     { title: "Coach name", dataIndex: "name" },
     { title: "Email", dataIndex: "email" },
-    { title: "Expertise", dataIndex: "expertise", render: renderExpertise },
+    { title: "About", dataIndex: "expertise", render: renderExpertise },
     { title: "Rating", dataIndex: "rating", render: renderRating },
     { title: "Number of consultations today", dataIndex: "todayConsults" },
     {

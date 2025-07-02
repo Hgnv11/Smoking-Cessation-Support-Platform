@@ -9,8 +9,5 @@ import org.mapstruct.Mapping;
 public interface PostMapper {
 
     PostDTO toDto(CommunityPost post);
-
-
-
     CommunityPost toEntity(PostDTO dto);
 }

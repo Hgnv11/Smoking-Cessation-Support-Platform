@@ -12,6 +12,14 @@
   letter-spacing: 0.01em;
 }
 
+.blog-management-page h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #18181b;
+  margin-top: 30px;
+  margin-bottom: 16px;
+}
+
 .search-filter-header {
   font-size: 1.08rem;
   font-weight: 500;

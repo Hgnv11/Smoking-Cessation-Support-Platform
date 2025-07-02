@@ -1,17 +1,33 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styles from "./BlogManagement.module.css";
 import AdminLayout from "../../../components/layout/AdminLayout.jsx";
 import EditPostModal from "./EditPostModal.jsx";
 import FilterBar from "../../../components/admin/AdminReusableUI/FilterBar";
 import BulkActionBar from "../../../components/admin/AdminReusableUI/BulkActionBar";
-import ActionDropdown from "../../../components/admin/AdminReusableUI/ActionDropdown";
 import ReusableTable from "../../../components/admin/ReusableTable/ReusableTable";
 import dayjs from "dayjs";
-import { Image, message, Spin, Modal } from "antd";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
+import {
+  Image,
+  message,
+  Spin,
+  Modal,
+  Empty,
+  Typography,
+  Tag,
+  Button,
+  Space,
+} from "antd";
+import {
+  ExclamationCircleOutlined,
+  EyeOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  CheckOutlined,
+} from "@ant-design/icons";
 import { blogService } from "../../../services/blogService";
 
 const { confirm } = Modal;
+const { Title, Text, Paragraph } = Typography;
 
 const BlogManagement = () => {
   const [posts, setPosts] = useState([]);
@@ -22,6 +38,9 @@ const BlogManagement = () => {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [filteredPosts, setFilteredPosts] = useState([]);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [viewingPost, setViewingPost] = useState(null);
+  const [loadingPostDetail, setLoadingPostDetail] = useState(false);
 
   // Fetch posts from API
   useEffect(() => {
@@ -178,9 +197,28 @@ const BlogManagement = () => {
     }
   };
 
-  // Handler for actions
-  const handleView = (row) => {
-    message.info(`Viewing post: ${row.title}`);
+  // Handler for viewing post details
+  const handleView = async (row) => {
+    try {
+      setLoadingPostDetail(true);
+      setShowViewModal(true);
+
+      // Fetch detailed post data from API
+      const postDetail = await blogService.getPostById(row.id);
+      setViewingPost(postDetail);
+    } catch (error) {
+      console.error("Error fetching post details:", error);
+      message.error("Failed to load post details");
+      setShowViewModal(false);
+    } finally {
+      setLoadingPostDetail(false);
+    }
+  };
+
+  // Close view modal
+  const handleCloseViewModal = () => {
+    setShowViewModal(false);
+    setViewingPost(null);
   };
 
   const columns = [
@@ -206,38 +244,78 @@ const BlogManagement = () => {
       title: "Action",
       dataIndex: "action",
       render: (value, row) => {
-        let actions = [];
         if (row.status === true) {
           // Published posts actions
-          actions = [
-            { key: "view", label: "View", onClick: () => handleView(row) },
-            { key: "edit", label: "Edit", onClick: () => handleEdit(row) },
-            {
-              key: "delete",
-              label: "Delete",
-              onClick: () => handleDelete(row.id, row.title),
-              danger: true,
-            },
-          ];
+          return (
+            <Space size="small">
+              <Button
+                type="primary"
+                icon={<EyeOutlined />}
+                size="small"
+                onClick={() => handleView(row)}
+              >
+                Detail
+              </Button>
+              <Button
+                type="default"
+                icon={<EditOutlined />}
+                size="small"
+                onClick={() => handleEdit(row)}
+              >
+                Edit
+              </Button>
+              <Button
+                type="primary"
+                danger
+                icon={<DeleteOutlined />}
+                size="small"
+                onClick={() => handleDelete(row.id, row.title)}
+              >
+                Delete
+              </Button>
+            </Space>
+          );
         } else {
           // Not published posts actions
-          actions = [
-            { key: "view", label: "View", onClick: () => handleView(row) },
-            { key: "edit", label: "Edit", onClick: () => handleEdit(row) },
-            {
-              key: "approve",
-              label: "Approve",
-              onClick: () => handleApprove(row),
-            },
-            {
-              key: "delete",
-              label: "Delete",
-              onClick: () => handleDelete(row.id, row.title),
-              danger: true,
-            },
-          ];
+          return (
+            <Space size="small">
+              <Button
+                type="primary"
+                icon={<EyeOutlined />}
+                size="small"
+                onClick={() => handleView(row)}
+              >
+                View
+              </Button>
+              <Button
+                type="default"
+                icon={<EditOutlined />}
+                size="small"
+                onClick={() => handleEdit(row)}
+              >
+                Edit
+              </Button>
+              <Button
+                type="primary"
+                icon={<CheckOutlined />}
+                size="small"
+                style={{ backgroundColor: "#52c41a", borderColor: "#52c41a" }}
+                onClick={() => handleApprove(row)}
+              >
+                Approve
+              </Button>
+              <Button
+                type="primary"
+                danger
+                icon={<DeleteOutlined />}
+                size="small"
+                onClick={() => handleDelete(row.id, row.title)}
+              >
+                Delete
+              </Button>
+            </Space>
+          );
         }
-        return <ActionDropdown actions={actions} />;
       },
     },
   ];
@@ -287,7 +365,7 @@ const BlogManagement = () => {
     // Handle bulk approve
     else if (action === "approve") {
       try {
-        // Approve multiple posts - SỬA LẠI ĐÂY
+        // Approve multiple posts
         await Promise.all(ids.map((id) => blogService.approvePost(id)));
         setPosts(
           posts.map((post) =>
@@ -304,6 +382,7 @@ const BlogManagement = () => {
       }
     }
   };
+
   // Show loading spinner while fetching data
   if (loading) {
     return (
@@ -349,24 +428,31 @@ const BlogManagement = () => {
             actions={[{ value: "delete", label: "Delete" }]}
           />
         )}
-        <ReusableTable
-          columns={columns}
-          data={publishedPosts}
-          selectedRowKeys={publishedSelected}
-          onSelectAll={(checked) => {
-            const ids = publishedPosts.map((p) => p.id);
-            setSelectedPosts(
-              checked
-                ? Array.from(new Set([...selectedPosts, ...ids]))
-                : selectedPosts.filter((id) => !ids.includes(id))
-            );
-          }}
-          onSelectRow={(id, checked) =>
-            setSelectedPosts((prev) =>
-              checked ? [...prev, id] : prev.filter((pid) => pid !== id)
-            )
-          }
-        />
+        {publishedPosts.length === 0 ? (
+          <Empty
+            description="No published posts"
+            style={{ margin: "20px 0" }}
+          />
+        ) : (
+          <ReusableTable
+            columns={columns}
+            data={publishedPosts}
+            selectedRowKeys={publishedSelected}
+            onSelectAll={(checked) => {
+              const ids = publishedPosts.map((p) => p.id);
+              setSelectedPosts(
+                checked
+                  ? Array.from(new Set([...selectedPosts, ...ids]))
+                  : selectedPosts.filter((id) => !ids.includes(id))
+              );
+            }}
+            onSelectRow={(id, checked) =>
+              setSelectedPosts((prev) =>
+                checked ? [...prev, id] : prev.filter((pid) => pid !== id)
+              )
+            }
+          />
+        )}
 
         {/* Not Published Section */}
         <h3>Not Published</h3>
@@ -380,31 +466,125 @@ const BlogManagement = () => {
             ]}
           />
         )}
-        <ReusableTable
-          columns={columns}
-          data={notPublishedPosts}
-          selectedRowKeys={notPublishedSelected}
-          onSelectAll={(checked) => {
-            const ids = notPublishedPosts.map((p) => p.id);
-            setSelectedPosts(
-              checked
-                ? Array.from(new Set([...selectedPosts, ...ids]))
-                : selectedPosts.filter((id) => !ids.includes(id))
-            );
-          }}
-          onSelectRow={(id, checked) =>
-            setSelectedPosts((prev) =>
-              checked ? [...prev, id] : prev.filter((pid) => pid !== id)
-            )
-          }
-        />
+        {notPublishedPosts.length === 0 ? (
+          <Empty
+            description="No not published posts"
+            style={{ margin: "20px 0" }}
+          />
+        ) : (
+          <ReusableTable
+            columns={columns}
+            data={notPublishedPosts}
+            selectedRowKeys={notPublishedSelected}
+            onSelectAll={(checked) => {
+              const ids = notPublishedPosts.map((p) => p.id);
+              setSelectedPosts(
+                checked
+                  ? Array.from(new Set([...selectedPosts, ...ids]))
+                  : selectedPosts.filter((id) => !ids.includes(id))
+              );
+            }}
+            onSelectRow={(id, checked) =>
+              setSelectedPosts((prev) =>
+                checked ? [...prev, id] : prev.filter((pid) => pid !== id)
+              )
+            }
+          />
+        )}
 
+        {/* Edit Post Modal */}
         <EditPostModal
           post={editingPost}
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
           onSave={handleSavePost}
         />
+
+        {/* View Post Modal */}
+        <Modal
+          open={showViewModal}
+          onCancel={handleCloseViewModal}
+          footer={null}
+          width={800}
+          centered
+        >
+          <h1 className="modal-post-detail">Post Detail</h1>
+          {loadingPostDetail ? (
+            <div style={{ textAlign: "center", padding: "50px" }}>
+              <Spin size="large" />
+              <p>Loading post details...</p>
+            </div>
+          ) : viewingPost ? (
+            <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
+              {/* Post ID */}
+              <div style={{ marginBottom: "16px" }}>
+                <Text strong>Post ID: </Text>
+                <Text>{viewingPost.postId}</Text>
+              </div>
+
+              {/* Author */}
+              <div style={{ marginBottom: "16px" }}>
+                <Text strong>Author: </Text>
+                <Text>{viewingPost.user?.profileName || "Unknown"}</Text>
+              </div>
+
+              {/* Post Type */}
+              <div style={{ marginBottom: "16px" }}>
+                <Text strong>Post Type: </Text>
+                <Tag color="blue">{viewingPost.postType}</Tag>
+              </div>
+
+              {/* Updated Date */}
+              <div style={{ marginBottom: "16px" }}>
+                <Text strong>Last Updated: </Text>
+                <Text>
+                  {dayjs(viewingPost.updatedAt).format("DD/MM/YYYY HH:mm")}
+                </Text>
+              </div>
+
+              {/* Title */}
+              <div style={{ marginBottom: "16px" }}>
+                <Text strong>Title:</Text>
+                <Title
+                  level={4}
+                  style={{ marginTop: "8px", marginBottom: "0" }}
+                >
+                  {viewingPost.title}
+                </Title>
+              </div>
+
+              {/* Image */}
+              {viewingPost.imageUrl && (
+                <div style={{ marginBottom: "16px" }}>
+                  <Text strong>Image:</Text>
+                  <div style={{ marginTop: "8px" }}>
+                    <Image
+                      src={viewingPost.imageUrl}
+                      alt="Post Image"
+                      style={{
+                        maxWidth: "100%",
+                        maxHeight: "300px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                        border: "1px solid #ddd",
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Content */}
+              <div style={{ marginBottom: "16px" }}>
+                <Text strong>Content:</Text>
+                <Paragraph style={{ marginTop: "8px", whiteSpace: "pre-wrap" }}>
+                  {viewingPost.content}
+                </Paragraph>
+              </div>
+            </div>
+          ) : (
+            <Empty description="No post data available" />
+          )}
+        </Modal>
       </div>
     </AdminLayout>
   );

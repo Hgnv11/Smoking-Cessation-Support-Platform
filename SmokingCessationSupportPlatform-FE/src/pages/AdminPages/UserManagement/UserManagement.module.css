@@ -22,7 +22,7 @@
 
 .search-filter-row {
   display: flex;
-  gap: 18px;
+  gap: 20px;
   align-items: center;
   margin-bottom: 24px;
 }
@@ -43,10 +43,14 @@
 
 .search-input {
   min-width: 260px;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.08);
 }
 
 .filter-select {
   min-width: 220px;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.08);
 }
 
 .date-input {
@@ -68,6 +72,26 @@
 }
 .add-user-btn:hover {
   background: #0958d9;
+}
+
+/* Bulk Actions */
+.bulk-actions {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #f9fbff;
+  border-radius: 12px;
+  padding: 12px 20px;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.06);
+}
+
+.bulk-actions span {
+  font-weight: 500;
+}
+
+.bulk-actions-select {
+  min-width: 160px;
 }
 
 .user-table-wrapper {
@@ -179,17 +203,133 @@
   background: #fff0f0;
   color: #e74c3c;
 }
-.lock-btn {
-  background: #f87171;
-  color: #fff;
+
+/* Modal Styles */
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 18px;
 }
-.unlock-btn {
-  background: #e0f7fa;
+
+.user-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #e0e7ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: #6366f1;
+  font-weight: 700;
+}
+
+.user-info h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.user-info .email {
+  color: #888;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.user-tags {
+  display: flex;
+  gap: 8px;
+}
+
+.membership-card .ant-tag {
+  font-size: 16px;
+  padding: 6px 18px;
+}
+
+.subscription-item {
+  padding: 14px 0;
+}
+
+.subscription-description {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-left: 12px;
+  font-size: 16px;
+  color: #555;
+}
+
+.subscription-tag {
+  margin: 0;
+  font-size: 15px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+}
+
+.plan-form {
+  min-width: 120px;
+}
+
+.goal-item {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 0 12px 0;
+}
+
+.goal-item:last-child {
+  border-bottom: none;
+}
+
+.goal-title {
+  font-weight: 700;
+  font-size: 17px;
+  margin-bottom: 6px;
+}
+
+.goal-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.goal-status-tag {
+  font-size: 15px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+
+.goal-target {
+  color: #888;
+  font-size: 15px;
+}
+
+.progress-value {
   color: #1677ff;
+  font-size: 18px;
+  font-weight: bold;
 }
-.lock-btn:disabled {
-  background: #e5e7eb;
-  color: #b0b3b8;
+
+.money-saved {
+  color: #52c41a;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.badges-container {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.badge-tag {
+  font-size: 15px;
+  padding: 6px 18px;
 }
 
 @media (max-width: 900px) {

@@ -46,10 +46,6 @@ public class TriggerService {
 
     // ====== TRIGGER CRUD ======
 
-    public List<Trigger> getAllTriggers() {
-        return triggerRepository.findAll();
-    }
-
     public Optional<Trigger> getTriggerById(Integer id) {
         return triggerRepository.findById(id);
     }
@@ -86,5 +82,14 @@ public class TriggerService {
             throw new RuntimeException("Trigger không tồn tại");
         }
         triggerRepository.deleteById(id);
+    }
+
+    // ====== Get Triggers by Category ID ======
+
+    public List<Trigger> getTriggersByCategoryId(Integer categoryId) {
+        if (!categoryRepository.existsById(categoryId)) {
+            throw new RuntimeException("Danh mục không tồn tại");
+        }
+        return triggerRepository.findByCategoryCategoryId(categoryId);
     }
 }

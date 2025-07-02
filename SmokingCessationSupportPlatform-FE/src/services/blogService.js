@@ -9,7 +9,7 @@ export const blogService = {
 
   // Lấy chi tiết bài viết
   getPostById: async (id) => {
-    const response = await api.get(`/post/detail${id}`);
+    const response = await api.get(`/post/detail/${id}`);
     return response.data;
   },
 

@@ -32,6 +32,10 @@ public class UserSmokingProfile {
 
     private LocalDate quitDate;
 
+    private LocalDate endDate;
+
+    private String status;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

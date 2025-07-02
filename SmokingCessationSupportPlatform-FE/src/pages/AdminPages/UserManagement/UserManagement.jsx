@@ -10,25 +10,24 @@ import {
   List,
   Descriptions,
   Button,
-  Dropdown,
-  Menu,
   Input,
   message,
   Card,
+  Space,
 } from "antd";
+import { EyeOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { userService } from "../../../services/userService.js";
 
 const membershipOptions = [
-  { value: "", label: "Filter membership packages" },
+  { value: "", label: "Filter membership" },
   { value: "Premium", label: "Premium" },
   { value: "Free", label: "Free" },
 ];
 const statusOptions = [
   { value: "", label: "Filter account status" },
   { value: "active", label: "Active" },
-  { value: "locked", label: "Locked" },
 ];
 const roleOptions = [
   { value: "", label: "Filter roles" },
@@ -59,7 +58,7 @@ const UserManagement = () => {
           data.map((u) => ({
             id: u.userId,
             name: u.fullName,
-            author: u.email,
+            email: u.email,
             profile: u.profileName,
             role: u.role,
             membership: u.typeLogin,
@@ -82,7 +81,7 @@ const UserManagement = () => {
       const search = filters.search.toLowerCase();
       const matchSearch =
         user.name.toLowerCase().includes(search) ||
-        user.author.toLowerCase().includes(search) ||
+        user.email.toLowerCase().includes(search) ||
         user.profile.toLowerCase().includes(search);
       const matchMembership = filters.membership
         ? user.membership === filters.membership
@@ -152,27 +151,7 @@ const UserManagement = () => {
     }
   };
 
-  const handleBulkLock = () => {
-    setUsers((prev) =>
-      prev.map((u) =>
-        selectedRowKeys.includes(u.id) ? { ...u, status: "locked" } : u
-      )
-    );
-    setSelectedRowKeys([]);
-    message.success(`${selectedRowKeys.length} users locked successfully`);
-  };
-
-  const handleBulkUnlock = () => {
-    setUsers((prev) =>
-      prev.map((u) =>
-        selectedRowKeys.includes(u.id) ? { ...u, status: "active" } : u
-      )
-    );
-    setSelectedRowKeys([]);
-    message.success(`${selectedRowKeys.length} users unlocked successfully`);
-  };
-
-  // ...existing mock data...
+  // Mock data
   const mockSubscriptionHistory = [
     { plan: "Premium", startDate: "2024-01-01", endDate: "2024-02-01" },
     { plan: "Free", startDate: "2023-12-01", endDate: "2023-12-31" },
@@ -212,7 +191,7 @@ const UserManagement = () => {
   const columns = [
     { title: "User ID", dataIndex: "id" },
     { title: "Name", dataIndex: "name" },
-    { title: "Author", dataIndex: "author" },
+    { title: "Email", dataIndex: "email" },
     { title: "Profile name", dataIndex: "profile" },
     {
       title: "Role",
@@ -261,45 +240,38 @@ const UserManagement = () => {
     {
       title: "Action",
       dataIndex: "action",
-      render: (value, row) => {
-        const menu = (
-          <Menu>
-            <Menu.Item key="edit" onClick={() => {}}>
-              Edit
-            </Menu.Item>
-            <Menu.Item
-              key="details"
-              onClick={() => {
-                setSelectedUser(row);
-                setIsModalVisible(true);
-              }}
-            >
-              See Details
-            </Menu.Item>
-            <Menu.Item
-              key="delete"
-              onClick={() => handleDeleteUser(row.id)}
-              danger
-            >
-              Delete
-            </Menu.Item>
-            {row.status === "locked" ? (
-              <Menu.Item key="unlock" style={{ color: "#1677ff" }}>
-                Unlock account
-              </Menu.Item>
-            ) : (
-              <Menu.Item key="lock" style={{ color: "#e74c3c" }}>
-                Lock account
-              </Menu.Item>
-            )}
-          </Menu>
-        );
-        return (
-          <Dropdown overlay={menu} trigger={["hover"]} placement="bottomLeft">
-            <Button>Actions</Button>
-          </Dropdown>
-        );
-      },
+      render: (value, row) => (
+        <Space size="small">
+          <Button
+            type="default"
+            icon={<EditOutlined />}
+            size="small"
+            onClick={() => {}}
+          >
+            Edit
+          </Button>
+          <Button
+            type="primary"
+            icon={<EyeOutlined />}
+            size="small"
+            onClick={() => {
+              setSelectedUser(row);
+              setIsModalVisible(true);
+            }}
+          >
+            Details
+          </Button>
+          <Button
+            type="primary"
+            danger
+            icon={<DeleteOutlined />}
+            size="small"
+            onClick={() => handleDeleteUser(row.id)}
+          >
+            Delete
+          </Button>
+        </Space>
+      ),
     },
   ];
 
@@ -307,23 +279,12 @@ const UserManagement = () => {
     <AdminLayout title="User Management">
       <div className={styles["user-management-page"]}>
         <h2>User Management</h2>
-        <div className={styles["search-filter-header"]}>Search and Filter</div>
-        <div
-          style={{
-            display: "flex",
-            gap: 20,
-            alignItems: "center",
-            marginBottom: 24,
-          }}
-        >
+        <div className={styles["search-filter-row"]}>
           <Input.Search
             placeholder="Search by name, email, profile name..."
             allowClear
-            style={{
-              minWidth: 260,
-              borderRadius: 12,
-              boxShadow: "0 1px 4px rgba(99,102,241,0.08)",
-            }}
+            size="large"
+            style={{ minWidth: 260 }}
             value={filters.search}
             onChange={(e) =>
               setFilters((f) => ({ ...f, search: e.target.value }))
@@ -332,12 +293,9 @@ const UserManagement = () => {
           <Select
             showSearch
             allowClear
-            placeholder="Filter membership packages"
-            style={{
-              minWidth: 220,
-              borderRadius: 12,
-              boxShadow: "0 1px 4px rgba(99,102,241,0.08)",
-            }}
+            placeholder="Filter membership"
+            size="large"
+            style={{ minWidth: 220 }}
             onChange={(value) =>
               setFilters((f) => ({ ...f, membership: value || "" }))
             }
@@ -348,11 +306,8 @@ const UserManagement = () => {
             showSearch
             allowClear
             placeholder="Filter account status"
-            style={{
-              minWidth: 220,
-              borderRadius: 12,
-              boxShadow: "0 1px 4px rgba(99,102,241,0.08)",
-            }}
+            size="large"
+            style={{ minWidth: 220 }}
             onChange={(value) =>
               setFilters((f) => ({ ...f, status: value || "" }))
             }
@@ -363,11 +318,8 @@ const UserManagement = () => {
             showSearch
             allowClear
             placeholder="Filter roles"
-            style={{
-              minWidth: 220,
-              borderRadius: 12,
-              boxShadow: "0 1px 4px rgba(99,102,241,0.08)",
-            }}
+            size="large"
+            style={{ minWidth: 220 }}
             onChange={(value) =>
               setFilters((f) => ({ ...f, role: value || "" }))
             }
@@ -376,34 +328,15 @@ const UserManagement = () => {
           />
         </div>
         {selectedRowKeys.length > 0 && (
-          <div
-            style={{
-              marginBottom: 16,
-              display: "flex",
-              alignItems: "center",
-              gap: 16,
-              background: "#f9fbff",
-              borderRadius: 12,
-              padding: "12px 20px",
-              boxShadow: "0 1px 4px rgba(99,102,241,0.06)",
-            }}
-          >
-            <span style={{ fontWeight: 500 }}>
-              {selectedRowKeys.length} users selected
-            </span>
+          <div className={styles["bulk-actions"]}>
+            <span>{selectedRowKeys.length} users selected</span>
             <Select
               placeholder="Bulk Actions"
-              style={{ minWidth: 160 }}
+              className={styles["bulk-actions-select"]}
               onChange={(action) => {
                 if (action === "delete") handleBulkDelete();
-                if (action === "lock") handleBulkLock();
-                if (action === "unlock") handleBulkUnlock();
               }}
-              options={[
-                { value: "delete", label: "Delete" },
-                { value: "lock", label: "Lock" },
-                { value: "unlock", label: "Unlock" },
-              ]}
+              options={[{ value: "delete", label: "Delete" }]}
             />
           </div>
         )}
@@ -417,7 +350,7 @@ const UserManagement = () => {
           />
         </div>
 
-        {/* ...MODAL CODE... */}
+        {/* Modal for User Details */}
         <Modal
           title={null}
           open={isModalVisible}
@@ -429,43 +362,14 @@ const UserManagement = () => {
           ]}
           width={850}
         >
-          {/* Header: Avatar, Name, Email, Status, Membership */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 24,
-              marginBottom: 24,
-              borderBottom: "1px solid #f0f0f0",
-              paddingBottom: 18,
-            }}
-          >
-            <div>
-              <div
-                style={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: "50%",
-                  background: "#e0e7ff",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 36,
-                  color: "#6366f1",
-                  fontWeight: 700,
-                }}
-              >
-                {selectedUser?.name?.[0] || "U"}
-              </div>
+          <div className={styles["modal-header"]}>
+            <div className={styles["user-avatar"]}>
+              {selectedUser?.name?.[0] || "U"}
             </div>
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 700 }}>
-                {selectedUser?.name}
-              </div>
-              <div style={{ color: "#888", fontSize: 15 }}>
-                {selectedUser?.author}
-              </div>
-              <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+            <div className={styles["user-info"]}>
+              <h3>{selectedUser?.name}</h3>
+              <div className={styles["email"]}>{selectedUser?.email}</div>
+              <div className={styles["user-tags"]}>
                 <Tag
                   color={selectedUser?.status === "active" ? "green" : "red"}
                 >
@@ -500,6 +404,7 @@ const UserManagement = () => {
                       style={{ marginBottom: 24 }}
                       bordered={false}
                       bodyStyle={{ padding: 16 }}
+                      className={styles["membership-card"]}
                     >
                       <Tag
                         color={
@@ -507,7 +412,6 @@ const UserManagement = () => {
                             ? "gold"
                             : "default"
                         }
-                        style={{ fontSize: 16, padding: "6px 18px" }}
                       >
                         {selectedUser?.membership}
                       </Tag>
@@ -522,21 +426,14 @@ const UserManagement = () => {
                       <List
                         dataSource={mockSubscriptionHistory}
                         renderItem={(item) => (
-                          <List.Item style={{ padding: "14px 0" }}>
+                          <List.Item className={styles["subscription-item"]}>
                             <List.Item.Meta
                               title={
                                 <b style={{ paddingLeft: 24 }}>{item.plan}</b>
                               }
                               description={
                                 <span
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 12,
-                                    paddingLeft: 12,
-                                    fontSize: 16,
-                                    color: "#555",
-                                  }}
+                                  className={styles["subscription-description"]}
                                 >
                                   <Tag
                                     color={
@@ -544,13 +441,7 @@ const UserManagement = () => {
                                         ? "gold"
                                         : "default"
                                     }
-                                    style={{
-                                      margin: 0,
-                                      fontSize: 15,
-                                      height: 28,
-                                      display: "flex",
-                                      alignItems: "center",
-                                    }}
+                                    className={styles["subscription-tag"]}
                                   >
                                     {item.plan}
                                   </Tag>
@@ -584,7 +475,7 @@ const UserManagement = () => {
                             { required: true, message: "Please select a plan" },
                           ]}
                         >
-                          <Select style={{ minWidth: 120 }}>
+                          <Select className={styles["plan-form"]}>
                             <Select.Option value="Premium">
                               Premium
                             </Select.Option>
@@ -633,7 +524,6 @@ const UserManagement = () => {
                       </Descriptions>
                     </Card>
 
-                    {/* Smoking Cessation Goals */}
                     <Card
                       title="User Goals"
                       style={{ marginBottom: 24 }}
@@ -641,33 +531,11 @@ const UserManagement = () => {
                     >
                       <div>
                         {mockGoals.map((item, idx) => (
-                          <div
-                            key={idx}
-                            style={{
-                              borderBottom:
-                                idx !== mockGoals.length - 1
-                                  ? "1px solid #f0f0f0"
-                                  : undefined,
-                              padding: "16px 0 12px 0",
-                            }}
-                          >
-                            <div
-                              style={{
-                                fontWeight: 700,
-                                fontSize: 17,
-                                marginBottom: 6,
-                              }}
-                            >
+                          <div key={idx} className={styles["goal-item"]}>
+                            <div className={styles["goal-title"]}>
                               {item.goal}
                             </div>
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 12,
-                                marginBottom: 4,
-                              }}
-                            >
+                            <div className={styles["goal-info"]}>
                               <Tag
                                 color={
                                   item.status === "Completed"
@@ -676,17 +544,11 @@ const UserManagement = () => {
                                     ? "blue"
                                     : "default"
                                 }
-                                style={{
-                                  fontSize: 15,
-                                  height: 28,
-                                  display: "flex",
-                                  alignItems: "center",
-                                  margin: 0,
-                                }}
+                                className={styles["goal-status-tag"]}
                               >
                                 {item.status}
                               </Tag>
-                              <span style={{ color: "#888", fontSize: 15 }}>
+                              <span className={styles["goal-target"]}>
                                 Target:{" "}
                                 {dayjs(item.targetDate).format("DD.MM.YYYY")}
                               </span>
@@ -704,14 +566,14 @@ const UserManagement = () => {
                     >
                       <Descriptions column={2} bordered size="small">
                         <Descriptions.Item label="Days Smoke-Free">
-                          <b style={{ color: "#1677ff", fontSize: 18 }}>
+                          <span className={styles["progress-value"]}>
                             {mockProgress.daysSmokeFree}
-                          </b>
+                          </span>
                         </Descriptions.Item>
                         <Descriptions.Item label="Money Saved">
-                          <b style={{ color: "#52c41a", fontSize: 18 }}>
+                          <span className={styles["money-saved"]}>
                             {mockProgress.moneySaved}
-                          </b>
+                          </span>
                         </Descriptions.Item>
                       </Descriptions>
                     </Card>
@@ -722,14 +584,12 @@ const UserManagement = () => {
                       style={{ marginBottom: 24 }}
                       bodyStyle={{ padding: 12 }}
                     >
-                      <div
-                        style={{ display: "flex", gap: 12, flexWrap: "wrap" }}
-                      >
+                      <div className={styles["badges-container"]}>
                         {mockBadges.map((badge) => (
                           <Tag
                             key={badge}
                             color="blue"
-                            style={{ fontSize: 15, padding: "6px 18px" }}
+                            className={styles["badge-tag"]}
                           >
                             {badge}
                           </Tag>

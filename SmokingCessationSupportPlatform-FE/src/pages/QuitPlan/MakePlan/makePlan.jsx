@@ -83,7 +83,7 @@ function MakePlan() {
           <div className="wrapper__content-step">
             <h2>Step 2</h2>
             <h2 className="wrapper__content-step-title">
-              What Is Smoking Costing You?
+              What Is Smoking Costing You ?
             </h2>
             <p>
               Enter how many cigarettes you smoke and how much a pack of
@@ -126,7 +126,7 @@ function MakePlan() {
           <div className="wrapper__content-step">
             <h2>Step 3</h2>
             <h2 className="wrapper__content-step-title">
-              Why Are You Quitting
+              Why Are You Quitting ?
             </h2>
             <p>
               Knowing your reasons for why you want to quit smoking can help you

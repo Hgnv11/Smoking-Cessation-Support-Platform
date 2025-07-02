@@ -92,14 +92,14 @@ function UserBookings() {
     }
   };
 
-  const showCancelConfirm = () => {
+  const showCancelConfirm = (consultationId) => {
     confirm({
       title: "Cancel this Appointment?",
       icon: <ExclamationCircleFilled />,
       content:
         "Are you sure you want to cancel this appointment? This action cannot be undone.",
       onOk() {
-        handleCancelAppointment();
+        handleCancelAppointment(consultationId);
       },
       onCancel() {
         console.log("Cancel");
@@ -224,7 +224,9 @@ function UserBookings() {
                         color="default"
                         variant="filled"
                         className="cancel-book"
-                        onClick={showCancelConfirm}
+                        onClick={() =>
+                          showCancelConfirm(booking.consultationId)
+                        }
                         disabled={booking.status !== "scheduled"}
                       >
                         Cancel Appointment

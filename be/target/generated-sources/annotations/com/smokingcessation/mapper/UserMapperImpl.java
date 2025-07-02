@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-27T00:00:57+0700",
+    date = "2025-07-02T15:45:32+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.7 (Oracle Corporation)"
 )
 @Component
@@ -27,6 +27,7 @@ public class UserMapperImpl implements UserMapper {
         userDTO.fullName( user.getFullName() );
         userDTO.profileName( user.getProfileName() );
         userDTO.email( user.getEmail() );
+        userDTO.isVerified( user.getIsVerified() );
         userDTO.birthDate( user.getBirthDate() );
         userDTO.avatarUrl( user.getAvatarUrl() );
         if ( user.getGender() != null ) {
@@ -55,6 +56,7 @@ public class UserMapperImpl implements UserMapper {
             user.gender( Enum.valueOf( User.Gender.class, userDTO.getGender() ) );
         }
         user.note( userDTO.getNote() );
+        user.isVerified( userDTO.getIsVerified() );
 
         return user.build();
     }
