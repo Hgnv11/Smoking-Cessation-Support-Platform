@@ -49,7 +49,10 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
                                 "/swagger-ui.html",
-                                "/login/oauth2/code/google"
+                                "/login/oauth2/code/google",
+                                "/api/profile/mentors",
+                                "/api/consultations/mentor/{mentorId}/slots",
+                                "/api/consultations/mentor/{mentorId}/ratings-feedback"
                         ).permitAll()
                         .requestMatchers("/api/profile").hasRole("ADMIN")
                         .requestMatchers("/api/profile/**").hasAnyRole("USER", "MENTOR", "ADMIN")

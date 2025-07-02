@@ -23,5 +23,6 @@ public class Trigger {
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
+    @JsonBackReference
     private TriggerCategory category;
 }
