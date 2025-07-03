@@ -79,7 +79,21 @@
 
 .wrapper__content-step-reason-checkbox {
     padding-top: 10px;
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 16px;
 }
 
+.wrapper__content-step-triggers {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    align-items: flex-start;
+}
+
+.wrapper__content-step-triggers-card {
+    display: flex;  
+    border: none;
+    width: 48%;
+}

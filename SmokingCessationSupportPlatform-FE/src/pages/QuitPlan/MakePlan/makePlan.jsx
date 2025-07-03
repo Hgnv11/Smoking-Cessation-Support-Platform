@@ -4,11 +4,13 @@ import "./makePlan.css";
 import {
   Affix,
   Button,
+  Card,
   Checkbox,
   Col,
   DatePicker,
   Divider,
   InputNumber,
+  List,
   Radio,
   Row,
   TimePicker,
@@ -200,6 +202,60 @@ function MakePlan() {
                 </Col>
               </Row>
             </Checkbox.Group>
+          </div>
+
+          <div className="wrapper__content-step">
+            <h2>Step 4</h2>
+            <h2 className="wrapper__content-step-title">Know Your Triggers</h2>
+            <p>
+              After you stop smoking, certain places, situations, and feelings
+              can make it hard to stay smokefree. Use this list to find what
+              makes you want to smoke. We'll give you strategies that will help
+              you stay in control.
+            </p>
+            <div className="wrapper__content-step-triggers">
+              <Card
+                size="small"
+                className="wrapper__content-step-triggers-card"
+              >
+                <h2>Social Situations</h2>
+                <div className="wrapper__content-step-triggers-card-content">
+                  <Checkbox
+                    className="wrapper__content-step-reason-checkbox"
+                    value="It is affecting my health"
+                  >
+                    It is affecting my health
+                  </Checkbox>
+                  <Checkbox
+                    className="wrapper__content-step-reason-checkbox"
+                    value="It is affecting my health"
+                  >
+                    It is affecting my healthdddddddddddddddddddđ
+                  </Checkbox>
+                </div>
+              </Card>
+
+              <Card
+                size="small"
+                className="wrapper__content-step-triggers-card"
+              >
+                <h2>Nicotine Withdrawal</h2>
+                <div className="wrapper__content-step-triggers-card-content">
+                  <Checkbox
+                    className="wrapper__content-step-reason-checkbox"
+                    value="It is affecting my health"
+                  >
+                    It is affecting my health
+                  </Checkbox>
+                  <Checkbox
+                    className="wrapper__content-step-reason-checkbox"
+                    value="It is affecting my health"
+                  >
+                    It is affecting my health wej fdn we jfniwjefnb ưejfdwejfb
+                  </Checkbox>
+                </div>
+              </Card>
+            </div>
           </div>
         </div>
         <Button type="primary" className="wrapper__btn">

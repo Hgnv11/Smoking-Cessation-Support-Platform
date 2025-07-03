@@ -18,7 +18,7 @@ export const MentorAppointment = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await api.get("/consultations/mentor");
+        const res = await api.get("/consultations/mentor/16/slots");
         // Transform response to group by slotDate
         const consultations = res.data;
         // Group by slotDate
