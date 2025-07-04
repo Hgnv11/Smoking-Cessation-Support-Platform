@@ -1,7 +1,9 @@
 
 package com.smokingcessation.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,7 +34,7 @@ public class User {
     private String profileName;
 
     @Column(nullable = false)
-    @JsonIgnore
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String passwordHash;
 
     private String fullName;

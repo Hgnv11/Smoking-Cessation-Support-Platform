@@ -3,9 +3,7 @@ package com.smokingcessation.controller;
 import com.smokingcessation.dto.res.ConsultationDTO;
 import com.smokingcessation.dto.res.ConsultationSlotDTO;
 import com.smokingcessation.dto.res.ReasonDTO;
-import com.smokingcessation.model.Consultation;
-import com.smokingcessation.model.ConsultationSlot;
-import com.smokingcessation.model.User;
+import com.smokingcessation.model.*;
 import com.smokingcessation.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +26,8 @@ public class AdminController {
     private final ReasonService reasonService;
     private final ConsultationSlotService slotService;
     private final ConsultationService consultationService;
+    private final TriggerService triggerService;
+    private final StrategyService strategyService;
 
     // ========== USER CRUD ==========
 
@@ -167,5 +167,105 @@ public class AdminController {
             @PathVariable Integer consultationId,
             @RequestParam Consultation.Status status) {
         return ResponseEntity.ok(consultationService.updateConsultationStatus(updaterEmail, consultationId, status));
+    }
+
+    // ========== TRIGGER ==========
+
+    @Operation(summary = "Tạo trigger mới (cần categoryId)")
+    @PostMapping("/triggers")
+    public ResponseEntity<Trigger> createTrigger(
+            @RequestParam String name,
+            @RequestParam Integer categoryId) {
+        return ResponseEntity.ok(triggerService.createTrigger(name, categoryId));
+    }
+
+    @Operation(summary = "Cập nhật trigger (cần categoryId)")
+    @PutMapping("/triggers/{id}")
+    public ResponseEntity<Trigger> updateTrigger(
+            @PathVariable Integer id,
+            @RequestParam String name,
+            @RequestParam String description,
+            @RequestParam Integer categoryId) {
+        return ResponseEntity.ok(triggerService.updateTrigger(id, name, description, categoryId));
+    }
+
+    @Operation(summary = "Xóa trigger")
+    @DeleteMapping("/triggers/{id}")
+    public ResponseEntity<Void> deleteTrigger(@PathVariable Integer id) {
+        triggerService.deleteTrigger(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ========== TRIGGER CATEGORY ==========
+
+    @Operation(summary = "Tạo mới danh mục trigger")
+    @PostMapping("/trigger-categories")
+    public ResponseEntity<TriggerCategory> createCategory(@RequestBody TriggerCategory category) {
+        return ResponseEntity.ok(triggerService.createCategory(category));
+    }
+
+    @Operation(summary = "Cập nhật danh mục trigger")
+    @PutMapping("/trigger-categories/{id}")
+    public ResponseEntity<TriggerCategory> updateCategory(
+            @PathVariable Integer id,
+            @RequestBody TriggerCategory updatedCategory) {
+        return ResponseEntity.ok(triggerService.updateCategory(id, updatedCategory));
+    }
+
+    @Operation(summary = "Xóa danh mục trigger")
+    @DeleteMapping("/trigger-categories/{id}")
+    public ResponseEntity<Void> deleteCategory(@PathVariable Integer id) {
+        triggerService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ========== STRATEGY ==========
+
+    @Operation(summary = "Tạo strategy mới (cần categoryId)")
+    @PostMapping("/strategies")
+    public ResponseEntity<Strategy> createStrategy(
+            @RequestParam String name,
+            @RequestParam Integer categoryId) {
+        return ResponseEntity.ok(strategyService.createStrategy(name, categoryId));
+    }
+
+    @Operation(summary = "Cập nhật strategy (cần categoryId)")
+    @PutMapping("/strategies/{id}")
+    public ResponseEntity<Strategy> updateStrategy(
+            @PathVariable Integer id,
+            @RequestParam String name,
+            @RequestParam String description,
+            @RequestParam Integer categoryId) {
+        return ResponseEntity.ok(strategyService.updateStrategy(id, name, description, categoryId));
+    }
+
+    @Operation(summary = "Xóa strategy")
+    @DeleteMapping("/strategies/{id}")
+    public ResponseEntity<Void> deleteStrategy(@PathVariable Integer id) {
+        strategyService.deleteStrategy(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ========== STRATEGY CATEGORY ==========
+
+    @Operation(summary = "Tạo mới danh mục strategy")
+    @PostMapping("/strategy-categories")
+    public ResponseEntity<StrategyCategory> createStrategyCategory(@RequestBody StrategyCategory category) {
+        return ResponseEntity.ok(strategyService.createCategory(category));
+    }
+
+    @Operation(summary = "Cập nhật danh mục strategy")
+    @PutMapping("/strategy-categories/{id}")
+    public ResponseEntity<StrategyCategory> updateStrategyCategory(
+            @PathVariable Integer id,
+            @RequestBody StrategyCategory updatedCategory) {
+        return ResponseEntity.ok(strategyService.updateCategory(id, updatedCategory));
+    }
+
+    @Operation(summary = "Xóa danh mục strategy")
+    @DeleteMapping("/strategy-categories/{id}")
+    public ResponseEntity<Void> deleteStrategyCategory(@PathVariable Integer id) {
+        strategyService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
     }
 }

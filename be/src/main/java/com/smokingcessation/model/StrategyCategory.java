@@ -1,19 +1,16 @@
 package com.smokingcessation.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.List;
 
 @Entity
-@Table(name = "trigger_categories")
+@Table(name = "strategy_categories")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TriggerCategory {
+public class StrategyCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")
@@ -22,5 +19,5 @@ public class TriggerCategory {
     private String name;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Trigger> triggers;
+    private List<Strategy> strategies;
 }
