@@ -2,28 +2,32 @@ import Sidebar from "../../components/admin/Sidebar/Sidebar.jsx";
 import { Layout, Breadcrumb, Affix } from "antd";
 import styles from "./AdminLayout.module.css";
 
-const { Sider, Header, Content } = Layout;
+const { Sider, Content } = Layout;
 
-const AdminLayout = ({ children, title }) => {
+const AdminLayout = ({ title, children, showBreadcrumb = false }) => {
   return (
-    <Layout className={styles["admin-layout-root"]}>
+    <Layout style={{ minHeight: "100vh" }} className={styles["admin-layout-root"]}>
+      {/* Fixed Sidebar */}
       <Affix>
         <Sider width={240} className={styles["admin-sider"]}>
           <Sidebar />
         </Sider>
       </Affix>
 
+      {/* Main Content Area */}
       <Layout className={styles["admin-main"]}>
-        <Affix>
-          <Header className={styles["admin-header"]}>
-            <Breadcrumb className={styles["admin-breadcrumb"]}>
+        <Content className={styles["admin-content"]}>
+          {/* Optional Breadcrumb */}
+          {showBreadcrumb && (
+            <Breadcrumb style={{ margin: "16px 0" }} className={styles["admin-breadcrumb"]}>
               <Breadcrumb.Item>Dashboards</Breadcrumb.Item>
-              {title && <Breadcrumb.Item>{title}</Breadcrumb.Item>}
+              <Breadcrumb.Item>{title}</Breadcrumb.Item>
             </Breadcrumb>
-          </Header>
-        </Affix>
+          )}
 
-        <Content className={styles["admin-content"]}>{children}</Content>
+          {/* Page Content */}
+          {children}
+        </Content>
       </Layout>
     </Layout>
   );
