@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,4 +21,5 @@ public interface SmokingEventRepository extends JpaRepository<SmokingEvent, Inte
 
     List<SmokingEvent> findByUser(User user);
     Optional<SmokingEvent> findTopByUserOrderByEventTimeDesc(User user);
+    List<SmokingEvent> findByUser_UserIdAndEventTimeAfter(Integer userId, LocalDateTime time);
 }
