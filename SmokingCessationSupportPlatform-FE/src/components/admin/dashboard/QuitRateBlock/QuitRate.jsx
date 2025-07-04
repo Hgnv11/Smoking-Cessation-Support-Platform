@@ -7,34 +7,41 @@ import {
   MEMBERS_STATS 
 } from "../../../data/mockData";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
-// Color constants for maintainability - Desert Sand Theme
-const SUCCESS_COLOR = "#5572AF";  // Secondary text blue - cho success
-const FAILED_COLOR = "#FFC658";   // Desert Sand yellow - cho failed
-const FREE_MEMBERS_COLOR = "#062A74";  // Primary text navy cho Free Members
-const PREMIUM_MEMBERS_COLOR = "#FFC658"; // Desert Sand yellow cho Premium Members
-const TEXT_COLOR = "#062A74";      // Primary text navy
+// Default colors (will be overridden by props if provided) - matching Overall Members Distribution
+const DEFAULT_COLORS = {
+  success: "#16c784",           // Green for success
+  failed: "#FF4D4F",            // Red for failed
+  freeMembers: "#1814F3",       // Primary blue for Free Members (same as Overall Members)
+  premiumMembers: "#FFD600",    // Yellow for Premium Members (same as Overall Members)
+  text: "#333",                 // Dark text color (same as Overall Members)
+  pink: "#FF4FEE",              // Pink accent
+  purple: "#9747FF",            // Purple accent
+  yellow: "#FFD600"             // Yellow accent
+};
 
-const DoughnutChart = ({ data, title, centerText, centerSubText }) => (
+const DoughnutChart = ({ data, centerText, centerSubText, colors }) => (
   <div style={{ textAlign: "center" }}>
-    <Title level={5} style={{ marginBottom: 16, color: TEXT_COLOR }}>{title}</Title>
     <div style={{ position: "relative" }}>
-      <ResponsiveContainer width="100%" height={200}>
+      <ResponsiveContainer width="100%" height={220}>
         <PieChart>
           <Pie
             data={data}
             cx="50%"
             cy="50%"
-            innerRadius={50}
-            outerRadius={80}
+            innerRadius={60}
+            outerRadius={90}
             dataKey="value"
             nameKey="name"
             startAngle={90}
             endAngle={-270}
           >
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.fill} />
+              <Cell 
+                key={`cell-${index}`} 
+                fill={entry.fill || (index === 0 ? colors.success : colors.failed)} 
+              />
             ))}
           </Pie>
           <Tooltip formatter={(value, name) => [`${value} members`, name]} />
@@ -49,10 +56,10 @@ const DoughnutChart = ({ data, title, centerText, centerSubText }) => (
         textAlign: "center",
         pointerEvents: "none"
       }}>
-        <div style={{ fontSize: 20, fontWeight: "bold", color: TEXT_COLOR }}>
+        <div style={{ fontSize: 24, fontWeight: "bold", color: colors.text }}>
           {centerText}
         </div>
-        <div style={{ fontSize: 12, color: "#8C8C8C" }}>
+        <div style={{ fontSize: 14, color: "#8C8C8C" }}>
           {centerSubText}
         </div>
       </div>
@@ -60,12 +67,23 @@ const DoughnutChart = ({ data, title, centerText, centerSubText }) => (
   </div>
 );
 
-const QuitRate = () => {
-  // Định nghĩa màu sắc cho từng loại chart
-  const FREE_MEMBERS_COLORS = [SUCCESS_COLOR, FAILED_COLOR]; // Success, Failed
-  const PREMIUM_MEMBERS_COLORS = [SUCCESS_COLOR, FAILED_COLOR]; // Success, Failed
+const QuitRate = ({ colors: propColors, theme }) => {
+  // Use passed colors or default colors - matching Overall Members Distribution pattern
+  const chartColors = {
+    success: propColors?.accent3 || theme?.success || DEFAULT_COLORS.success,
+    failed: propColors?.accent2 || theme?.danger || DEFAULT_COLORS.failed,
+    freeMembers: propColors?.primary || theme?.primary || DEFAULT_COLORS.freeMembers,
+    premiumMembers: propColors?.secondary || theme?.warning || DEFAULT_COLORS.premiumMembers,
+    text: theme?.secondary || DEFAULT_COLORS.text,
+    pink: theme?.accent || DEFAULT_COLORS.pink,
+    purple: propColors?.accent1 || DEFAULT_COLORS.purple,
+    yellow: theme?.warning || DEFAULT_COLORS.yellow
+  };
+  // Define colors for each chart type
+  const FREE_MEMBERS_COLORS = [chartColors.success, chartColors.failed]; // Success, Failed
+  const PREMIUM_MEMBERS_COLORS = [chartColors.success, chartColors.failed]; // Success, Failed
 
-  // Thêm màu vào data
+  // Add colors to data
   const freeWithColors = FREE_MEMBERS_DISTRIBUTION.map((item, index) => ({
     ...item,
     fill: FREE_MEMBERS_COLORS[index]
@@ -77,43 +95,93 @@ const QuitRate = () => {
   }));
 
   return (
-    <div style={{ background: "#fff", borderRadius: 12, padding: 24 }}>
+    <div style={{ width: "100%", height: "100%", padding: "20px 0" }}>
       <Row gutter={[24, 24]}>
-        {/* Biểu đồ 1: Free Members */}
+        {/* Chart 1: Free Members */}
         <Col xs={24} md={12}>
+          <h2 style={{ textAlign: "center", color: chartColors.text, marginBottom: 16 }}>Free Members</h2>
           <DoughnutChart
             data={freeWithColors}
             title="Free Members"
             centerText={MEMBERS_STATS.free.total}
             centerSubText={`${MEMBERS_STATS.free.successRate}% Success`}
+            colors={chartColors}
           />
-          <div style={{ marginTop: 12, textAlign: "center" }}>
-            <Text style={{ color: SUCCESS_COLOR, fontWeight: "500" }}>
-              ✓ {MEMBERS_STATS.free.success} Success
-            </Text>
-            <br />
-            <Text style={{ color: FAILED_COLOR, fontWeight: "500" }}>
-              ✗ {MEMBERS_STATS.free.failed} Failed
-            </Text>
+          <div style={{ 
+            display: "flex", 
+            flexDirection: "column", 
+            alignItems: "center", 
+            gap: 8,
+            marginTop: 12
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ 
+                backgroundColor: chartColors.success,
+                width: 12,
+                height: 12,
+                borderRadius: "50%",
+                display: "inline-block"
+              }}></span>
+              <Text style={{ fontWeight: "500" }}>
+                {MEMBERS_STATS.free.success} Success
+              </Text>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ 
+                backgroundColor: chartColors.failed,
+                width: 12,
+                height: 12,
+                borderRadius: "50%",
+                display: "inline-block"
+              }}></span>
+              <Text style={{ fontWeight: "500" }}>
+                {MEMBERS_STATS.free.failed} Failed
+              </Text>
+            </div>
           </div>
         </Col>
 
-        {/* Biểu đồ 2: Premium Members */}
+        {/* Chart 2: Premium Members */}
         <Col xs={24} md={12}>
+          <h2 style={{ textAlign: "center", color: chartColors.text, marginBottom: 16 }}>Premium Members</h2>
           <DoughnutChart
             data={premiumWithColors}
             title="Premium Members"
             centerText={MEMBERS_STATS.premium.total}
             centerSubText={`${MEMBERS_STATS.premium.successRate}% Success`}
+            colors={chartColors}
           />
-          <div style={{ marginTop: 12, textAlign: "center" }}>
-            <Text style={{ color: SUCCESS_COLOR, fontWeight: "500" }}>
-              ✓ {MEMBERS_STATS.premium.success} Success
-            </Text>
-            <br />
-            <Text style={{ color: FAILED_COLOR, fontWeight: "500" }}>
-              ✗ {MEMBERS_STATS.premium.failed} Failed
-            </Text>
+          <div style={{ 
+            display: "flex", 
+            flexDirection: "column", 
+            alignItems: "center", 
+            gap: 8,
+            marginTop: 12
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ 
+                backgroundColor: chartColors.success,
+                width: 12,
+                height: 12,
+                borderRadius: "50%",
+                display: "inline-block"
+              }}></span>
+              <Text style={{ fontWeight: "500" }}>
+                {MEMBERS_STATS.premium.success} Success
+              </Text>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ 
+                backgroundColor: chartColors.failed,
+                width: 12,
+                height: 12,
+                borderRadius: "50%",
+                display: "inline-block"
+              }}></span>
+              <Text style={{ fontWeight: "500" }}>
+                {MEMBERS_STATS.premium.failed} Failed
+              </Text>
+            </div>
           </div>
         </Col>
       </Row>

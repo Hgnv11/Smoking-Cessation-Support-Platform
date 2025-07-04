@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/layout/AdminLayout.jsx';
-import { Row, Col, Card, Typography, Button, Space, DatePicker, Select, Tag } from 'antd';
-import { DownloadOutlined, ReloadOutlined, UserOutlined, CalendarOutlined, DollarOutlined } from '@ant-design/icons';
+import { Row, Col, Card, Typography, Button, Space } from 'antd';
+import { DownloadOutlined, UserOutlined, DollarOutlined } from '@ant-design/icons';
+import { userService } from '../../../services/userService.js';
 
 // Chart Components
 import Revenue from '../../../components/admin/dashboard/RevenueBlock/Revenue';
@@ -11,84 +12,72 @@ import OverallMembers from '../../../components/admin/dashboard/OverallMembersBl
 import SuccessRate from '../../../components/admin/dashboard/SuccessRateBlock/SuccessRate';
 
 const { Title, Text } = Typography;
-const { RangePicker } = DatePicker;
 
 // Theme Colors
 const THEME_COLORS = {
-  primary: "#062A74",
-  success: "#52C41A", 
-  danger: "#FF4D4F",
-  warning: "#FFAA00",
-  accent: "#FFC658",
-  secondary: "#5572AF"
+  primary: "#1814F3", // Main blue color from image
+  secondary: "#5572AF",
+  success: "#16c784", // Green from image for positive values
+  danger: "#FF4D4F", 
+  warning: "#FFD600", // Yellow from image
+  accent: "#FF4FEE", // Pink from image (for pie chart)
+  blue: "#1814F3", // Deep blue
+  orange: "#FF7723", // Orange from pie chart
+  darkBlue: "#2A324B", // Dark blue/navy from pie chart
+  purple: "#9747FF" // Purple accent
 };
 
 // UI Colors for Components
 const UI_COLORS = {
   cards: {
-    totalUsers: "#1677ff",
-    activeUsers: "#16c784", 
-    totalRevenue: "#f4b400",
-    avgQuitDays: "#ff4d4f"
+    totalUsers: "#1814F3", // Main blue
+    activeUsers: "#16c784", // Green for success
+    totalRevenue: "#FFD600", // Yellow for revenue
+    avgQuitDays: "#FF4FEE"  // Pink accent
   },
   backgrounds: {
-    totalUsers: "#f5faff",
-    activeUsers: "#f6fffa",
-    totalRevenue: "#fffbe6",
-    avgQuitDays: "#fff1f0"
+    totalUsers: "#EDF0FF", // Light blue for blue cards
+    activeUsers: "#EDFBF5", // Light green for active users
+    totalRevenue: "#FFFAED", // Light yellow for revenue
+    avgQuitDays: "#FDF0F0"  // Light pink for quit days
   },
-  filter: "#e6f4ff"
+  charts: {
+    primary: "#1814F3", // Main blue for primary chart elements
+    secondary: "#FFD600", // Yellow for secondary chart elements
+    accent1: "#FF4FEE", // Pink for accent chart elements
+    accent2: "#FF7723", // Orange for accent chart elements
+    accent3: "#16c784", // Green for accent chart elements
+    background: "#FFFFFF", // White chart background
+    grid: "#EEEEEE" // Light grey for chart grid lines
+  }
 };
 
-// Dashboard Statistics Configuration
-const STAT_CARDS_CONFIG = [
+// Dashboard Statistics Configuration - Initial values
+const INITIAL_STATS = [
   {
     title: 'Total Users',
-    value: '1,000',
-    change: '+12%',
+    value: '0',
+    change: '0%',
     icon: UserOutlined,
     colorKey: 'totalUsers'
   },
   {
     title: 'Active Users', 
-    value: '850',
-    change: '+8%',
+    value: '0',
+    change: '0%',
     icon: UserOutlined,
     colorKey: 'activeUsers'
   },
   {
     title: 'Total Revenue',
-    value: '119.6M VND',
-    change: '+15%',
+    value: '0 VND',
+    change: '0%',
     icon: DollarOutlined,
     colorKey: 'totalRevenue'
-  },
-  {
-    title: 'Avg. Quit Days',
-    value: '28',
-    change: '+5 days',
-    icon: CalendarOutlined,
-    colorKey: 'avgQuitDays'
   }
 ];
 
-// Filter Options Configuration
-const FILTER_OPTIONS = {
-  timeRange: [
-    { value: 'Last 7 days', label: 'Last 7 days' },
-    { value: 'Last 30 days', label: 'Last 30 days' },
-    { value: 'Last 90 days', label: 'Last 90 days' }
-  ],
-  tiers: [
-    { value: 'All Tiers', label: 'All Tiers' },
-    { value: 'Free', label: 'Free' },
-    { value: 'Premium', label: 'Premium' }
-  ],
-  coaches: [
-    { value: 'Top 5', label: 'Top 5' },
-    { value: 'Top 10', label: 'Top 10' }
-  ]
-};
+
 
 // Chart Configuration
 const CHART_CONFIG = [
@@ -126,14 +115,24 @@ const CHART_CONFIG = [
 
 // Component: Dashboard Header
 const DashboardHeader = () => (
-  <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
+  <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
     <Col>
-      <Title level={2} style={{ marginBottom: 0 }}>Dashboard</Title>
-      <Text type="secondary">Comprehensive analytics for your smoking cessation program</Text>
+      <Title level={2} style={{ marginBottom: 0, color: THEME_COLORS.primary, fontWeight: 600 }}>Dashboard</Title>
+      <Text type="secondary" style={{ fontSize: 14 }}>Comprehensive analytics for your smoking cessation program</Text>
     </Col>
     <Col>
       <Space>
-        <Button type="primary" icon={<DownloadOutlined />}>Export All</Button>
+        <Button 
+          type="primary" 
+          icon={<DownloadOutlined />} 
+          style={{ 
+            background: THEME_COLORS.primary, 
+            borderColor: THEME_COLORS.primary,
+            borderRadius: 8
+          }}
+        >
+          Export All
+        </Button>
         <Text type="secondary" style={{ fontSize: 12 }}>Last updated: 8:50:06 PM</Text>
       </Space>
     </Col>
@@ -148,25 +147,33 @@ const StatCard = ({ config }) => {
       bordered={false} 
       style={{ 
         background: UI_COLORS.backgrounds[config.colorKey], 
-        borderRadius: 12 
+        borderRadius: 16,
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+        overflow: 'hidden'
       }}
+      bodyStyle={{ padding: '20px' }}
     >
       <Row align="middle" justify="space-between">
         <Col>
-          <Text type="secondary">{config.title}</Text>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{config.value}</div>
-          <Text style={{ color: THEME_COLORS.success }}>{config.change}</Text>
+          <Text style={{ color: '#666', fontSize: 14, fontWeight: 500 }}>{config.title}</Text>
+          <div style={{ fontSize: 28, fontWeight: 700, color: '#333', marginTop: 6 }}>{config.value}</div>
+          <Text style={{ 
+            color: config.change.includes('+') ? THEME_COLORS.success : THEME_COLORS.danger,
+            fontWeight: 500
+          }}>
+            {config.change}
+          </Text>
         </Col>
         <Col>
           <div style={{ 
-            background: '#fff', 
+            background: UI_COLORS.cards[config.colorKey], 
             borderRadius: '50%', 
-            padding: 8, 
-            boxShadow: '0 2px 8px #eee' 
+            padding: 12, 
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' 
           }}>
             <IconComponent style={{ 
-              fontSize: 28, 
-              color: UI_COLORS.cards[config.colorKey] 
+              fontSize: 24, 
+              color: '#fff' 
             }} />
           </div>
         </Col>
@@ -175,65 +182,7 @@ const StatCard = ({ config }) => {
   );
 };
 
-// Component: Dashboard Filters
-const DashboardFilters = () => (
-  <Card style={{ marginBottom: 24 }} bodyStyle={{ padding: 16 }}>
-    <Row align="middle" gutter={[8, 8]} wrap>
-      <Col>
-        <Tag 
-          icon={<UserOutlined />} 
-          style={{ 
-            fontWeight: 500, 
-            fontSize: 16, 
-            background: UI_COLORS.filter, 
-            border: 'none', 
-            color: UI_COLORS.cards.totalUsers 
-          }}
-        >
-          Dashboard Filters
-        </Tag>
-      </Col>
-      
-      <Col>
-        <Select 
-          defaultValue="Last 7 days" 
-          style={{ width: 140 }} 
-          options={FILTER_OPTIONS.timeRange} 
-        />
-      </Col>
-      
-      <Col>
-        <Space>
-          <span>Tier:</span>
-          <Select 
-            defaultValue="All Tiers" 
-            style={{ width: 100 }} 
-            options={FILTER_OPTIONS.tiers} 
-          />
-        </Space>
-      </Col>
-      
-      <Col>
-        <Space>
-          <span>Coaches:</span>
-          <Select 
-            defaultValue="Top 5" 
-            style={{ width: 100 }} 
-            options={FILTER_OPTIONS.coaches} 
-          />
-        </Space>
-      </Col>
-      
-      <Col>
-        <RangePicker format="DD/MM/YYYY" />
-      </Col>
-      
-      <Col>
-        <Button icon={<ReloadOutlined />} type="primary">Refresh</Button>
-      </Col>
-    </Row>
-  </Card>
-);
+
 
 // Component: Chart Grid
 const ChartGrid = () => {
@@ -241,14 +190,36 @@ const ChartGrid = () => {
   const fullWidthCharts = CHART_CONFIG.filter(chart => chart.span.xs === 24 && !chart.span.lg);
   const twoColumnCharts = CHART_CONFIG.filter(chart => chart.span.lg === 12);
   
+  // Card title style
+  const cardTitleStyle = {
+    fontSize: 16,
+    fontWeight: 600,
+    color: '#333',
+    margin: 0
+  };
+
+  // Card style
+  const cardStyle = {
+    height: '100%', 
+    borderRadius: 16,
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+    overflow: 'hidden'
+  };
+  
   return (
     <>
       {/* Full Width Charts */}
-      {fullWidthCharts.map((chart, index) => (
+      {fullWidthCharts.map((chart) => (
         <Row key={chart.key} gutter={[24, 24]} style={{ marginBottom: 24 }}>
           <Col {...chart.span}>
-            <Card title={<span>{chart.title}</span>} bordered={false} style={{ height: '100%' }}>
-              <chart.component />
+            <Card 
+              title={<span style={cardTitleStyle}>{chart.title}</span>} 
+              bordered={false} 
+              style={cardStyle}
+              headStyle={{ borderBottom: '1px solid #f0f0f0', padding: '16px 24px' }}
+              bodyStyle={{ padding: '0px' }}
+            >
+              <chart.component colors={UI_COLORS.charts} theme={THEME_COLORS} />
             </Card>
           </Col>
         </Row>
@@ -266,8 +237,14 @@ const ChartGrid = () => {
         <Row key={`row-${rowIndex}`} gutter={[24, 24]} style={{ marginBottom: 24 }}>
           {chartRow.map((chart) => (
             <Col key={chart.key} {...chart.span}>
-              <Card title={<span>{chart.title}</span>} bordered={false} style={{ height: '100%' }}>
-                <chart.component />
+              <Card 
+                title={<span style={cardTitleStyle}>{chart.title}</span>} 
+                bordered={false} 
+                style={cardStyle}
+                headStyle={{ borderBottom: '1px solid #f0f0f0', padding: '16px 24px' }}
+                bodyStyle={{ padding: '0px' }}
+              >
+                <chart.component colors={UI_COLORS.charts} theme={THEME_COLORS} />
               </Card>
             </Col>
           ))}
@@ -279,21 +256,74 @@ const ChartGrid = () => {
 
 // Main Component
 const Overview = () => {
+  const [stats, setStats] = useState(INITIAL_STATS);
+
+  useEffect(() => {
+    // Function to fetch user data and calculate statistics
+    const fetchUserStats = async () => {
+      try {
+        // Fetch users from API
+        const data = await userService.fetchAdminUsers();
+        
+        if (data && Array.isArray(data)) {
+          // Calculate total users
+          const totalUsers = data.length;
+          
+          // Calculate active users (users who are not blocked)
+          const activeUsers = data.filter(user => !user.block).length;
+          
+          // Calculate percentages
+          const activePercentage = totalUsers > 0 
+            ? Math.round((activeUsers / totalUsers) * 100) 
+            : 0;
+          
+          // Update stats with real data
+          setStats([
+            {
+              title: 'Total Users',
+              value: totalUsers.toLocaleString(),
+              change: `${totalUsers > 0 ? '+' : ''}${totalUsers}`,
+              icon: UserOutlined,
+              colorKey: 'totalUsers'
+            },
+            {
+              title: 'Active Users', 
+              value: activeUsers.toLocaleString(),
+              change: `${activePercentage}%`,
+              icon: UserOutlined,
+              colorKey: 'activeUsers'
+            },
+            {
+              title: 'Total Revenue',
+              value: '119.6M VND', // Keeping this static as we don't have revenue data
+              change: '+15%',
+              icon: DollarOutlined,
+              colorKey: 'totalRevenue'
+            }
+          ]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user statistics:', error);
+      }
+    };
+
+    fetchUserStats();
+  }, []);
+
   return (
     <AdminLayout title="Dashboard Overview">
       <div style={{ padding: 24, height: '100%', width: '100%' }}>
         <DashboardHeader />
         
         {/* Statistics Cards */}
-        <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-          {STAT_CARDS_CONFIG.map((config, index) => (
+        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+          {stats.map((config, index) => (
             <Col xs={24} sm={12} md={6} key={index}>
               <StatCard config={config} />
             </Col>
           ))}
         </Row>
         
-        <DashboardFilters />
         <ChartGrid />
       </div>
     </AdminLayout>

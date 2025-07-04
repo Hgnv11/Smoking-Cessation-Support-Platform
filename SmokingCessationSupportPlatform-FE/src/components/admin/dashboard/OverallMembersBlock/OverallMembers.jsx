@@ -8,34 +8,40 @@ import {
 
 const { Text, Title } = Typography;
 
-// Color constants for maintainability - Desert Sand Theme
-const FREE_MEMBERS_COLOR = "#5572AF";  // Primary text navy cho Free Members
-const PREMIUM_MEMBERS_COLOR = "#FFC658"; // Desert Sand yellow cho Premium Members
-const TEXT_COLOR = "#062A74";      // Primary text navy
+// Color constants for maintainability - updated with new theme
+const FREE_MEMBERS_COLOR = "#1814F3";  // Primary blue for Free Members
+const PREMIUM_MEMBERS_COLOR = "#FFD600"; // Yellow for Premium Members
+const TEXT_COLOR = "#333";      // Dark text for better readability
 
-const OverallMembers = () => {
-  // Định nghĩa màu sắc cho Overall Members
-  const OVERALL_COLORS = [FREE_MEMBERS_COLOR, PREMIUM_MEMBERS_COLOR]; // Free, Premium
+const OverallMembers = ({ colors, theme }) => {
+  // Use passed colors or default colors
+  const chartColors = {
+    primary: colors?.primary || theme?.primary || FREE_MEMBERS_COLOR,
+    secondary: colors?.secondary || theme?.warning || PREMIUM_MEMBERS_COLOR,
+    text: theme?.secondary || TEXT_COLOR
+  };
+  
+  // Define colors for Overall Members
+  const OVERALL_COLORS = [chartColors.primary, chartColors.secondary]; // Free, Premium
 
-  // Thêm màu vào data
+  // Add colors to data
   const overallWithColors = OVERALL_MEMBERS_DISTRIBUTION.map((item, index) => ({
     ...item,
     fill: OVERALL_COLORS[index]
   }));
 
   return (
-    <div style={{ background: "#fff", borderRadius: 12, padding: 24 }}>
+    <div style={{ width: "100%", height: "100%", padding: "20px 0" }}>
       <div style={{ textAlign: "center" }}>
-        <Title level={5} style={{ marginBottom: 16, color: TEXT_COLOR }}>Overall Members</Title>
         <div style={{ position: "relative" }}>
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={220}>
             <PieChart>
               <Pie
                 data={overallWithColors}
                 cx="50%"
                 cy="50%"
-                innerRadius={50}
-                outerRadius={80}
+                innerRadius={60}
+                outerRadius={90}
                 dataKey="value"
                 nameKey="name"
                 startAngle={90}
@@ -57,22 +63,45 @@ const OverallMembers = () => {
             textAlign: "center",
             pointerEvents: "none"
           }}>
-            <div style={{ fontSize: 20, fontWeight: "bold", color: TEXT_COLOR }}>
+            <div style={{ fontSize: 24, fontWeight: "bold", color: chartColors.text }}>
               {MEMBERS_STATS.overall.total}
             </div>
-            <div style={{ fontSize: 12, color: "#8C8C8C" }}>
+            <div style={{ fontSize: 14, color: "#8C8C8C" }}>
               {MEMBERS_STATS.overall.overallSuccessRate}% Success
             </div>
           </div>
         </div>
-        <div style={{ marginTop: 12, textAlign: "center" }}>
-          <Text style={{ color: FREE_MEMBERS_COLOR, fontWeight: "500" }}>
-            Free: {MEMBERS_STATS.free.total}
-          </Text>
-          <br />
-          <Text style={{ color: PREMIUM_MEMBERS_COLOR, fontWeight: "500" }}>
-            Premium: {MEMBERS_STATS.premium.total}
-          </Text>
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "center", 
+          alignItems: "center", 
+          gap: 30,
+          marginTop: 16
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ 
+              backgroundColor: chartColors.primary,
+              width: 12,
+              height: 12,
+              borderRadius: "50%",
+              display: "inline-block"
+            }}></span>
+            <Text style={{ fontWeight: "500" }}>
+              Free: {MEMBERS_STATS.free.total}
+            </Text>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ 
+              backgroundColor: chartColors.secondary,
+              width: 12,
+              height: 12,
+              borderRadius: "50%",
+              display: "inline-block"
+            }}></span>
+            <Text style={{ fontWeight: "500" }}>
+              Premium: {MEMBERS_STATS.premium.total}
+            </Text>
+          </div>
         </div>
       </div>
     </div>

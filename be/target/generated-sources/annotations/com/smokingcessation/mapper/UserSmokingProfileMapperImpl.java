@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-28T22:35:26+0700",
+    date = "2025-07-04T14:03:15+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.7 (Oracle Corporation)"
 )
 @Component
@@ -30,6 +30,8 @@ public class UserSmokingProfileMapperImpl implements UserSmokingProfileMapper {
         userSmokingProfileRequest.setCigarettesPerPack( entity.getCigarettesPerPack() );
         userSmokingProfileRequest.setCigarettePackCost( entity.getCigarettePackCost() );
         userSmokingProfileRequest.setQuitDate( entity.getQuitDate() );
+        userSmokingProfileRequest.setEndDate( entity.getEndDate() );
+        userSmokingProfileRequest.setStatus( entity.getStatus() );
 
         return userSmokingProfileRequest;
     }
@@ -47,6 +49,8 @@ public class UserSmokingProfileMapperImpl implements UserSmokingProfileMapper {
         userSmokingProfile.setCigarettesPerPack( dto.getCigarettesPerPack() );
         userSmokingProfile.setCigarettePackCost( dto.getCigarettePackCost() );
         userSmokingProfile.setQuitDate( dto.getQuitDate() );
+        userSmokingProfile.setEndDate( dto.getEndDate() );
+        userSmokingProfile.setStatus( dto.getStatus() );
 
         return userSmokingProfile;
     }

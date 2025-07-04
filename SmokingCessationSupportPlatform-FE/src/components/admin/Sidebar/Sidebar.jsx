@@ -36,7 +36,7 @@ const Sidebar = () => {
                 end
               >
                 <DashboardOutlined className="sidebar__icon" />
-                Overview
+                Dashboard
               </NavLink>
             </li>
           </ul>

@@ -10,16 +10,26 @@ import {
 const { Text } = Typography;
 
 // Color constants for maintainability - Updated for better visual consistency
-const PRIMARY_COLOR = "#062A74";  // Primary text navy
-const SUCCESS_COLOR = "#52C41A";  // Green for success/growth
+const PRIMARY_COLOR = "#1814F3";  // Primary blue
+const SUCCESS_COLOR = "#16c784";  // Green for success/growth
 const FAILED_COLOR = "#FF4D4F";   // Red for failure/decline  
-const TARGET_COLOR = "#FFAA00";   // Orange for target line
-const FREE_COLOR = "#5572AF";     // Blue for free members
-const PREMIUM_COLOR = "#FFC658";  // Yellow for premium members
-const TEXT_COLOR = "#062A74";     // Primary text navy
+const TARGET_COLOR = "#FFD600";   // Yellow for target line
+const FREE_COLOR = "#1814F3";     // Primary blue for free members
+const PREMIUM_COLOR = "#FFD600";  // Yellow for premium members
+const TEXT_COLOR = "#333";        // Dark text for better readability
 
-const SuccessRate = () => {
+const SuccessRate = ({ colors, theme }) => {
   const [userTypeFilter, setUserTypeFilter] = useState('all');
+  
+  // Use passed colors or default colors
+  const chartColors = {
+    primary: colors?.primary || theme?.primary || PRIMARY_COLOR,
+    secondary: colors?.secondary || theme?.warning || PREMIUM_COLOR,
+    success: theme?.success || SUCCESS_COLOR,
+    danger: theme?.danger || FAILED_COLOR,
+    warning: colors?.accent1 || theme?.warning || TARGET_COLOR,
+    text: theme?.secondary || TEXT_COLOR
+  };
 
   // Get data based on filter
   const getDataByFilter = () => {
@@ -27,13 +37,13 @@ const SuccessRate = () => {
       case 'free':
         return { 
           data: SUCCESS_RATE_FREE_MEMBERS, 
-          lineColor: FREE_COLOR,
+          lineColor: chartColors.primary,
           label: 'Free Members Success Rate'
         };
       case 'premium':
         return { 
           data: SUCCESS_RATE_PREMIUM_MEMBERS, 
-          lineColor: PREMIUM_COLOR,
+          lineColor: chartColors.secondary,
           label: 'Premium Members Success Rate'
         };
       case 'comparison':
@@ -49,7 +59,7 @@ const SuccessRate = () => {
       default:
         return { 
           data: SUCCESS_RATE_ALL_USERS, 
-          lineColor: SUCCESS_COLOR,
+          lineColor: chartColors.success,
           label: 'Overall Success Rate'
         };
     }
@@ -127,16 +137,19 @@ const SuccessRate = () => {
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
-        alignItems: 'flex-start',
-        marginBottom: 16 
+        alignItems: 'center',
+        marginBottom: 16,
+        paddingLeft: 20,
+        paddingRight: 20
       }}>
         {/* Summary Section */}
-        <div>
+        <div style={{ textAlign: 'right' }}>
           <Text 
             style={{ 
-              color: isPositive ? SUCCESS_COLOR : FAILED_COLOR,
+              color: isPositive ? chartColors.success : chartColors.danger,
               fontWeight: 600,
-              fontSize: 14
+              fontSize: 14,
+              // paddingTop: 4,
             }}
           >
             {isPositive ? '+' : '-'}{change}% Success Rate
@@ -169,7 +182,7 @@ const SuccessRate = () => {
       <ResponsiveContainer width="100%" height={280}>
         <LineChart
           data={data}
-          margin={{ top: 30, right: 30, left: 20, bottom: 20 }}
+          margin={{ top: 30, right: 35, left: 20, bottom: 20 }}
         >
           <CartesianGrid 
             strokeDasharray="3 3" 
@@ -203,13 +216,20 @@ const SuccessRate = () => {
           {/* Target Line at 30% */}
           <ReferenceLine 
             y={30} 
-            stroke={TARGET_COLOR} 
+            stroke={chartColors.warning} 
             strokeDasharray="5 5" 
             strokeWidth={2}
             label={{ 
               value: "Target: 30%", 
-              position: "topRight",
-              style: { fontSize: 11, fill: TARGET_COLOR, fontWeight: 500 }
+              position: "insideTopRight",
+              offset: -10,
+              style: { 
+                fontSize: 12, 
+                fill: chartColors.warning, 
+                fontWeight: 500,
+                background: "#fff",
+                padding: "2px 4px"
+              }
             }}
           />
           
@@ -221,10 +241,10 @@ const SuccessRate = () => {
               <Line
                 type="monotone"
                 dataKey="freeRate"
-                stroke={FREE_COLOR}
+                stroke={chartColors.primary}
                 strokeWidth={3}
-                dot={{ fill: FREE_COLOR, strokeWidth: 2, stroke: "#fff", r: 5 }}
-                activeDot={{ r: 7, fill: FREE_COLOR, stroke: "#fff", strokeWidth: 2 }}
+                dot={{ fill: chartColors.primary, strokeWidth: 2, stroke: "#fff", r: 5 }}
+                activeDot={{ r: 7, fill: chartColors.primary, stroke: "#fff", strokeWidth: 2 }}
                 name="Free Members"
               >
                 <LabelList content={<DataLabel />} dataKey="freeRate" />
@@ -232,10 +252,10 @@ const SuccessRate = () => {
               <Line
                 type="monotone"
                 dataKey="premiumRate"
-                stroke={PREMIUM_COLOR}
+                stroke={chartColors.secondary}
                 strokeWidth={3}
-                dot={{ fill: PREMIUM_COLOR, strokeWidth: 2, stroke: "#fff", r: 5 }}
-                activeDot={{ r: 7, fill: PREMIUM_COLOR, stroke: "#fff", strokeWidth: 2 }}
+                dot={{ fill: chartColors.secondary, strokeWidth: 2, stroke: "#fff", r: 5 }}
+                activeDot={{ r: 7, fill: chartColors.secondary, stroke: "#fff", strokeWidth: 2 }}
                 name="Premium Members"
               >
                 <LabelList content={<DataLabel />} dataKey="premiumRate" />
@@ -268,19 +288,23 @@ const SuccessRate = () => {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ 
-            color: PREMIUM_COLOR, 
-            fontSize: 16, 
-            fontWeight: 'bold' 
-          }}>●</span>
-          <Text style={{ fontSize: 14, color: TEXT_COLOR }}>Premium</Text>
+            backgroundColor: chartColors.secondary,
+            width: 12,
+            height: 12,
+            borderRadius: "50%",
+            display: "inline-block"
+          }}></span>
+          <Text style={{ fontSize: 14, color: chartColors.text }}>Premium</Text>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ 
-            color: FREE_COLOR, 
-            fontSize: 16, 
-            fontWeight: 'bold' 
-          }}>●</span>
-          <Text style={{ fontSize: 14, color: TEXT_COLOR }}>Free</Text>
+            backgroundColor: chartColors.primary,
+            width: 12,
+            height: 12,
+            borderRadius: "50%",
+            display: "inline-block"
+          }}></span>
+          <Text style={{ fontSize: 14, color: chartColors.text }}>Free</Text>
         </div>
       </div>
     </div>
