@@ -31,7 +31,6 @@ public class StrategyService {
         return categoryRepository.findById(id)
                 .map(category -> {
                     category.setName(updatedCategory.getName());
-                    category.setDescription(updatedCategory.getDescription());
                     return categoryRepository.save(category);
                 })
                 .orElseThrow(() -> new RuntimeException("Danh mục không tồn tại"));
@@ -50,13 +49,12 @@ public class StrategyService {
         return strategyRepository.findById(id);
     }
 
-    public Strategy createStrategy(String name, String description, Integer categoryId) {
+    public Strategy createStrategy(String name, Integer categoryId) {
         StrategyCategory category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Danh mục không tồn tại"));
 
         Strategy strategy = Strategy.builder()
                 .name(name)
-                .description(description)
                 .category(category)
                 .build();
 
@@ -70,7 +68,6 @@ public class StrategyService {
         return strategyRepository.findById(id)
                 .map(strategy -> {
                     strategy.setName(name);
-                    strategy.setDescription(description);
                     strategy.setCategory(category);
                     return strategyRepository.save(strategy);
                 })

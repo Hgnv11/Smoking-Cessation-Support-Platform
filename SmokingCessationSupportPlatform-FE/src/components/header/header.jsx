@@ -47,6 +47,12 @@ function Header() {
               >
                 Community
               </Link>
+              <Link
+                to="/about-us"
+                className={isActivePage("/about-us") ? "active" : ""}
+              >
+                About Us
+              </Link>
             </nav>
           </div>
           <div className="header__login-register">

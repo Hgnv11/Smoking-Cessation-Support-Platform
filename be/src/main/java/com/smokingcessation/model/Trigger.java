@@ -19,7 +19,6 @@ public class Trigger {
     private Integer triggerId;
 
     private String name;
-    private String description;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)

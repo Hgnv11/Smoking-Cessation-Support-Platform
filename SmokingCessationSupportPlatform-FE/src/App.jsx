@@ -40,6 +40,7 @@ import MentorAppointment from "./pages/MentorPages/Appointments/Appointment.jsx"
 import MentorOverview from "./pages/MentorPages/Overview/Overview.jsx";
 import MentorReports from "./pages/MentorPages/Reports/Report.jsx";
 import MentorClients from "./pages/MentorPages/Clients/Client.jsx";
+import AboutUs from "./pages/AboutUs/aboutUs.jsx";
 
 const ProtectRouteAuth = ({ children }) => {
   const user = useSelector((store) => store.user);
@@ -288,6 +289,7 @@ function App() {
         { path: "user-coach", element: <UserCoach /> },
         { path: "user-coach/:profileName", element: <UserCoachDetail /> },
         { path: "coach-detail", element: <UserCoachDetail /> },
+        { path: "about-us", element: <AboutUs /> },
         {
           path: "admin",
           element: (

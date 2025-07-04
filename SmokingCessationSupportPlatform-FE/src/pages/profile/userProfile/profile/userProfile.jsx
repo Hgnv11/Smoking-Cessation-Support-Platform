@@ -118,7 +118,6 @@ function UserProfile() {
       if (response.status === 200 || response.status === 201) {
         setUserAvatar(avatarUrl);
 
-        // Cập nhật Redux store
         const updatedUser = {
           ...user,
           avatarUrl: avatarUrl,
@@ -228,7 +227,7 @@ function UserProfile() {
       if (response.status === 200 || response.status === 204) {
         message.success("Your account has been deleted successfully.");
         console.log("Your account has been deleted successfully.");
-        // Clear user data from Redux store
+
         dispatch(login(null));
 
         localStorage.removeItem("token");

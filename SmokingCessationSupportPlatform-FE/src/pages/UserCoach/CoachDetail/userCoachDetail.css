@@ -79,7 +79,7 @@
     border-radius: 20px;
     width: 23%;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: 0.3s ease;
 }
 
 .wrapper__coach-schedule-detail-card-time.selected {

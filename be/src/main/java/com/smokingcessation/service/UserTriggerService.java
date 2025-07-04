@@ -50,7 +50,6 @@ public class UserTriggerService {
                 .map(entry -> TriggerCategory.builder()
                         .categoryId(entry.getKey().getCategoryId())
                         .name(entry.getKey().getName())
-                        .description(entry.getKey().getDescription())
                         .triggers(entry.getValue())
                         .build())
                 .collect(Collectors.toList());
@@ -94,7 +93,6 @@ public class UserTriggerService {
             TriggerCategory categoryDTO = TriggerCategory.builder()
                     .categoryId(originalCategory.getCategoryId())
                     .name(originalCategory.getName())
-                    .description(originalCategory.getDescription())
                     .triggers(triggers)
                     .build();
 

@@ -31,7 +31,6 @@ public class TriggerService {
         return categoryRepository.findById(id)
                 .map(category -> {
                     category.setName(updatedCategory.getName());
-                    category.setDescription(updatedCategory.getDescription());
                     return categoryRepository.save(category);
                 })
                 .orElseThrow(() -> new RuntimeException("Danh mục không tồn tại"));
@@ -50,13 +49,12 @@ public class TriggerService {
         return triggerRepository.findById(id);
     }
 
-    public Trigger createTrigger(String name, String description, Integer categoryId) {
+    public Trigger createTrigger(String name, Integer categoryId) {
         TriggerCategory category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Danh mục không tồn tại"));
 
         Trigger trigger = Trigger.builder()
                 .name(name)
-                .description(description)
                 .category(category)
                 .build();
 
@@ -70,7 +68,6 @@ public class TriggerService {
         return triggerRepository.findById(id)
                 .map(trigger -> {
                     trigger.setName(name);
-                    trigger.setDescription(description);
                     trigger.setCategory(category);
                     return triggerRepository.save(trigger);
                 })

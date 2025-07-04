@@ -51,7 +51,6 @@ public class UserStrategyService {
                 .map(entry -> StrategyCategory.builder()
                         .categoryId(entry.getKey().getCategoryId())
                         .name(entry.getKey().getName())
-                        .description(entry.getKey().getDescription())
                         .strategies(entry.getValue())
                         .build())
                 .collect(Collectors.toList());
@@ -81,7 +80,6 @@ public class UserStrategyService {
                 .map(entry -> StrategyCategory.builder()
                         .categoryId(entry.getKey().getCategoryId())
                         .name(entry.getKey().getName())
-                        .description(entry.getKey().getDescription())
                         .strategies(entry.getValue())
                         .build())
                 .collect(Collectors.toList());

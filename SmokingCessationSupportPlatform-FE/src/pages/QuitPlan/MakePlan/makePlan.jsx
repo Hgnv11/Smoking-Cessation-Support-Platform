@@ -13,19 +13,70 @@ import {
   List,
   Radio,
   Row,
+  Skeleton,
   TimePicker,
 } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dayjs from "dayjs";
+import api from "../../../config/axios";
 
 function MakePlan() {
   const format = "HH:mm";
   const [selectedRadio, setSelectedRadio] = useState(1);
+  const [triggerCategories, setTriggerCategories] = useState([]);
+  const [strategyCategories, setStrategyCategories] = useState([]);
+  const [reasons, setReasons] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [strategiesLoading, setStrategiesLoading] = useState(true);
+  const [reasonsLoading, setReasonsLoading] = useState(true);
   const currentDateTime = dayjs();
 
   const handleRadioChange = (e) => {
     setSelectedRadio(e.target.value);
   };
+
+  useEffect(() => {
+    const fetchStrategyCategories = async () => {
+      try {
+        setStrategiesLoading(true);
+        const response = await api.get("strategies/categories");
+        setStrategyCategories(response.data);
+      } catch (error) {
+        console.error("Error fetching strategy categories:", error);
+      } finally {
+        setStrategiesLoading(false);
+      }
+    };
+
+    const fetchReasons = async () => {
+      try {
+        setReasonsLoading(true);
+        const response = await api.get("reasons");
+        const activeReasons = response.data.filter((reason) => reason.isActive);
+        setReasons(activeReasons);
+      } catch (error) {
+        console.error("Error fetching reasons:", error);
+      } finally {
+        setReasonsLoading(false);
+      }
+    };
+
+    const fetchTriggerCategories = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get("triggers/categories");
+        setTriggerCategories(response.data);
+      } catch (error) {
+        console.error("Error fetching trigger categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStrategyCategories();
+    fetchReasons();
+    fetchTriggerCategories();
+  }, []);
 
   return (
     <>
@@ -134,74 +185,24 @@ function MakePlan() {
               Knowing your reasons for why you want to quit smoking can help you
               stay motivated and on track, especially in difficult moments.
             </p>
-            <Checkbox.Group className="wrapper__content-step-reason">
-              <Row>
-                <Col span={12}>
-                  <Checkbox
-                    className="wrapper__content-step-reason-checkbox"
-                    value="It is affecting my health"
-                  >
-                    It is affecting my health
-                  </Checkbox>
-                </Col>
-                <Col span={12}>
-                  <Checkbox
-                    className="wrapper__content-step-reason-checkbox"
-                    value="For my family or friends"
-                  >
-                    For my family or friends
-                  </Checkbox>
-                </Col>
-                <Col span={12}>
-                  <Checkbox
-                    className="wrapper__content-step-reason-checkbox"
-                    value="My doctor recommended quitting"
-                  >
-                    My doctor recommended quitting
-                  </Checkbox>
-                </Col>
-                <Col span={12}>
-                  <Checkbox
-                    className="wrapper__content-step-reason-checkbox"
-                    value="To save money"
-                  >
-                    To save money
-                  </Checkbox>
-                </Col>
-                <Col span={12}>
-                  <Checkbox
-                    className="wrapper__content-step-reason-checkbox"
-                    value="Baby on the way"
-                  >
-                    Baby on the way
-                  </Checkbox>
-                </Col>
-                <Col span={12}>
-                  <Checkbox
-                    className="wrapper__content-step-reason-checkbox"
-                    value="To set a good example"
-                  >
-                    To set a good example
-                  </Checkbox>
-                </Col>
-                <Col span={12}>
-                  <Checkbox
-                    className="wrapper__content-step-reason-checkbox"
-                    value="To have a better future"
-                  >
-                    To have a better future
-                  </Checkbox>
-                </Col>
-                <Col span={12}>
-                  <Checkbox
-                    className="wrapper__content-step-reason-checkbox"
-                    value="To take back control"
-                  >
-                    To take back control
-                  </Checkbox>
-                </Col>
-              </Row>
-            </Checkbox.Group>
+            {reasonsLoading ? (
+              <Skeleton active />
+            ) : (
+              <Checkbox.Group className="wrapper__content-step-reason">
+                <Row>
+                  {reasons.map((reason) => (
+                    <Col span={12} key={reason.reasonId}>
+                      <Checkbox
+                        className="wrapper__content-step-reason-checkbox"
+                        value={reason.reasonId}
+                      >
+                        {reason.reasonText}
+                      </Checkbox>
+                    </Col>
+                  ))}
+                </Row>
+              </Checkbox.Group>
+            )}
           </div>
 
           <div className="wrapper__content-step">
@@ -214,47 +215,75 @@ function MakePlan() {
               you stay in control.
             </p>
             <div className="wrapper__content-step-triggers">
-              <Card
-                size="small"
-                className="wrapper__content-step-triggers-card"
-              >
-                <h2>Social Situations</h2>
-                <div className="wrapper__content-step-triggers-card-content">
-                  <Checkbox
-                    className="wrapper__content-step-reason-checkbox"
-                    value="It is affecting my health"
-                  >
-                    It is affecting my health
-                  </Checkbox>
-                  <Checkbox
-                    className="wrapper__content-step-reason-checkbox"
-                    value="It is affecting my health"
-                  >
-                    It is affecting my healthdddddddddddddddddddđ
-                  </Checkbox>
-                </div>
-              </Card>
+              {loading ? (
+                <Skeleton active />
+              ) : (
+                triggerCategories
+                  .filter((category) => category.triggers.length > 0)
+                  .map((category) => (
+                    <Card
+                      key={category.categoryId}
+                      size="small"
+                      className="wrapper__content-step-triggers-card"
+                    >
+                      <h2>{category.name}</h2>
+                      <div className="wrapper__content-step-triggers-card-content">
+                        {category.triggers.map((trigger) => (
+                          <Checkbox
+                            key={trigger.triggerId}
+                            className="wrapper__content-step-reason-checkbox"
+                            value={trigger.triggerId}
+                          >
+                            {trigger.name}
+                          </Checkbox>
+                        ))}
+                      </div>
+                    </Card>
+                  ))
+              )}
+            </div>
+          </div>
 
-              <Card
-                size="small"
-                className="wrapper__content-step-triggers-card"
-              >
-                <h2>Nicotine Withdrawal</h2>
-                <div className="wrapper__content-step-triggers-card-content">
-                  <Checkbox
-                    className="wrapper__content-step-reason-checkbox"
-                    value="It is affecting my health"
-                  >
-                    It is affecting my health
-                  </Checkbox>
-                  <Checkbox
-                    className="wrapper__content-step-reason-checkbox"
-                    value="It is affecting my health"
-                  >
-                    It is affecting my health wej fdn we jfniwjefnb ưejfdwejfb
-                  </Checkbox>
-                </div>
-              </Card>
+          <div className="wrapper__content-step">
+            <h2>Step 5</h2>
+            <h2 className="wrapper__content-step-title">
+              Set Yourself Up for Success
+            </h2>
+            <p>
+              Choose strategies and tools to help you quit. When preparing to
+              quit, set yourself up for success by thinking about who in your
+              life you will reach out to for support, how you will get expert
+              help, and how you will distract yourself when you have the urge to
+              smoke. This will keep you on track and boost your chances of
+              quitting for good.
+            </p>
+            <div className="wrapper__content-step-triggers">
+              {strategiesLoading ? (
+                <Skeleton active />
+              ) : (
+                strategyCategories
+                  .filter((category) => category.strategies.length > 0)
+                  .map((category) => (
+                    <Card
+                      key={category.categoryId}
+                      size="small"
+                      className="wrapper__content-step-triggers-card"
+                    >
+                      <h2>{category.name}</h2>
+                      <div className="wrapper__content-step-triggers-card-content">
+                        {category.strategies.map((strategy) => (
+                          <Checkbox
+                            key={strategy.strategyId}
+                            className="wrapper__content-step-reason-checkbox"
+                            value={strategy.strategyId}
+                          >
+                            {strategy.name}
+                          </Checkbox>
+                        ))}
+                      </div>
+                    </Card>
+                  ))
+              )}
             </div>
           </div>
         </div>

@@ -175,9 +175,8 @@ public class AdminController {
     @PostMapping("/triggers")
     public ResponseEntity<Trigger> createTrigger(
             @RequestParam String name,
-            @RequestParam String description,
             @RequestParam Integer categoryId) {
-        return ResponseEntity.ok(triggerService.createTrigger(name, description, categoryId));
+        return ResponseEntity.ok(triggerService.createTrigger(name, categoryId));
     }
 
     @Operation(summary = "Cập nhật trigger (cần categoryId)")
@@ -226,9 +225,8 @@ public class AdminController {
     @PostMapping("/strategies")
     public ResponseEntity<Strategy> createStrategy(
             @RequestParam String name,
-            @RequestParam String description,
             @RequestParam Integer categoryId) {
-        return ResponseEntity.ok(strategyService.createStrategy(name, description, categoryId));
+        return ResponseEntity.ok(strategyService.createStrategy(name, categoryId));
     }
 
     @Operation(summary = "Cập nhật strategy (cần categoryId)")

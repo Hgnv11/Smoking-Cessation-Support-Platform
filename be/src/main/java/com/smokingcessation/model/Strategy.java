@@ -17,7 +17,6 @@ public class Strategy {
     private Integer strategyId;
 
     private String name;
-    private String description;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
