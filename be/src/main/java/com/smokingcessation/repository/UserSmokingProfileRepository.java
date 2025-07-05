@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserSmokingProfileRepository extends JpaRepository<UserSmokingProfile, Integer> {
-    Optional<UserSmokingProfile> findByUser(User user);
+    List<UserSmokingProfile> findByUser(User user);
     Optional<UserSmokingProfile> findByUserAndStatusNot(User user, String status);
     Optional<UserSmokingProfile> findByUserAndStatus(User user, String status);
     List<UserSmokingProfile> findAllByUser(User user);
+
 }

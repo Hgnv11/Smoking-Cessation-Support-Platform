@@ -62,7 +62,7 @@ function Membership() {
                   </li>
                   <li>
                     <CheckCircleFilled className="CheckCircleFilled" />
-                    1-on-1 Consultation with Coach
+                    1-on-1 Coach Consultation
                   </li>
                   <li>
                     <CheckCircleFilled className="CheckCircleFilled" />
