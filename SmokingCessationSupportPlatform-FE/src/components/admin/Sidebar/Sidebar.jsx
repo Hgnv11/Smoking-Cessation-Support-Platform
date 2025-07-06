@@ -6,6 +6,7 @@ import {
   ReadOutlined,
   TeamOutlined,
   CreditCardOutlined,
+  CalendarOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
 import "./Sidebar.css";
@@ -81,6 +82,19 @@ const Sidebar = () => {
               >
                 <TeamOutlined className="sidebar__icon" />
                 Coach Management
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/admin/schedule-management"
+                className={({ isActive }) =>
+                  isActive
+                    ? "sidebar__menu-item sidebar__menu-item--active"
+                    : "sidebar__menu-item"
+                }
+              >
+                <CalendarOutlined className="sidebar__icon" />
+                Schedule Management
               </NavLink>
             </li>
             <li>

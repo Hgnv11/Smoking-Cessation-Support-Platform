@@ -20,23 +20,72 @@ import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { userService } from "../../../services/userService.js";
 
-const membershipOptions = [
-  { value: "", label: "Filter membership packages" },
-  { value: "Premium", label: "Premium" },
-  { value: "Free", label: "Free" },
-];
-const statusOptions = [
-  { value: "", label: "Filter account status" },
-  { value: "active", label: "Active" },
-  { value: "locked", label: "Locked" },
-];
-const roleOptions = [
-  { value: "", label: "Filter roles" },
-  { value: "Customer", label: "Customer" },
-  { value: "Coach", label: "Coach" },
+// Constants
+const FILTER_OPTIONS = {
+  membership: [
+    { value: "", label: "Filter membership packages" },
+    { value: "Premium", label: "Premium" },
+    { value: "Free", label: "Free" },
+  ],
+  status: [
+    { value: "", label: "Filter account status" },
+    { value: "active", label: "Active" },
+    { value: "locked", label: "Locked" },
+  ],
+  role: [
+    { value: "", label: "Filter roles" },
+    { value: "Customer", label: "Customer" },
+    { value: "Coach", label: "Coach" },
+  ],
+};
+
+const BULK_ACTIONS = [
+  { value: "delete", label: "Delete" },
+  { value: "lock", label: "Lock" },
+  { value: "unlock", label: "Unlock" },
 ];
 
+const USER_STATUS = {
+  ACTIVE: "active",
+  LOCKED: "locked",
+};
+
+// Utility functions
+const transformUserData = (userData) => ({
+  id: userData.userId,
+  name: userData.fullName,
+  author: userData.email,
+  profile: userData.profileName,
+  role: userData.role,
+  membership: userData.typeLogin,
+  joinDate: userData.createdAt,
+  lastActivity: userData.lastLogin,
+  status: userData.block ? USER_STATUS.LOCKED : USER_STATUS.ACTIVE,
+});
+
+const filterUsers = (users, filters) => {
+  return users.filter((user) => {
+    const searchTerm = filters.search?.toLowerCase().trim() || "";
+
+    const matchesSearch =
+      !searchTerm ||
+      [user.name, user.author, user.profile].some((field) =>
+        field?.toLowerCase().includes(searchTerm)
+      );
+
+    const matchesMembership =
+      !filters.membership || user.membership === filters.membership;
+    const matchesStatus = !filters.status || user.status === filters.status;
+    const matchesRole = !filters.role || user.role === filters.role;
+
+    return (
+      matchesSearch && matchesMembership && matchesStatus && matchesRole
+    );
+  });
+};
+
 const UserManagement = () => {
+  // State management
   const [users, setUsers] = useState([]);
   const [filters, setFilters] = useState({
     search: "",
@@ -44,77 +93,113 @@ const UserManagement = () => {
     status: "",
     role: "",
   });
-  const [filteredUsers, setFilteredUsers] = useState(users);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
 
-  useEffect(() => {
-    // Gọi API lấy danh sách user khi vào trang
-    const getUsers = async () => {
-      try {
-        const data = await userService.fetchAdminUsers();
-        setUsers(
-          data.map((u) => ({
-            id: u.userId,
-            name: u.fullName,
-            author: u.email,
-            profile: u.profileName,
-            role: u.role,
-            membership: u.typeLogin,
-            joinDate: u.createdAt,
-            lastActivity: u.lastLogin,
-            status: u.block ? "locked" : "active",
-          }))
-        );
-      } catch (err) {
-        // Quăng lỗi khi axios false
-        console.error("Failed to fetch users", err);
-        message.error("Failed to fetch users");
-      }
-    };
-    getUsers();
-  }, []);
+  // Computed values
+  const filteredUsers = filterUsers(users, filters);
 
-  useEffect(() => {
-    let result = users.filter((user) => {
-      const search = filters.search.toLowerCase();
-      const matchSearch =
-        user.name.toLowerCase().includes(search) ||
-        user.author.toLowerCase().includes(search) ||
-        user.profile.toLowerCase().includes(search);
-      const matchMembership = filters.membership
-        ? user.membership === filters.membership
-        : true;
-      const matchStatus = filters.status
-        ? user.status === filters.status
-        : true;
-      const matchRole = filters.role ? user.role === filters.role : true;
-      return matchSearch && matchMembership && matchStatus && matchRole;
-    });
-    setFilteredUsers(result);
-    setSelectedRowKeys([]);
-  }, [filters, users]);
+  // Mock data
+  const mockData = {
+    subscriptionHistory: [
+      { plan: "Premium", startDate: "2024-01-01", endDate: "2024-02-01" },
+      { plan: "Free", startDate: "2023-12-01", endDate: "2023-12-31" },
+    ],
+    smokingProfile: {
+      status: "Active",
+      initialDailyCigarettes: 20,
+      quitStartDate: "2024-01-15",
+    },
+    goals: [
+      {
+        goal: "Reduce to 10 cigarettes per day",
+        targetDate: "2024-02-15",
+        status: "In Progress",
+      },
+      {
+        goal: "Quit smoking completely",
+        targetDate: "2024-03-01",
+        status: "Not Started",
+      },
+    ],
+    progress: {
+      daysSmokeFree: 15,
+      moneySaved: "$150",
+    },
+    badges: ["First Week", "One Month", "Money Saver"],
+    consultations: [
+      { coachName: "Dr. Smith", date: "2024-01-20", topic: "Initial Assessment" },
+      { coachName: "Dr. Johnson", date: "2024-01-27", topic: "Progress Review" },
+    ],
+  };
 
-  // Delete single user
-  const handleDeleteUser = async (userId) => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete this user? This action cannot be undone."
-      )
-    ) {
-      return;
+  // API functions
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const data = await userService.fetchAdminUsers();
+      const transformedUsers = data.map(transformUserData);
+      setUsers(transformedUsers);
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+      message.error("Failed to fetch users");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const deleteUser = async (userId) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this user? This action cannot be undone."
+    );
+
+    if (!confirmed) return;
 
     try {
       await userService.deleteUser(userId);
-      setUsers((prev) => prev.filter((u) => u.id !== userId));
+      setUsers((prev) => prev.filter((user) => user.id !== userId));
       message.success("User deleted successfully");
     } catch (error) {
       console.error("Failed to delete user:", error);
       message.error("Failed to delete user. Please try again.");
     }
+  };
+
+  const bulkDeleteUsers = async (userIds) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${userIds.length} users? This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await Promise.all(userIds.map((id) => userService.deleteUser(id)));
+      setUsers((prev) => prev.filter((user) => !userIds.includes(user.id)));
+      setSelectedRowKeys([]);
+      message.success(`${userIds.length} users deleted successfully`);
+    } catch (error) {
+      console.error("Failed to delete users:", error);
+      message.error("Failed to delete some users. Please try again.");
+    }
+  };
+
+  const updateUserStatus = (userIds, newStatus) => {
+    setUsers((prev) =>
+      prev.map((user) =>
+        userIds.includes(user.id) ? { ...user, status: newStatus } : user
+      )
+    );
+    const action = newStatus === USER_STATUS.LOCKED ? "locked" : "unlocked";
+    message.success(`${userIds.length} users ${action} successfully`);
+  };
+
+  // Event handlers
+  const handleFilterChange = (key, value) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    setSelectedRowKeys([]); // Clear selections when filters change
   };
 
   const handleSelectAll = (checked) => {
@@ -127,107 +212,76 @@ const UserManagement = () => {
     );
   };
 
-  // Bulk delete users
-  const handleBulkDelete = async () => {
-    if (
-      !window.confirm(
-        `Are you sure you want to delete ${selectedRowKeys.length} users? This action cannot be undone.`
-      )
-    ) {
-      return;
-    }
+  const handleBulkAction = (action) => {
+    if (selectedRowKeys.length === 0) return;
 
-    try {
-      // Delete multiple users using Promise.all
-      await Promise.all(
-        selectedRowKeys.map((userId) => userService.deleteUser(userId))
-      );
-
-      setUsers((prev) => prev.filter((u) => !selectedRowKeys.includes(u.id)));
-      setSelectedRowKeys([]);
-      message.success(`${selectedRowKeys.length} users deleted successfully`);
-    } catch (error) {
-      console.error("Failed to delete users:", error);
-      message.error("Failed to delete some users. Please try again.");
+    switch (action) {
+      case "delete":
+        bulkDeleteUsers(selectedRowKeys);
+        break;
+      case "lock":
+        updateUserStatus(selectedRowKeys, USER_STATUS.LOCKED);
+        setSelectedRowKeys([]);
+        break;
+      case "unlock":
+        updateUserStatus(selectedRowKeys, USER_STATUS.ACTIVE);
+        setSelectedRowKeys([]);
+        break;
+      default:
+        message.warning("Unknown action");
     }
   };
 
-  const handleBulkLock = () => {
-    setUsers((prev) =>
-      prev.map((u) =>
-        selectedRowKeys.includes(u.id) ? { ...u, status: "locked" } : u
-      )
-    );
-    setSelectedRowKeys([]);
-    message.success(`${selectedRowKeys.length} users locked successfully`);
+  const handleViewDetails = (user) => {
+    setSelectedUser(user);
+    setIsModalVisible(true);
   };
 
-  const handleBulkUnlock = () => {
-    setUsers((prev) =>
-      prev.map((u) =>
-        selectedRowKeys.includes(u.id) ? { ...u, status: "active" } : u
-      )
-    );
-    setSelectedRowKeys([]);
-    message.success(`${selectedRowKeys.length} users unlocked successfully`);
+  const handleToggleUserStatus = (userId, currentStatus) => {
+    const newStatus =
+      currentStatus === USER_STATUS.LOCKED
+        ? USER_STATUS.ACTIVE
+        : USER_STATUS.LOCKED;
+    updateUserStatus([userId], newStatus);
   };
 
-  // ...existing mock data...
-  const mockSubscriptionHistory = [
-    { plan: "Premium", startDate: "2024-01-01", endDate: "2024-02-01" },
-    { plan: "Free", startDate: "2023-12-01", endDate: "2023-12-31" },
-  ];
-
-  const mockSmokingProfile = {
-    status: "Active",
-    initialDailyCigarettes: 20,
-    quitStartDate: "2024-01-15",
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+    setSelectedUser(null);
   };
 
-  const mockGoals = [
-    {
-      goal: "Reduce to 10 cigarettes per day",
-      targetDate: "2024-02-15",
-      status: "In Progress",
-    },
-    {
-      goal: "Quit smoking completely",
-      targetDate: "2024-03-01",
-      status: "Not Started",
-    },
-  ];
-
-  const mockProgress = {
-    daysSmokeFree: 15,
-    moneySaved: "$150",
-  };
-
-  const mockBadges = ["First Week", "One Month", "Money Saver"];
-
-  const mockConsultations = [
-    { coachName: "Dr. Smith", date: "2024-01-20", topic: "Initial Assessment" },
-    { coachName: "Dr. Johnson", date: "2024-01-27", topic: "Progress Review" },
-  ];
-
+  // Table columns
   const columns = [
     { title: "User ID", dataIndex: "id" },
     { title: "Name", dataIndex: "name" },
-    { title: "Author", dataIndex: "author" },
+    { title: "Email", dataIndex: "author" },
     { title: "Profile name", dataIndex: "profile" },
     {
       title: "Role",
       dataIndex: "role",
       render: (value) => (
-        <span className={value === "Coach" ? styles["role-coach"] : styles["role-customer"]}>
+        <span
+          className={
+            value === "Coach"
+              ? styles["role-coach"]
+              : styles["role-customer"]
+          }
+        >
           {value}
         </span>
       ),
     },
     {
-      title: "Membership package",
+      title: "Membership",
       dataIndex: "membership",
       render: (value) => (
-        <span className={value === "Premium" ? styles["membership-premium"] : styles["membership-free"]}>
+        <span
+          className={
+            value === "Premium"
+              ? styles["membership-premium"]
+              : styles["membership-free"]
+          }
+        >
           {value}
         </span>
       ),
@@ -235,55 +289,40 @@ const UserManagement = () => {
     {
       title: "Joining date",
       dataIndex: "joinDate",
-      render: (value) =>
-        dayjs(value, ["D/M/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"]).format(
-          "DD/MM/YYYY"
-        ),
+      render: (value) => dayjs(value).format("DD/MM/YYYY"),
     },
     {
       title: "Last activity",
       dataIndex: "lastActivity",
-      render: (value) =>
-        dayjs(value, ["D/M/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"]).format(
-          "DD/MM/YYYY"
-        ),
+      render: (value) => dayjs(value).format("DD/MM/YYYY"),
     },
     {
       title: "Action",
       dataIndex: "action",
-      render: (value, row) => {
+      render: (_, row) => {
         const menu = (
           <Menu>
-            <Menu.Item key="edit" onClick={() => {}}>
-              Edit
-            </Menu.Item>
-            <Menu.Item
-              key="details"
-              onClick={() => {
-                setSelectedUser(row);
-                setIsModalVisible(true);
-              }}
-            >
+            <Menu.Item key="details" onClick={() => handleViewDetails(row)}>
               See Details
             </Menu.Item>
-            <Menu.Item
-              key="delete"
-              onClick={() => handleDeleteUser(row.id)}
-              danger
-            >
+            <Menu.Item key="delete" danger onClick={() => deleteUser(row.id)}>
               Delete
             </Menu.Item>
-            {row.status === "locked" ? (
-              <Menu.Item key="unlock" style={{ color: "#1677ff" }}>
-                Unlock account
-              </Menu.Item>
-            ) : (
-              <Menu.Item key="lock" style={{ color: "#e74c3c" }}>
-                Lock account
-              </Menu.Item>
-            )}
+            <Menu.Item
+              key={row.status === USER_STATUS.LOCKED ? "unlock" : "lock"}
+              style={{
+                color:
+                  row.status === USER_STATUS.LOCKED ? "#1677ff" : "#e74c3c",
+              }}
+              onClick={() => handleToggleUserStatus(row.id, row.status)}
+            >
+              {row.status === USER_STATUS.LOCKED
+                ? "Unlock account"
+                : "Lock account"}
+            </Menu.Item>
           </Menu>
         );
+
         return (
           <Dropdown overlay={menu} trigger={["hover"]} placement="bottomLeft">
             <Button>Actions</Button>
@@ -293,11 +332,20 @@ const UserManagement = () => {
     },
   ];
 
+  // Effects
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // Component render
   return (
     <AdminLayout title="User Management">
       <div className={styles["user-management-page"]}>
         <h2>User Management</h2>
+
         <div className={styles["search-filter-header"]}>Search and Filter</div>
+
+        {/* Filters */}
         <div
           style={{
             display: "flex",
@@ -315,10 +363,9 @@ const UserManagement = () => {
               boxShadow: "0 1px 4px rgba(99,102,241,0.08)",
             }}
             value={filters.search}
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, search: e.target.value }))
-            }
+            onChange={(e) => handleFilterChange("search", e.target.value)}
           />
+
           <Select
             showSearch
             allowClear
@@ -328,12 +375,11 @@ const UserManagement = () => {
               borderRadius: 12,
               boxShadow: "0 1px 4px rgba(99,102,241,0.08)",
             }}
-            onChange={(value) =>
-              setFilters((f) => ({ ...f, membership: value || "" }))
-            }
+            onChange={(value) => handleFilterChange("membership", value || "")}
             value={filters.membership || undefined}
-            options={membershipOptions}
+            options={FILTER_OPTIONS.membership}
           />
+
           <Select
             showSearch
             allowClear
@@ -343,12 +389,11 @@ const UserManagement = () => {
               borderRadius: 12,
               boxShadow: "0 1px 4px rgba(99,102,241,0.08)",
             }}
-            onChange={(value) =>
-              setFilters((f) => ({ ...f, status: value || "" }))
-            }
+            onChange={(value) => handleFilterChange("status", value || "")}
             value={filters.status || undefined}
-            options={statusOptions}
+            options={FILTER_OPTIONS.status}
           />
+
           <Select
             showSearch
             allowClear
@@ -358,13 +403,13 @@ const UserManagement = () => {
               borderRadius: 12,
               boxShadow: "0 1px 4px rgba(99,102,241,0.08)",
             }}
-            onChange={(value) =>
-              setFilters((f) => ({ ...f, role: value || "" }))
-            }
+            onChange={(value) => handleFilterChange("role", value || "")}
             value={filters.role || undefined}
-            options={roleOptions}
+            options={FILTER_OPTIONS.role}
           />
         </div>
+
+        {/* Bulk Actions */}
         {selectedRowKeys.length > 0 && (
           <div
             style={{
@@ -384,19 +429,13 @@ const UserManagement = () => {
             <Select
               placeholder="Bulk Actions"
               style={{ minWidth: 160 }}
-              onChange={(action) => {
-                if (action === "delete") handleBulkDelete();
-                if (action === "lock") handleBulkLock();
-                if (action === "unlock") handleBulkUnlock();
-              }}
-              options={[
-                { value: "delete", label: "Delete" },
-                { value: "lock", label: "Lock" },
-                { value: "unlock", label: "Unlock" },
-              ]}
+              onChange={handleBulkAction}
+              options={BULK_ACTIONS}
             />
           </div>
         )}
+
+        {/* User Table */}
         <div className={styles["user-table-wrapper"]}>
           <ReusableTable
             columns={columns}
@@ -404,56 +443,87 @@ const UserManagement = () => {
             selectedRowKeys={selectedRowKeys}
             onSelectAll={handleSelectAll}
             onSelectRow={handleSelectRow}
+            loading={loading}
           />
         </div>
 
-        {/* ...MODAL CODE... */}
+        {/* User Detail Modal */}
         <Modal
           title={null}
           open={isModalVisible}
-          onCancel={() => setIsModalVisible(false)}
+          onCancel={handleCloseModal}
           footer={[
-            <Button key="close" onClick={() => setIsModalVisible(false)}>
+            <Button key="close" onClick={handleCloseModal}>
               Close
             </Button>,
           ]}
           width={850}
         >
-          {/* Header: Avatar, Name, Email, Status, Membership */}
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 24,
-            marginBottom: 24,
-            borderBottom: "1px solid #f0f0f0",
-            paddingBottom: 18,
-          }}>
+          {/* User Header */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 24,
+              marginBottom: 24,
+              borderBottom: "1px solid #f0f0f0",
+              paddingBottom: 18,
+            }}
+          >
             <div>
-              <div style={{
-                width: 72, height: 72, borderRadius: "50%",
-                background: "#e0e7ff", display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 36, color: "#6366f1", fontWeight: 700,
-              }}>
+              <div
+                style={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: "50%",
+                  background: "#e0e7ff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 36,
+                  color: "#6366f1",
+                  fontWeight: 700,
+                }}
+              >
                 {selectedUser?.name?.[0] || "U"}
               </div>
             </div>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 700 }}>{selectedUser?.name}</div>
-              <div style={{ color: "#888", fontSize: 15 }}>{selectedUser?.author}</div>
+              <div style={{ fontSize: 22, fontWeight: 700 }}>
+                {selectedUser?.name}
+              </div>
+              <div style={{ color: "#888", fontSize: 15 }}>
+                {selectedUser?.author}
+              </div>
               <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
-                <Tag color={selectedUser?.status === "active" ? "green" : "red"}>
-                  {selectedUser?.status === "active" ? "Active" : "Locked"}
+                <Tag
+                  color={
+                    selectedUser?.status === USER_STATUS.ACTIVE
+                      ? "green"
+                      : "red"
+                  }
+                >
+                  {selectedUser?.status === USER_STATUS.ACTIVE
+                    ? "Active"
+                    : "Locked"}
                 </Tag>
-                <Tag color={selectedUser?.membership === "Premium" ? "gold" : "blue"}>
+                <Tag
+                  color={
+                    selectedUser?.membership === "Premium" ? "gold" : "blue"
+                  }
+                >
                   {selectedUser?.membership}
                 </Tag>
-                <Tag color={selectedUser?.role === "Coach" ? "purple" : "geekblue"}>
+                <Tag
+                  color={selectedUser?.role === "Coach" ? "purple" : "geekblue"}
+                >
                   {selectedUser?.role}
                 </Tag>
               </div>
             </div>
           </div>
 
+          {/* User Details Tabs */}
           <Tabs
             defaultActiveKey="membership"
             items={[
@@ -469,7 +539,11 @@ const UserManagement = () => {
                       bodyStyle={{ padding: 16 }}
                     >
                       <Tag
-                        color={selectedUser?.membership === "Premium" ? "gold" : "default"}
+                        color={
+                          selectedUser?.membership === "Premium"
+                            ? "gold"
+                            : "default"
+                        }
                         style={{ fontSize: 16, padding: "6px 18px" }}
                       >
                         {selectedUser?.membership}
@@ -483,13 +557,11 @@ const UserManagement = () => {
                       bodyStyle={{ padding: 0 }}
                     >
                       <List
-                        dataSource={mockSubscriptionHistory}
+                        dataSource={mockData.subscriptionHistory}
                         renderItem={(item) => (
                           <List.Item style={{ padding: "14px 0" }}>
                             <List.Item.Meta
-                              title={
-                                <b style={{ paddingLeft: 24}}>{item.plan}</b>
-                              }
+                              title={<b style={{ paddingLeft: 24 }}>{item.plan}</b>}
                               description={
                                 <span
                                   style={{
@@ -502,12 +574,21 @@ const UserManagement = () => {
                                   }}
                                 >
                                   <Tag
-                                    color={item.plan === "Premium" ? "gold" : "default"}
-                                    style={{ margin: 0, fontSize: 15, height: 28, display: "flex", alignItems: "center"}}
+                                    color={
+                                      item.plan === "Premium" ? "gold" : "default"
+                                    }
+                                    style={{
+                                      margin: 0,
+                                      fontSize: 15,
+                                      height: 28,
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
                                   >
                                     {item.plan}
                                   </Tag>
-                                  {dayjs(item.startDate).format("DD.MM.YYYY")} &rarr; {dayjs(item.endDate).format("DD.MM.YYYY")}
+                                  {dayjs(item.startDate).format("DD.MM.YYYY")} &rarr;{" "}
+                                  {dayjs(item.endDate).format("DD.MM.YYYY")}
                                 </span>
                               }
                             />
@@ -531,7 +612,9 @@ const UserManagement = () => {
                         <Form.Item
                           name="newPlan"
                           label="New Plan"
-                          rules={[{ required: true, message: "Please select a plan" }]}
+                          rules={[
+                            { required: true, message: "Please select a plan" },
+                          ]}
                         >
                           <Select style={{ minWidth: 120 }}>
                             <Select.Option value="Premium">Premium</Select.Option>
@@ -561,38 +644,59 @@ const UserManagement = () => {
                     >
                       <Descriptions column={3} bordered size="small">
                         <Descriptions.Item label="Status">
-                          <Tag color={mockSmokingProfile.status === "Active" ? "green" : "red"}>
-                            {mockSmokingProfile.status}
+                          <Tag
+                            color={
+                              mockData.smokingProfile.status === "Active"
+                                ? "green"
+                                : "red"
+                            }
+                          >
+                            {mockData.smokingProfile.status}
                           </Tag>
                         </Descriptions.Item>
                         <Descriptions.Item label="Initial Daily Cigarettes">
-                          {mockSmokingProfile.initialDailyCigarettes}
+                          {mockData.smokingProfile.initialDailyCigarettes}
                         </Descriptions.Item>
                         <Descriptions.Item label="Quit Start Date">
-                          {mockSmokingProfile.quitStartDate}
+                          {mockData.smokingProfile.quitStartDate}
                         </Descriptions.Item>
                       </Descriptions>
                     </Card>
 
-                  {/* Smoking Cessation Goals */}
                     <Card
                       title="User Goals"
                       style={{ marginBottom: 24 }}
                       bodyStyle={{ padding: 0 }}
                     >
                       <div>
-                        {mockGoals.map((item, idx) => (
+                        {mockData.goals.map((item, idx) => (
                           <div
                             key={idx}
                             style={{
-                              borderBottom: idx !== mockGoals.length - 1 ? "1px solid #f0f0f0" : undefined,
+                              borderBottom:
+                                idx !== mockData.goals.length - 1
+                                  ? "1px solid #f0f0f0"
+                                  : undefined,
                               padding: "16px 0 12px 0",
                             }}
                           >
-                            <div style={{ fontWeight: 700, fontSize: 17, marginBottom: 6 }}>
+                            <div
+                              style={{
+                                fontWeight: 700,
+                                fontSize: 17,
+                                marginBottom: 6,
+                              }}
+                            >
                               {item.goal}
                             </div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 12,
+                                marginBottom: 4,
+                              }}
+                            >
                               <Tag
                                 color={
                                   item.status === "Completed"
@@ -612,7 +716,8 @@ const UserManagement = () => {
                                 {item.status}
                               </Tag>
                               <span style={{ color: "#888", fontSize: 15 }}>
-                                Target: {dayjs(item.targetDate).format("DD.MM.YYYY")}
+                                Target:{" "}
+                                {dayjs(item.targetDate).format("DD.MM.YYYY")}
                               </span>
                             </div>
                           </div>
@@ -628,10 +733,24 @@ const UserManagement = () => {
                     >
                       <Descriptions column={2} bordered size="small">
                         <Descriptions.Item label="Days Smoke-Free">
-                          <b style={{ color: "#1677ff", fontSize: 18 }}>{mockProgress.daysSmokeFree}</b>
+                          <b
+                            style={{
+                              color: "#1677ff",
+                              fontSize: 18,
+                            }}
+                          >
+                            {mockData.progress.daysSmokeFree}
+                          </b>
                         </Descriptions.Item>
                         <Descriptions.Item label="Money Saved">
-                          <b style={{ color: "#52c41a", fontSize: 18 }}>{mockProgress.moneySaved}</b>
+                          <b
+                            style={{
+                              color: "#52c41a",
+                              fontSize: 18,
+                            }}
+                          >
+                            {mockData.progress.moneySaved}
+                          </b>
                         </Descriptions.Item>
                       </Descriptions>
                     </Card>
@@ -643,8 +762,12 @@ const UserManagement = () => {
                       bodyStyle={{ padding: 12 }}
                     >
                       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                        {mockBadges.map((badge) => (
-                          <Tag key={badge} color="blue" style={{ fontSize: 15, padding: "6px 18px" }}>
+                        {mockData.badges.map((badge) => (
+                          <Tag
+                            key={badge}
+                            color="blue"
+                            style={{ fontSize: 15, padding: "6px 18px" }}
+                          >
                             {badge}
                           </Tag>
                         ))}
@@ -657,18 +780,16 @@ const UserManagement = () => {
                       bodyStyle={{ padding: 0 }}
                     >
                       <List
-                        dataSource={mockConsultations}
+                        dataSource={mockData.consultations}
                         renderItem={(item) => (
                           <List.Item>
                             <List.Item.Meta
                               title={<b>{item.coachName}</b>}
                               description={
-                                <>
-                                  <span>
-                                    <Tag color="geekblue">{item.topic}</Tag>
-                                    Date: {item.date}
-                                  </span>
-                                </>
+                                <span>
+                                  <Tag color="geekblue">{item.topic}</Tag> Date:{" "}
+                                  {item.date}
+                                </span>
                               }
                             />
                           </List.Item>
