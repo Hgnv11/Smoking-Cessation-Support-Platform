@@ -1,25 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  Button,
-  Typography,
-  Space,
-  Row,
-  Col,
-  Spin,
-  Alert,
-} from "antd";
-import {
-  ClockCircleOutlined,
-  CheckCircleOutlined,
-} from "@ant-design/icons";
+import { Card, Button, Typography, Space, Row, Col, Spin, Alert } from "antd";
+import { ClockCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import styles from "./Appointment.module.css";
 import api from "../../../config/axios";
 
 const { Title, Text } = Typography;
 
-export const Appointment = () => {
+export const MentorAppointment = () => {
   const navigate = useNavigate();
   const [scheduleData, setScheduleData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +18,7 @@ export const Appointment = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await api.get("/consultations/mentor");
+        const res = await api.get("/consultations/mentor/16/slots");
         // Transform response to group by slotDate
         const consultations = res.data;
         // Group by slotDate
@@ -45,9 +33,7 @@ export const Appointment = () => {
           // There are max 4 slots per day, slotNumber: 0-3 or 1-4
           // Build slots array for UI
           const slots = [0, 1, 2, 3].map((slotIdx) => {
-            const found = consults.find(
-              (c) => c.slot.slotNumber === slotIdx
-            );
+            const found = consults.find((c) => c.slot.slotNumber === slotIdx);
             if (found) {
               return {
                 time: slotTimeFromNumber(slotIdx),
@@ -105,7 +91,9 @@ export const Appointment = () => {
     const isAvailable = slot.isAvailable;
     return (
       <Card
-        className={isAvailable ? styles.slotAvailableCard : styles.slotBookedCard}
+        className={
+          isAvailable ? styles.slotAvailableCard : styles.slotBookedCard
+        }
         styles={{ body: { padding: 0 } }}
       >
         <div className={styles.slotCardContent}>
@@ -123,7 +111,7 @@ export const Appointment = () => {
             <>
               <CheckCircleOutlined className={styles.slotIconBooked} />
               <Text className={styles.slotStatusBooked}>
-                Booked by{' '}
+                Booked by{" "}
                 {slot.clientId && slot.clientName ? (
                   <Typography.Link
                     onClick={() => navigate(`/mentor/clients/${slot.clientId}`)}
@@ -132,14 +120,20 @@ export const Appointment = () => {
                     {slot.clientName}
                   </Typography.Link>
                 ) : (
-                  slot.clientName || 'Unknown Client'
+                  slot.clientName || "Unknown Client"
                 )}
               </Text>
               <Button
                 type="primary"
                 size="small"
                 className={styles.startConsultationButton}
-                onClick={() => handleStartConsultation(slot.clientName, slot.time, slot.meetingLink)}
+                onClick={() =>
+                  handleStartConsultation(
+                    slot.clientName,
+                    slot.time,
+                    slot.meetingLink
+                  )
+                }
               >
                 Start Consultation
               </Button>
@@ -150,8 +144,14 @@ export const Appointment = () => {
     );
   };
 
-  if (loading) return <Spin size="large" style={{ display: "block", margin: "40px auto" }} />;
-  if (error) return <Alert type="error" message={error} showIcon style={{ margin: 24 }} />;
+  if (loading)
+    return (
+      <Spin size="large" style={{ display: "block", margin: "40px auto" }} />
+    );
+  if (error)
+    return (
+      <Alert type="error" message={error} showIcon style={{ margin: 24 }} />
+    );
 
   return (
     <>
@@ -160,7 +160,8 @@ export const Appointment = () => {
           Work Schedule
         </Title>
         <Text type="secondary" className={styles.workScheduleDescription}>
-          Appointments are booked by Premium clients and automatically confirmed by the system. Each day has a maximum of 4 consultation slots.
+          Appointments are booked by Premium clients and automatically confirmed
+          by the system. Each day has a maximum of 4 consultation slots.
         </Text>
       </div>
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
@@ -176,7 +177,14 @@ export const Appointment = () => {
             </div>
             <Row gutter={[16, 16]} className={styles.timeSlotsRow}>
               {daySchedule.timeSlots.map((slot, slotIndex) => (
-                <Col xs={24} sm={12} md={12} lg={6} key={slotIndex} className={styles.timeSlotCol}>
+                <Col
+                  xs={24}
+                  sm={12}
+                  md={12}
+                  lg={6}
+                  key={slotIndex}
+                  className={styles.timeSlotCol}
+                >
                   {renderTimeSlotCard(slot)}
                 </Col>
               ))}
@@ -188,5 +196,4 @@ export const Appointment = () => {
   );
 };
 
-export default Appointment;
-
+export default MentorAppointment;

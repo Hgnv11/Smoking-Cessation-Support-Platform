@@ -7,8 +7,6 @@ import {
 import "./App.css";
 import { useSelector } from "react-redux";
 import { message, notification } from "antd";
-import { StagewiseToolbar } from "@stagewise/toolbar-react";
-import { ReactPlugin } from "@stagewise-plugins/react";
 import Home from "./pages/Home/home.jsx";
 import Login from "./pages/Authentication/Login/login.jsx";
 import Register from "./pages/Authentication/Register/register.jsx";
@@ -39,10 +37,11 @@ import Membership from "./pages/Profile/UserProfile/membership/membership.jsx";
 import UserCoachDetail from "./pages/UserCoach/CoachDetail/userCoachDetail.jsx";
 import UserBadges from "./pages/Profile/UserProfile/badges/badges.jsx";
 import MentorLayout from "./components/mentor/Layout.jsx";
+import MentorAppointment from "./pages/MentorPages/Appointments/Appointment.jsx";
 import MentorOverview from "./pages/MentorPages/Overview/Overview.jsx";
-import MentorAppointments from "./pages/MentorPages/Appointments/Appointment.jsx";
-import MentorClients from "./pages/MentorPages/Clients/Client.jsx";
 import MentorReports from "./pages/MentorPages/Reports/Report.jsx";
+import MentorClients from "./pages/MentorPages/Clients/Client.jsx";
+import AboutUs from "./pages/AboutUs/aboutUs.jsx";
 
 const ProtectRouteAuth = ({ children }) => {
   const user = useSelector((store) => store.user);
@@ -56,7 +55,6 @@ const ProtectRouteAuth = ({ children }) => {
     return <Navigate to="/" />;
   }
 };
-
 const ProtectUserProfile = ({ children }) => {
   const user = useSelector((store) => store.user);
   if (user != null) {
@@ -111,21 +109,6 @@ const ProtectNewPassword = ({ children }) => {
     return <Navigate to="/forgot-password" />;
   }
   return children;
-};
-
-const ProtectMakePlan = ({ children }) => {
-  const user = useSelector((store) => store.user);
-  if (user != null) {
-    return children;
-  }
-  notification.warning({
-    message: "Login or Register to make your plan!",
-    description:
-      "Please register or login with your account to make your own quitting plan.",
-    placement: "top",
-    duration: 3,
-  });
-  return <Navigate to={"/"} />;
 };
 
 const ProtectAdminRoute = ({ children }) => {
@@ -273,24 +256,18 @@ function App() {
         },
         {
           path: "make-plan",
-          element: (
-            <ProtectMakePlan>
-              <MakePlan />
-            </ProtectMakePlan>
-          ),
+          element: <MakePlan />,
         },
         {
           path: "plan-detail",
-          element: (
-            <ProtectMakePlan>
-              <PlanDetail />
-            </ProtectMakePlan>
-          ),
+          element: <PlanDetail />,
         },
         { path: "community", element: <Community /> },
         { path: "community/:postId", element: <PostDetail /> },
         { path: "user-coach", element: <UserCoach /> },
+        { path: "user-coach/:profileName", element: <UserCoachDetail /> },
         { path: "coach-detail", element: <UserCoachDetail /> },
+        { path: "about-us", element: <AboutUs /> },
         {
           path: "admin",
           element: (
@@ -349,7 +326,7 @@ function App() {
           children: [
             { index: true, element: <MentorOverview /> },
             { path: "overview", element: <MentorOverview /> },
-            { path: "appointments", element: <MentorAppointments /> },
+            { path: "appointments", element: <MentorAppointment /> },
             { path: "clients", element: <MentorClients /> },
             { path: "reports", element: <MentorReports /> },
           ],
@@ -358,18 +335,7 @@ function App() {
     },
   ]);
 
-  return (
-    <>
-      <RouterProvider router={router} />
-      {import.meta.env.DEV && (
-        <StagewiseToolbar
-          config={{
-            plugins: [ReactPlugin],
-          }}
-        />
-      )}
-    </>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;

@@ -3,6 +3,7 @@ package com.smokingcessation.controller;
 import com.smokingcessation.dto.res.ConsultationDTO;
 import com.smokingcessation.dto.res.ConsultationSlotDTO;
 import com.smokingcessation.dto.res.ReasonDTO;
+import com.smokingcessation.dto.res.SmokingProgressDTO;
 import com.smokingcessation.model.*;
 import com.smokingcessation.service.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -28,6 +30,7 @@ public class AdminController {
     private final ConsultationService consultationService;
     private final TriggerService triggerService;
     private final StrategyService strategyService;
+    private final SmokingEventService smokingEventService;
 
     // ========== USER CRUD ==========
 
@@ -76,6 +79,13 @@ public class AdminController {
     @GetMapping("/mentors")
     public ResponseEntity<List<User>> getAllMentors() {
         return ResponseEntity.ok(userService.getAllMentors());
+    }
+
+    @Operation(summary = "Chi tiết các kết hoạch cai thuốc của user")
+    @GetMapping("/smoking-progress/user/{UserId}")
+    public ResponseEntity<List<SmokingProgressDTO>> getProgressByEmail(@PathVariable Integer UserId) {
+        List<SmokingProgressDTO> progressList = smokingEventService.getAllSmokingProgressByUser(UserId);
+        return ResponseEntity.ok(progressList);
     }
 
     // ========== POST ==========
@@ -268,4 +278,5 @@ public class AdminController {
         strategyService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }
+
 }

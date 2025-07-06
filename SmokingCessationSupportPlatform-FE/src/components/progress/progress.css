@@ -1,0 +1,52 @@
+.progress {
+    background-color: #f0eeee;
+    width: 100%;
+    padding: 50px 300px;
+}
+
+.progress__content-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.progress__content-inner-title {
+  color: #0A52B5;
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.progress__content-inner-circle{
+  width: 13rem;
+  height: 13rem;
+  background-color: #71ACFF;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.progress__content-inner-circle-day-num {
+  color: white;
+  font-size: 60px;
+  margin-right: 7px;
+}
+
+.progress__content-inner-circle-day-text {
+  color: white;
+  margin-top: 0.5rem;
+  letter-spacing: 0.1em;
+  font-size: 20px;
+  margin-left: 1px;
+}
+
+.progress__content-overall {
+  margin-top: 20px;
+  color: #7D7987;
+  font-size: 20px;
+  font-weight: 600;
+}

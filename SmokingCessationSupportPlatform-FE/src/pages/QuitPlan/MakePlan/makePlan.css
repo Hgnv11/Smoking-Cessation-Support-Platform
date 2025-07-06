@@ -9,7 +9,6 @@
     font-size: 16px;
     line-height: 1.5;
     padding-top: 10px;
-
 }
 
 .wrapper__content-step {
@@ -37,13 +36,12 @@
 }
 
 .ant-picker {
-    width: 200px;
+    width: 300px;
     height: 50px;
 }
 
 .wrapper__content-step-datetimepicker {
     display: flex;
-    gap: 30px;
     justify-content: center;
     align-items: center;
 }
@@ -58,7 +56,10 @@
     align-items: center;
     text-align: center;
     justify-content: center;
-    padding-top: 20px;
+}
+
+.wrapper__content-step-cost-item h3 {
+    font-size: 18px;
 }
 
 .wrapper__content-step-cost-input {
@@ -70,16 +71,44 @@
     margin-right: 20px;
 }
 
+.wrapper__content-step-cost-input-item {
+    padding-top: 20px;
+}
+
 .wrapper__content-step-reason {
-    width: 100%;
+    width: 90%;
     margin-top: 20px;
-    margin-left: 170px;
+    margin-left: 100px;
     text-align: left;
 }
 
 .wrapper__content-step-reason-checkbox {
     padding-top: 10px;
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 16px;
+}
+
+.wrapper__content-step-triggers {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    text-align: left;
+    margin-left: 80px;
+}
+
+.wrapper__content-step-triggers-card-content {
+    margin-top: 5px;
+}
+
+.wrapper__content-step-triggers-card {
+    display: flex;  
+    border: none;
+    width: 48%;
+    margin-top: 20px;
+}
+
+.delete-account {
+    margin-bottom: 50px;
 }
 

@@ -73,12 +73,25 @@
 .wrapper__coach-schedule-detail-card-time {
     display: flex;
     justify-content: center;
+    align-items: center;
     margin: 20px 0;
     border: 2px solid #f0eeee;
     border-radius: 20px;
     width: 23%;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.wrapper__coach-schedule-detail-card-time.selected {
+    background-color: #c2dbff;
+}
+
+.wrapper__coach-schedule-detail-card-time-slot {
+    display: flex;
+    justify-content: center;
     align-items: center;
     font-size: 22px;
+    margin-bottom: 5px;
 }
 
 .wrapper__coach-schedule-booking {
@@ -86,6 +99,11 @@
     justify-content: center;
     align-items: center;
     margin-top: 20px;
+}
+
+.wrapper__coach-schedule-detail-card-time-detail {
+    color: #7D7987;
+    font-size: 16px;
 }
 
 .wrapper__coach-schedule-booking-btn {

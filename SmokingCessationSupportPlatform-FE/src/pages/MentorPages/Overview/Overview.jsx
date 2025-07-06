@@ -1,6 +1,6 @@
-import styles from './Overview.module.css';
+import styles from "./Overview.module.css";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   Avatar,
@@ -17,16 +17,12 @@ import {
   Spin,
   Alert,
 } from "antd";
-import {
-  CalendarOutlined,
-  ExclamationCircleOutlined,
-} from "@ant-design/icons";
+import { CalendarOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import api from "../../../config/axios";
-import googleMeetLogo from "../../../assets/image-1-2.png"
 
 const { Title, Text, Paragraph } = Typography;
 
-export const Overview = () => {
+export const MentorOverview = () => {
   const navigate = useNavigate();
   const [scheduleData, setScheduleData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,9 +45,7 @@ export const Overview = () => {
         // Convert to array of days
         const days = Object.entries(grouped).map(([date, consults]) => {
           const slots = [0, 1, 2, 3].map((slotIdx) => {
-            const found = consults.find(
-              (c) => c.slot.slotNumber === slotIdx
-            );
+            const found = consults.find((c) => c.slot.slotNumber === slotIdx);
             if (found) {
               return {
                 time: slotTimeFromNumber(slotIdx),
@@ -99,13 +93,19 @@ export const Overview = () => {
   // Tổng số ngày có lịch
   const totalDays = scheduleData.length;
   // Tổng số slot đã đặt
-  const totalBookedSlots = scheduleData.reduce((sum, day) => sum + day.bookedSlots, 0);
+  const totalBookedSlots = scheduleData.reduce(
+    (sum, day) => sum + day.bookedSlots,
+    0
+  );
   // Tổng số slot trống
-  const totalAvailableSlots = scheduleData.reduce((sum, day) => sum + day.timeSlots.filter(s => s.isAvailable).length, 0);
+  const totalAvailableSlots = scheduleData.reduce(
+    (sum, day) => sum + day.timeSlots.filter((s) => s.isAvailable).length,
+    0
+  );
   // Số lượng khách hàng duy nhất
   const uniqueClients = new Set();
-  scheduleData.forEach(day => {
-    day.timeSlots.forEach(slot => {
+  scheduleData.forEach((day) => {
+    day.timeSlots.forEach((slot) => {
       if (!slot.isAvailable && slot.clientId) uniqueClients.add(slot.clientId);
     });
   });
@@ -113,11 +113,17 @@ export const Overview = () => {
 
   // Lấy danh sách slot hôm nay
   const todayStr = new Date().toISOString().slice(0, 10);
-  const todaySchedule = scheduleData.find(day => day.date === todayStr);
+  const todaySchedule = scheduleData.find((day) => day.date === todayStr);
   const todaySlots = todaySchedule ? todaySchedule.timeSlots : [];
 
-  if (loading) return <Spin size="large" style={{ display: "block", margin: "40px auto" }} />;
-  if (error) return <Alert type="error" message={error} showIcon style={{ margin: 24 }} />;
+  if (loading)
+    return (
+      <Spin size="large" style={{ display: "block", margin: "40px auto" }} />
+    );
+  if (error)
+    return (
+      <Alert type="error" message={error} showIcon style={{ margin: 24 }} />
+    );
 
   return (
     <>
@@ -135,34 +141,51 @@ export const Overview = () => {
         hoverable
       >
         <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
-          <CalendarOutlined style={{ fontSize: 24, color: "#fff", marginRight: 12 }} />
+          <CalendarOutlined
+            style={{ fontSize: 24, color: "#fff", marginRight: 12 }}
+          />
           <Title level={2} style={{ color: "#fff", margin: 0 }}>
             Today's Appointments
           </Title>
         </div>
-        <div style={{ display: "flex", alignItems: "baseline", margin: "16px 0" }}>
+        <div
+          style={{ display: "flex", alignItems: "baseline", margin: "16px 0" }}
+        >
           <Title level={1} style={{ color: "#fff", fontSize: 48, margin: 0 }}>
-            {todaySlots.filter(s => !s.isAvailable).length}
+            {todaySlots.filter((s) => !s.isAvailable).length}
           </Title>
-          <Text style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: 20, marginLeft: 8 }}>
+          <Text
+            style={{
+              color: "rgba(255, 255, 255, 0.8)",
+              fontSize: 20,
+              marginLeft: 8,
+            }}
+          >
             slots booked today
           </Text>
         </div>
-        <Paragraph style={{ color: "rgba(255, 255, 255, 0.9)", fontSize: 18, margin: 0 }}>
-          Click to manage appointments <span style={{ marginLeft: 4, fontSize: 20 }}>→</span>
+        <Paragraph
+          style={{ color: "rgba(255, 255, 255, 0.9)", fontSize: 18, margin: 0 }}
+        >
+          Click to manage appointments{" "}
+          <span style={{ marginLeft: 4, fontSize: 20 }}>→</span>
         </Paragraph>
       </Card>
 
       <Card title="Today's Appointment Details" style={{ marginBottom: 24 }}>
         {todaySlots.length === 0 ? (
-          <Empty description={<span>No appointments scheduled for today</span>} />
+          <Empty
+            description={<span>No appointments scheduled for today</span>}
+          />
         ) : (
           <List
             dataSource={todaySlots}
-            renderItem={slot => (
+            renderItem={(slot) => (
               <List.Item>
                 <Space>
-                  <Tag color={slot.isAvailable ? "#d9d9d9" : "#0d9488"}>{slot.time}</Tag>
+                  <Tag color={slot.isAvailable ? "#d9d9d9" : "#0d9488"}>
+                    {slot.time}
+                  </Tag>
                   {slot.isAvailable ? (
                     <Text type="secondary">Available</Text>
                   ) : (
@@ -181,7 +204,11 @@ export const Overview = () => {
       <Row gutter={24} style={{ marginBottom: 24 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="Total Days with Appointments" value={totalDays} prefix={<CalendarOutlined />} />
+            <Statistic
+              title="Total Days with Appointments"
+              value={totalDays}
+              prefix={<CalendarOutlined />}
+            />
           </Card>
         </Col>
         <Col span={6}>
@@ -203,4 +230,4 @@ export const Overview = () => {
     </>
   );
 };
-export default Overview;
+export default MentorOverview;

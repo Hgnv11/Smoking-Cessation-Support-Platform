@@ -1,6 +1,6 @@
 import { Button, Popconfirm } from "antd";
 import "./myAccount-nav.css";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../store/redux/features/userSlice";
 
@@ -17,42 +17,44 @@ function MyAccountNav() {
 
   return (
     <div className="wrapper__profile-nav">
-      <a
-        href="/user-profile"
+      <Link
+        to="/user-profile"
         className={isActivePage("/user-profile") ? "active" : ""}
       >
         Profile
-      </a>
-      <a
-        href="/user-profile/change-pass"
+      </Link>
+      <Link
+        to="/user-profile/change-pass"
         className={isActivePage("/user-profile/change-pass") ? "active" : ""}
       >
         Change Password
-      </a>
-      <a
-        href="/user-profile/posts"
+      </Link>
+      <Link
+        to="/user-profile/posts"
         className={isActivePage("/user-profile/posts") ? "active" : ""}
       >
         Posts
-      </a>
-      <a
-        href="/user-profile/membership"
-        className={isActivePage("/user-profile/membership") ? "active" : ""}
-      >
-        Membership
-      </a>
-      <a
-        href="/user-profile/badges"
-        className={isActivePage("/user-profile/badges") ? "active" : ""}
-      >
-        Badges
-      </a>
-      <a
-        href="/user-profile/bookings"
+      </Link>
+      <Link
+        to="/user-profile/bookings"
         className={isActivePage("/user-profile/bookings") ? "active" : ""}
       >
         Bookings
-      </a>
+      </Link>
+      <Link
+        to="/user-profile/membership"
+        className={isActivePage("/user-profile/membership") ? "active" : ""}
+      >
+        Membership
+      </Link>
+
+      <Link
+        to="/user-profile/badges"
+        className={isActivePage("/user-profile/badges") ? "active" : ""}
+      >
+        Badges
+      </Link>
+
       <Popconfirm
         onConfirm={() => dispatch(logout())}
         title="Do you want to Log Out ?"

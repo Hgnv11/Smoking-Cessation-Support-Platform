@@ -179,4 +179,12 @@ public class UserTriggerService {
         // Trả về danh sách UserTriggerDTO đã cập nhật
         return getUserTriggersByEmail(email);
     }
+
+    @Transactional
+    public void deleteAllUserTriggersByUserId(Integer userId) {
+        if (!userRepository.existsByUserId(userId)) {
+            throw new RuntimeException("User không tồn tại với ID: " + userId);
+        }
+        userTriggerRepository.deleteAllByUser_UserId(userId);
+    }
 }

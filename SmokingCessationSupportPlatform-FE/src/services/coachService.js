@@ -2,8 +2,8 @@ import api from "../config/axios";
 
 export const coachService = {
   // Lấy danh sách huấn luyện viên
-  getCoaches: async (params) => {
-    const response = await api.get('/coaches', { params });
+  getCoaches: async () => {
+    const response = await api.get('/admin/mentors');
     return response.data;
   },
 

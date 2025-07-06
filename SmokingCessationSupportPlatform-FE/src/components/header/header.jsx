@@ -1,7 +1,7 @@
 import { Button, Avatar } from "antd";
 import "./header.css";
 import { BellOutlined, SearchOutlined, UserOutlined } from "@ant-design/icons";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 function Header() {
@@ -22,31 +22,37 @@ function Header() {
       <header className="header">
         <div className="header__container">
           <div className="header__inner">
-            <a href="/">
+            <Link to="/">
               <img
                 className="header__inner-logo"
                 src="/images/Quitlt-logo.png"
                 alt="Quitlt Logo"
               />
-            </a>
+            </Link>
             <nav className="header__nav">
-              <a href="/" className={isActivePage("/") ? "active" : ""}>
+              <Link to="/" className={isActivePage("/") ? "active" : ""}>
                 Home
-              </a>
+              </Link>
 
-              <a
-                href="/user-coach"
+              <Link
+                to="/user-coach"
                 className={isActivePage("/user-coach") ? "active" : ""}
               >
                 Coach
-              </a>
+              </Link>
 
-              <a
-                href="/community"
+              <Link
+                to="/community"
                 className={isActivePage("/community") ? "active" : ""}
               >
                 Community
-              </a>
+              </Link>
+              <Link
+                to="/about-us"
+                className={isActivePage("/about-us") ? "active" : ""}
+              >
+                About Us
+              </Link>
             </nav>
           </div>
           <div className="header__login-register">

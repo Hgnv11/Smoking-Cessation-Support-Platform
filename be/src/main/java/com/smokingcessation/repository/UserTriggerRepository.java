@@ -11,4 +11,5 @@ public interface UserTriggerRepository extends JpaRepository<UserTrigger, Intege
     List<UserTrigger> findByUserUserId(Integer userId);
     boolean existsByUserUserIdAndTriggerTriggerId(Integer userId, Integer triggerId);
     void deleteByUserUserIdAndTriggerTriggerId(Integer userId, Integer triggerId);
+    void deleteAllByUser_UserId(Integer userId);
 }

@@ -42,4 +42,18 @@ public class ReasonController {
         List<ReasonDTO> reasons = reasonService.getMyReasons(email);
         return ResponseEntity.ok(reasons);
     }
+
+    @Operation(summary = "Lấy danh sách lý do bỏ thuốc của người dùng hiện tại (active)")
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<ReasonDTO>> getMyReasons(@PathVariable Integer userId) {
+        List<ReasonDTO> reasons = reasonService.getMyReasonsbyUserId(userId);
+        return ResponseEntity.ok(reasons);
+    }
+
+    @Operation(summary = "xoá tất cả lý do bỏ thuốc của một user")
+    @DeleteMapping("/delete/{userId}")
+    public ResponseEntity<Void> deleteUserReasonsByUserId(@PathVariable Integer userId) {
+        reasonService.deleteAllReasonsByUserId(userId);
+        return ResponseEntity.noContent().build();
+    }
 }
