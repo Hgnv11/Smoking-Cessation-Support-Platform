@@ -179,6 +179,14 @@ public class AdminController {
         return ResponseEntity.ok(consultationService.updateConsultationStatus(updaterEmail, consultationId, status));
     }
 
+    @Operation(summary = "Xem tất cả slot của một mentor (dùng mentorId)")
+    @GetMapping("/mentor/{mentorId}/slots/all")
+    public ResponseEntity<List<ConsultationSlotDTO>> getAllSlotsByMentorId(@PathVariable Integer mentorId) {
+        List<ConsultationSlotDTO> slots = slotService.getSlotsByMentorId(mentorId);
+        return ResponseEntity.ok(slots);
+    }
+
+
     // ========== TRIGGER ==========
 
     @Operation(summary = "Tạo trigger mới (cần categoryId)")
