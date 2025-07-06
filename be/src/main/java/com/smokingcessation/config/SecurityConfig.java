@@ -52,7 +52,11 @@ public class SecurityConfig {
                                 "/login/oauth2/code/google",
                                 "/api/profile/mentors",
                                 "/api/consultations/mentor/{mentorId}/slots",
-                                "/api/consultations/mentor/{mentorId}/ratings-feedback"
+                                "/api/consultations/mentor/{mentorId}/ratings-feedback",
+                                "/api/triggers/categories",
+                                "/api/strategies/categories",
+                                "/api/reasons"
+
                         ).permitAll()
                         .requestMatchers("/api/profile").hasRole("ADMIN")
                         .requestMatchers("/api/profile/**").hasAnyRole("USER", "MENTOR", "ADMIN")

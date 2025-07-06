@@ -11,4 +11,5 @@ public interface UserStrategyRepository extends JpaRepository<UserStrategy, Inte
     List<UserStrategy> findByUserUserId(Integer userId);
     boolean existsByUserUserIdAndStrategyStrategyId(Integer userId, Integer strategyId);
     void deleteByUserUserIdAndStrategyStrategyId(Integer userId, Integer strategyId);
+    void deleteAllByUser_UserId(Integer userId);
 }

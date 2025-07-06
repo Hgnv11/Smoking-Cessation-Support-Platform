@@ -54,4 +54,12 @@ public class UserTriggerController {
         return ResponseEntity.ok(userTriggerDTOs);
     }
 
+    @Operation(summary = "xóa tất cả trigger của một user")
+    @DeleteMapping("/delete/{userId}")
+    public ResponseEntity<Void> deleteUserTriggersByUserId(@PathVariable Integer userId) {
+        userTriggerService.deleteAllUserTriggersByUserId(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }

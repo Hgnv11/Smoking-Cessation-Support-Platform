@@ -52,4 +52,11 @@ public class UserStrategyController {
         );
         return ResponseEntity.ok(userStrategyDTOs);
     }
+
+    @Operation(summary = "xoá tất cả strategy của một user")
+    @DeleteMapping("/delete/{userId}")
+    public ResponseEntity<Void> deleteAllUserStrategiesByUserId(@PathVariable Integer userId) {
+        userStrategyService.deleteAllUserStrategiesByUserId(userId);
+        return ResponseEntity.noContent().build();
+    }
 }

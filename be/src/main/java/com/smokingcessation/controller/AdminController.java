@@ -82,9 +82,9 @@ public class AdminController {
     }
 
     @Operation(summary = "Chi tiết các kết hoạch cai thuốc của user")
-    @GetMapping("/smoking-progress/user/{userEmail}")
-    public ResponseEntity<List<SmokingProgressDTO>> getProgressByEmail(@PathVariable String userEmail) {
-        List<SmokingProgressDTO> progressList = smokingEventService.getAllSmokingProgressByUser(userEmail);
+    @GetMapping("/smoking-progress/user/{UserId}")
+    public ResponseEntity<List<SmokingProgressDTO>> getProgressByEmail(@PathVariable Integer UserId) {
+        List<SmokingProgressDTO> progressList = smokingEventService.getAllSmokingProgressByUser(UserId);
         return ResponseEntity.ok(progressList);
     }
 

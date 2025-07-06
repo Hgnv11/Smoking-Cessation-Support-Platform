@@ -163,4 +163,12 @@ public class UserStrategyService {
         // Trả về danh sách UserStrategyDTO đã cập nhật
         return getUserStrategiesByEmail(email);
     }
+
+    @Transactional
+    public void deleteAllUserStrategiesByUserId(Integer userId) {
+        if (!userRepository.existsByUserId(userId)) {
+            throw new RuntimeException("User không tồn tại với ID: " + userId);
+        }
+        userStrategyRepository.deleteAllByUser_UserId(userId);
+    }
 }

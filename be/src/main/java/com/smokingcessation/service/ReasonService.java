@@ -8,6 +8,7 @@ import com.smokingcessation.model.UserReasons;
 import com.smokingcessation.repository.ReasonsQuitRepository;
 import com.smokingcessation.repository.UserReasonsRepository;
 import com.smokingcessation.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -65,6 +66,14 @@ public class ReasonService {
         return reasonMapper.toUserReasonDTOList(userReasons);
     }
 
+    public List<ReasonDTO> getMyReasonsbyUserId(Integer UserId) {
+        User user = userRepository.findByUserId(UserId)
+                .orElseThrow(() -> new RuntimeException("User not found with userId: " +UserId ));
+
+        List<UserReasons> userReasons = userReasonsRepository.findByUser(user);
+        return reasonMapper.toUserReasonDTOList(userReasons);
+    }
+
     public ReasonDTO createReason(ReasonDTO reasonDTO) {
         if (reasonDTO.getReasonText() == null || reasonDTO.getReasonText().trim().isEmpty()) {
             throw new RuntimeException("Reason text cannot be empty");
@@ -112,5 +121,13 @@ public class ReasonService {
 
         reason.setIsActive(false);
         reasonsQuitRepository.save(reason);
+    }
+
+    @Transactional
+    public void deleteAllReasonsByUserId(Integer userId) {
+        if (!userRepository.existsByUserId(userId)) {
+            throw new RuntimeException("User không tồn tại với ID: " + userId);
+        }
+        userReasonsRepository.deleteAllByUser_UserId(userId);
     }
 }

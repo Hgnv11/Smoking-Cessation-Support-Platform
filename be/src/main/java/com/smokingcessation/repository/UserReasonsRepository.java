@@ -14,4 +14,5 @@ public interface UserReasonsRepository extends JpaRepository<UserReasons, UserRe
     boolean existsByUserUserIdAndReasonReasonId(Integer userId, Integer reasonId);
     @Query("SELECT ur FROM UserReasons ur WHERE ur.user = :user AND ur.reason.isActive = true")
     List<UserReasons> findByUser(User user);
+    void deleteAllByUser_UserId(Integer userId);
 }
