@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import api from "../../config/axios";
 import UserFeedback from "../../config/userFeedback";
+import UserProgress from "../../components/progress/progress";
 
 function Home() {
   const navigate = useNavigate();

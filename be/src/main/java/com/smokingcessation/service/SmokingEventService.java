@@ -94,8 +94,8 @@ public class SmokingEventService {
         smokingEventRepository.delete(smokingEvent);
     }
 
-    public List<SmokingProgressDTO> getAllSmokingProgressByUser(String userEmail) {
-        User user = userRepository.findByEmail(userEmail)
+    public List<SmokingProgressDTO> getAllSmokingProgressByUser(Integer UserId) {
+        User user = userRepository.findByUserId(UserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         List<UserSmokingProfile> profiles = userSmokingProfileRepository.findByUser(user);

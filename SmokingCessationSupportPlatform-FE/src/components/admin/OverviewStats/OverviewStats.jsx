@@ -279,7 +279,7 @@ const OverviewStats = () => {
               <span className="overview-stats__icon">{item.icon}</span>
               <span className="overview-stats__value">{item.value}</span>
             </div>
-            <div className="overview-stats__note">{item.note}</div>
+            {/* <div className="overview-stats__note">{item.note}</div> */}
           </div>
         ))}
       </div>
