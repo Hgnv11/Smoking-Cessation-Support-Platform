@@ -144,4 +144,14 @@ public class ConsultationSlotService {
                 .map(slotMapper::toDto)
                 .collect(Collectors.toList());
     }
+
+    public User getMentorByEmail(String email) {
+        User mentor = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Mentor not found"));
+        if (!"mentor".equals(mentor.getRole().name())) {
+            throw new RuntimeException("Selected user is not a mentor");
+        }
+        return mentor;
+    }
+
 }

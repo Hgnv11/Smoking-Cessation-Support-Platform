@@ -26,6 +26,7 @@ import BlogManagement from "./pages/AdminPages/BlogManagement/BlogManagement.jsx
 import MembershipPayment from "./pages/AdminPages/MembershipPayment/MembershipPayment.jsx";
 import CoachManagement from "./pages/AdminPages/CoachManagement/CoachManagement.jsx";
 import ScheduleManagement from "./pages/AdminPages/ScheduleManagement/ScheduleManagement.jsx";
+import PlanManagement from "./pages/AdminPages/PlanManagement/PlanMangement.jsx";
 import Overview from "./pages/AdminPages/Dashboard/Overview.jsx";
 import ChangePassCode from "./pages/Authentication/ChangePass-code/changePass-code.jsx";
 import OthersProfile from "./pages/Profile/OthersProfile/profile/othersProfile.jsx";
@@ -313,6 +314,14 @@ function App() {
           element: (
             <ProtectAdminRoute>
               <ScheduleManagement />
+            </ProtectAdminRoute>
+          ),
+        },
+        {
+          path: "admin/plan-management",
+          element: (
+            <ProtectAdminRoute>
+              <PlanManagement />
             </ProtectAdminRoute>
           ),
         },

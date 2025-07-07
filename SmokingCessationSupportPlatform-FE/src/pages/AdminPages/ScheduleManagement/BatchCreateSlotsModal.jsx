@@ -1,143 +1,240 @@
-import React, { useState } from 'react';
-import { Modal, Form, Select, Checkbox, DatePicker, Button, Row, Col, Space } from 'antd';
-import { PlusOutlined, DeleteOutlined, CalendarOutlined, CloseOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
+import { useState, useEffect } from "react";
+import {
+  Modal,
+  Form,
+  Select,
+  Checkbox,
+  DatePicker,
+  Button,
+  Row,
+  Col,
+  Space,
+} from "antd";
+import { CalendarOutlined, CloseOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 
 const { Option } = Select;
 
-const BatchCreateSlotsModal = ({ visible, onCancel, onSubmit, mentorOptions = [] }) => {
+const BatchCreateSlotsModal = ({
+  visible,
+  onCancel,
+  onSubmit,
+  mentorOptions = [],
+  loading = false,
+}) => {
   const [form] = Form.useForm();
   const [selectedSlots, setSelectedSlots] = useState([]);
-  const [dates, setDates] = useState([dayjs()]);
-  
+  const [selectedDate, setSelectedDate] = useState(dayjs().add(1, "day"));
+
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!visible) {
+      form.resetFields();
+      setSelectedSlots([]);
+      setSelectedDate(dayjs().add(1, "day"));
+    }
+  }, [visible, form]);
+
   // Default time slots configuration
   const timeSlots = [
-    { id: 1, label: 'Slot 1', time: '09:00 AM' },
-    { id: 2, label: 'Slot 2', time: '11:00 AM' },
-    { id: 3, label: 'Slot 3', time: '02:00 PM' },
-    { id: 4, label: 'Slot 4', time: '04:00 PM' },
+    { id: 1, label: "Slot 1", time: "7:00 AM - 9:30 AM" },
+    { id: 2, label: "Slot 2", time: "9:30 AM - 12:00 PM" },
+    { id: 3, label: "Slot 3", time: "13:00 PM - 15:30 PM" },
+    { id: 4, label: "Slot 4", time: "15:30 PM - 18:00 PM" },
   ];
-  
+
   const handleSlotChange = (checkedValues) => {
     setSelectedSlots(checkedValues);
   };
-  
-  const addDate = () => {
-    setDates([...dates, dayjs()]);
-  };
-  
-  const removeDate = (indexToRemove) => {
-    if (dates.length > 1) {
-      setDates(dates.filter((_, index) => index !== indexToRemove));
+
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+
+      // Prepare slot data
+      const slots = selectedSlots.map((slotId) => ({
+        mentorEmail: values.mentorEmail,
+        slotNumber: slotId,
+        slotDate: selectedDate.format("YYYY-MM-DD"),
+      }));
+
+      // Call parent's onSubmit with slot data
+      await onSubmit(slots);
+    } catch (error) {
+      console.error("Form validation failed:", error);
     }
   };
-  
-  const updateDate = (index, newDate) => {
-    const updatedDates = [...dates];
-    updatedDates[index] = newDate;
-    setDates(updatedDates);
-  };
-  
-  const handleSubmit = () => {
-    form.validateFields().then(values => {
-      const createdSlots = [];
-      
-      // Generate all slot combinations based on selected dates and times
-      dates.forEach(date => {
-        selectedSlots.forEach(slotId => {
-          const slot = timeSlots.find(s => s.id === slotId);
-          createdSlots.push({
-            mentorEmail: values.mentorEmail,
-            date: date.format('YYYY-MM-DD'),
-            time: slot.time,
-            slotNumber: slot.id,
-            slotLabel: slot.label
-          });
-        });
-      });
-      
-      onSubmit(createdSlots);
-      handleReset();
-    });
-  };
-  
+
   const handleReset = () => {
     form.resetFields();
     setSelectedSlots([]);
-    setDates([dayjs()]);
+    setSelectedDate(dayjs().add(1, "day"));
   };
-  
+
   const handleCancel = () => {
     handleReset();
     onCancel();
   };
-  
+
+  // Function to disable dates before tomorrow
+  const disabledDate = (current) => {
+    return current && current < dayjs().add(1, "day").startOf("day");
+  };
+
   return (
     <Modal
       title={
-        <div className="flex items-center justify-between">
-          <span className="text-lg font-semibold text-gray-900">
-            Batch Create Consultation Slots
-          </span>
-          <Button 
-            type="text" 
-            icon={<CloseOutlined />} 
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingBottom: "16px",
+            borderBottom: "1px solid #f0f0f0",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <CalendarOutlined style={{ color: "#0A52B5", fontSize: "20px" }} />
+            <span
+              style={{ fontSize: "18px", fontWeight: "600", color: "#0A52B5" }}
+            >
+              Batch Create Consultation Slots
+            </span>
+          </div>
+          <Button
+            type="text"
+            icon={<CloseOutlined />}
             onClick={handleCancel}
-            className="text-gray-400 hover:text-gray-600"
+            style={{ color: "#8c8c8c" }}
+            size="large"
           />
         </div>
       }
       open={visible}
       onCancel={handleCancel}
       footer={null}
-      width={700}
+      width={750}
       closable={false}
-      className="batch-create-modal"
+      bodyStyle={{ padding: 0 }}
+      headStyle={{ padding: "24px 24px 0", borderBottom: "none" }}
     >
-      <div className="p-6 space-y-6">
-        <Form
-          form={form}
-          layout="vertical"
-          className="space-y-6"
-        >
+      <div style={{ padding: "0 24px 24px" }}>
+        <Form form={form} layout="vertical" style={{ marginTop: "24px" }}>
           {/* Mentor Email Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Mentor Email <span className="text-red-500">*</span>
+          <div
+            style={{
+              backgroundColor: "#fafafa",
+              borderRadius: "8px",
+              padding: "24px",
+              marginBottom: "24px",
+            }}
+          >
+            <label
+              style={{
+                display: "block",
+                fontSize: "16px",
+                fontWeight: "600",
+                color: "#262626",
+                marginBottom: "12px",
+              }}
+            >
+              Select Mentor <span style={{ color: "#ff4d4f" }}>*</span>
             </label>
             <Form.Item
               name="mentorEmail"
-              rules={[{ required: true, message: 'Please select a mentor' }]}
-              className="mb-0"
+              rules={[{ required: true, message: "Please select a mentor" }]}
+              style={{ marginBottom: 0 }}
             >
-              <Select 
-                placeholder="Select a mentor..."
-                className="w-full"
+              <Select
+                placeholder="Choose a mentor from the list..."
                 size="large"
+                style={{ width: "100%", height: "48px" }}
               >
-                {mentorOptions.map(mentor => (
+                {mentorOptions.map((mentor) => (
                   <Option key={mentor.email} value={mentor.email}>
-                    {mentor.name} ({mentor.email})
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <span style={{ fontWeight: "500" }}>{mentor.name}</span>
+                      <span style={{ color: "#8c8c8c", fontSize: "14px" }}>
+                        {mentor.email}
+                      </span>
+                    </div>
                   </Option>
                 ))}
               </Select>
             </Form.Item>
           </div>
-          
+
           {/* Slot Numbers Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Slot Numbers <span className="text-red-500">*</span>
+          <div
+            style={{
+              backgroundColor: "#fafafa",
+              borderRadius: "8px",
+              padding: "24px",
+              marginBottom: "24px",
+            }}
+          >
+            <label
+              style={{
+                display: "block",
+                fontSize: "16px",
+                fontWeight: "600",
+                color: "#262626",
+                marginBottom: "16px",
+              }}
+            >
+              Select Time Slots <span style={{ color: "#ff4d4f" }}>*</span>
             </label>
-            <Checkbox.Group onChange={handleSlotChange} className="w-full">
+            <Checkbox.Group
+              value={selectedSlots}
+              onChange={handleSlotChange}
+              style={{ width: "100%" }}
+            >
               <Row gutter={[16, 16]}>
-                {timeSlots.map(slot => (
+                {timeSlots.map((slot) => (
                   <Col span={12} key={slot.id}>
-                    <div className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
-                      <Checkbox value={slot.id} className="w-full">
-                        <div className="ml-2">
-                          <div className="font-medium text-gray-900">{slot.label}</div>
-                          <div className="text-sm text-gray-500">{slot.time}</div>
+                    <div
+                      style={{
+                        border: "2px solid #d9d9d9",
+                        borderRadius: "8px",
+                        padding: "16px",
+                        cursor: "pointer",
+                        transition: "all 0.3s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = "#0A52B5";
+                        e.currentTarget.style.backgroundColor = "#e6f0ff";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = "#d9d9d9";
+                        e.currentTarget.style.backgroundColor = "transparent";
+                      }}
+                    >
+                      <Checkbox value={slot.id} style={{ width: "100%" }}>
+                        <div style={{ marginLeft: "8px" }}>
+                          <div
+                            style={{
+                              fontWeight: "600",
+                              color: "#262626",
+                              fontSize: "16px",
+                            }}
+                          >
+                            {slot.label}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: "14px",
+                              color: "#8c8c8c",
+                              marginTop: "4px",
+                            }}
+                          >
+                            {slot.time}
+                          </div>
                         </div>
                       </Checkbox>
                     </div>
@@ -146,73 +243,105 @@ const BatchCreateSlotsModal = ({ visible, onCancel, onSubmit, mentorOptions = []
               </Row>
             </Checkbox.Group>
           </div>
-          
-          {/* Dates Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Dates <span className="text-red-500">*</span>
+
+          {/* Date Selection */}
+          <div
+            style={{
+              backgroundColor: "#fafafa",
+              borderRadius: "8px",
+              padding: "24px",
+              marginBottom: "24px",
+            }}
+          >
+            <label
+              style={{
+                display: "block",
+                fontSize: "16px",
+                fontWeight: "600",
+                color: "#262626",
+                marginBottom: "12px",
+              }}
+            >
+              Select Date <span style={{ color: "#ff4d4f" }}>*</span>
             </label>
-            <div className="space-y-3">
-              {dates.map((date, index) => (
-                <div key={index} className="flex items-center space-x-3">
-                  <DatePicker 
-                    value={date}
-                    onChange={(newDate) => updateDate(index, newDate)}
-                    format="DD/MM/YYYY"
-                    className="flex-1"
-                    size="large"
-                    placeholder="Select date"
-                  />
-                  {dates.length > 1 && (
-                    <Button 
-                      type="text"
-                      danger
-                      icon={<DeleteOutlined />} 
-                      onClick={() => removeDate(index)}
-                      className="flex items-center"
-                    >
-                      Remove
-                    </Button>
-                  )}
-                </div>
-              ))}
-              
-              <Button 
-                type="dashed" 
-                onClick={addDate} 
-                icon={<PlusOutlined />}
-                className="w-32"
-                size="large"
-              >
-                Add Date
-              </Button>
-            </div>
+            <DatePicker
+              value={selectedDate}
+              onChange={(newDate) => setSelectedDate(newDate)}
+              format="DD/MM/YYYY"
+              size="large"
+              style={{ width: "100%", height: "48px" }}
+              placeholder="Select consultation date"
+              disabledDate={disabledDate}
+              showToday={false}
+            />
           </div>
         </Form>
-        
+
         {/* Footer Actions */}
-        <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-          <Button 
-            size="large"
-            onClick={handleCancel}
-            className="px-6"
-          >
-            Cancel
-          </Button>
-          <Button 
-            type="primary" 
-            size="large"
-            icon={<CalendarOutlined />}
-            onClick={handleSubmit}
-            disabled={selectedSlots.length === 0 || dates.length === 0}
-            className="px-6 bg-blue-600 hover:bg-blue-700"
-          >
-            Create {selectedSlots.length * dates.length} Slots
-          </Button>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingTop: "24px",
+            borderTop: "1px solid #f0f0f0",
+            marginTop: "24px",
+          }}
+        >
+          <div style={{ fontSize: "14px", color: "#8c8c8c" }}>
+            {selectedSlots.length > 0 && (
+              <span
+                style={{
+                  backgroundColor: "#e6f0ff",
+                  color: "#0A52B5",
+                  padding: "4px 12px",
+                  borderRadius: "16px",
+                  fontSize: "12px",
+                  fontWeight: "500",
+                }}
+              >
+                {selectedSlots.length} slot(s) selected
+              </span>
+            )}
+          </div>
+          <Space size={12}>
+            <Button
+              size="large"
+              onClick={handleCancel}
+              style={{
+                padding: "0 32px",
+                height: "48px",
+                fontWeight: "500",
+                borderRadius: "6px",
+              }}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              size="large"
+              icon={<CalendarOutlined />}
+              onClick={handleSubmit}
+              disabled={selectedSlots.length === 0}
+              loading={loading}
+              style={{
+                padding: "0 32px",
+                height: "48px",
+                fontWeight: "500",
+                borderRadius: "6px",
+                backgroundColor: "#0A52B5",
+                borderColor: "#0A52B5",
+              }}
+            >
+              Create {selectedSlots.length} Slot
+              {selectedSlots.length > 1 ? "s" : ""}
+            </Button>
+          </Space>
         </div>
       </div>
     </Modal>
   );
 };
 
-export default BatchCreateSlotsModal; 
+export default BatchCreateSlotsModal;

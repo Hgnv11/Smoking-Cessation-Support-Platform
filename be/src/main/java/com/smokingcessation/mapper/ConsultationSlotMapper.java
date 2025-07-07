@@ -9,5 +9,6 @@ import org.mapstruct.Mapping;
 public interface ConsultationSlotMapper {
 
     @Mapping(source = "mentor", target = "mentor")
+    @Mapping(source = "isBooked", target = "booked")
     ConsultationSlotDTO toDto(ConsultationSlot slot);
 }

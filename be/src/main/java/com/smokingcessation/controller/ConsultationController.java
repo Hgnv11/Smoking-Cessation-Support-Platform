@@ -4,6 +4,7 @@ import com.smokingcessation.dto.res.ConsultationDTO;
 import com.smokingcessation.dto.res.ConsultationSlotDTO;
 import com.smokingcessation.model.Consultation;
 import com.smokingcessation.model.ConsultationSlot;
+import com.smokingcessation.model.User;
 import com.smokingcessation.service.ConsultationService;
 import com.smokingcessation.service.ConsultationSlotService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -106,4 +107,16 @@ public class ConsultationController {
         consultationService.cancelConsultation(userEmail, consultationId);
         return ResponseEntity.ok("Consultation cancelled successfully");
     }
+
+    @Operation(summary = "Mentor xem tất cả slot của mình")
+    @PreAuthorize("hasRole('MENTOR')")
+    @GetMapping("/mentor/slots/all")
+    public ResponseEntity<List<ConsultationSlotDTO>> getAllSlotsForMentor(Principal principal) {
+        String mentorEmail = principal.getName();
+        User mentor = consultationSlotService.getMentorByEmail(mentorEmail);
+        List<ConsultationSlotDTO> slots = consultationSlotService.getSlotsByMentorId(mentor.getUserId());
+        return ResponseEntity.ok(slots);
+    }
+
+
 }
