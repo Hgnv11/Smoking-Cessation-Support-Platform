@@ -181,9 +181,7 @@ public class AdminController {
 
     @Operation(summary = "Xem tất cả slot của một mentor (dùng mentorId)")
     @GetMapping("/mentor/{mentorId}/slots/all")
-    public ResponseEntity<List<
-
-            ConsultationSlotDTO>> getAllSlotsByMentorId(@PathVariable Integer mentorId) {
+    public ResponseEntity<List<ConsultationSlotDTO>> getAllSlotsByMentorId(@PathVariable Integer mentorId) {
         List<ConsultationSlotDTO> slots = slotService.getSlotsByMentorId(mentorId);
         return ResponseEntity.ok(slots);
     }
@@ -204,9 +202,8 @@ public class AdminController {
     public ResponseEntity<Trigger> updateTrigger(
             @PathVariable Integer id,
             @RequestParam String name,
-            @RequestParam String description,
             @RequestParam Integer categoryId) {
-        return ResponseEntity.ok(triggerService.updateTrigger(id, name, description, categoryId));
+        return ResponseEntity.ok(triggerService.updateTrigger(id, name, categoryId));
     }
 
     @Operation(summary = "Xóa trigger")
@@ -225,11 +222,11 @@ public class AdminController {
     }
 
     @Operation(summary = "Cập nhật danh mục trigger")
-    @PutMapping("/trigger-categories/{id}")
+    @PutMapping("/trigger-categories/{categoryId}")
     public ResponseEntity<TriggerCategory> updateCategory(
-            @PathVariable Integer id,
-            @RequestBody TriggerCategory updatedCategory) {
-        return ResponseEntity.ok(triggerService.updateCategory(id, updatedCategory));
+            @PathVariable Integer categoryId,
+            @RequestParam String name) {
+        return ResponseEntity.ok(triggerService.updateCategory(categoryId, name));
     }
 
     @Operation(summary = "Xóa danh mục trigger")
@@ -254,9 +251,8 @@ public class AdminController {
     public ResponseEntity<Strategy> updateStrategy(
             @PathVariable Integer id,
             @RequestParam String name,
-            @RequestParam String description,
             @RequestParam Integer categoryId) {
-        return ResponseEntity.ok(strategyService.updateStrategy(id, name, description, categoryId));
+        return ResponseEntity.ok(strategyService.updateStrategy(id, name, categoryId));
     }
 
     @Operation(summary = "Xóa strategy")
@@ -275,11 +271,11 @@ public class AdminController {
     }
 
     @Operation(summary = "Cập nhật danh mục strategy")
-    @PutMapping("/strategy-categories/{id}")
+    @PutMapping("/strategy-categories/{categoryId}")
     public ResponseEntity<StrategyCategory> updateStrategyCategory(
-            @PathVariable Integer id,
-            @RequestBody StrategyCategory updatedCategory) {
-        return ResponseEntity.ok(strategyService.updateCategory(id, updatedCategory));
+            @PathVariable Integer categoryId,
+            @RequestParam String name) {
+        return ResponseEntity.ok(strategyService.updateCategory(categoryId, name));
     }
 
     @Operation(summary = "Xóa danh mục strategy")
