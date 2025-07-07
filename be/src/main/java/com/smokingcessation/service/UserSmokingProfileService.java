@@ -12,6 +12,7 @@ import com.smokingcessation.repository.UserRepository;
 import com.smokingcessation.repository.UserSmokingProfileRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -199,6 +200,33 @@ public class UserSmokingProfileService {
                 actualSaving.doubleValue()
         );
     }
+    @Transactional
+    public void deleteProfileByEmailAndProfileId(String email, Integer profileId) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        UserSmokingProfile profile = userSmokingProfileRepository.findById(profileId)
+                .orElseThrow(() -> new RuntimeException("Profile not found with id: " + profileId));
+
+        if (!profile.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("You do not have permission to delete this profile");
+        }
+
+        // Xác định khoảng thời gian để xóa event
+        LocalDate quitDate = profile.getQuitDate();
+        LocalDate endDate = profile.getEndDate() != null ? profile.getEndDate() : LocalDate.now();
+
+        LocalDateTime from = quitDate.atStartOfDay();
+        LocalDateTime to = endDate.atTime(23, 59, 59);
+
+        // Xóa các sự kiện trong khoảng từ ngày bỏ thuốc đến kết thúc
+        smokingEventRepository.deleteAllByUserAndEventTimeBetween(user, from, to);
+
+        // Xóa profile
+        userSmokingProfileRepository.delete(profile);
+    }
+
+
 
 
 }

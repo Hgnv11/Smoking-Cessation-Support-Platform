@@ -78,6 +78,7 @@ public class AuthService {
                 user.getRole().name(),
                 user.getIsVerified(),
                 user.getProfileName(),
+                user.getHasActive(),
                 user.getAvatarUrl()
         );
     }
@@ -199,6 +200,7 @@ public class AuthService {
                 user.getRole().name(),
                 user.getIsVerified(),
                 user.getProfileName(),
+                user.getHasActive(),
                 user.getAvatarUrl()
         );
     }
