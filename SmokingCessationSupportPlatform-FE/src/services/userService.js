@@ -28,7 +28,13 @@ export const userService = {
 
   // Lấy danh sách user cho admin
   fetchAdminUsers: async () => {
-    const response = await api.get('/admin/users');
+    const response = await api.get('admin/users');
     return response.data;
   },
+  // lấy thông tin tiến trình cai thuốc của user
+  getSmokingProgressId: async (userId) => {
+    const response = await api.get(`admin/smoking-progress/user/${userId}`);
+    return response.data;
+}
 }; 
+
