@@ -1,9 +1,10 @@
 import "./planDetail.css";
-import { Affix, Button, Col, DatePicker, Divider, Row } from "antd";
+import { Affix, Button, DatePicker, Divider } from "antd";
 import Header from "../../../components/header/header";
 import Footer from "../../../components/footer/footer";
 import {
   CalendarTwoTone,
+  CheckCircleOutlined,
   CrownOutlined,
   DollarOutlined,
   FireOutlined,
@@ -12,16 +13,25 @@ import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import api from "../../../config/axios";
 import { useSelector } from "react-redux";
+import {
+  Activity,
+  AlertTriangle,
+  ClipboardCheck,
+  Heart,
+  Wind,
+} from "lucide-react";
 
 function PlanDetail() {
   const user = useSelector((store) => store.user);
   const dateFormat = "DD/MM/YYYY";
   const [userProfile, setUserProfile] = useState(null);
   const [savingData, setSavingData] = useState(null);
+  const [healthMetrics, setHealthMetrics] = useState(null);
   const [userReasons, setUserReasons] = useState([]);
   const [userTriggers, setUserTriggers] = useState([]);
   const [userStrategies, setUserStrategies] = useState([]);
   const [loading, setLoading] = useState(true);
+  //const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -43,6 +53,15 @@ function PlanDetail() {
         setSavingData(response.data);
       } catch (error) {
         console.error("Error fetching saving data:", error);
+      }
+    };
+
+    const fetchHealthMetrics = async () => {
+      try {
+        const response = await api.get(`/health/metrics/${user.userId}`);
+        setHealthMetrics(response.data);
+      } catch (error) {
+        console.error("Error fetching health metrics:", error);
       }
     };
 
@@ -79,10 +98,38 @@ function PlanDetail() {
 
     fetchUserProfile();
     fetchSavingData();
+    fetchHealthMetrics();
     fetchUserReasons();
     fetchUserTriggers();
     fetchUserStrategies();
   }, [user.userId]);
+
+  // const handleDeletePlan = async () => {
+  //   setDeleting(true);
+  //   try {
+  //     if (userProfile?.eventId) {
+  //       await api.delete(`/smoking-events/${userProfile.eventId}`);
+  //     }
+
+  //     await api.delete(`/reasons/delete/${user.userId}`);
+
+  //     await api.delete(`/user-triggers/delete/${user.userId}`);
+
+  //     await api.delete(`/user-strategies/delete/${user.userId}`);
+
+  //     message.success("Plan deleted successfully!");
+
+  //     setUserProfile(null);
+  //     setUserReasons([]);
+  //     setUserTriggers([]);
+  //     setUserStrategies([]);
+  //   } catch (error) {
+  //     console.error("Error deleting plan:", error);
+  //     message.error("Failed to delete plan. Please try again.");
+  //   } finally {
+  //     setDeleting(false);
+  //   }
+  // };
 
   return (
     <>
@@ -119,36 +166,42 @@ function PlanDetail() {
               We calculated what you'll save by quitting. Take a moment to think
               about the specific things you'll do with the extra money.
             </p>
-            <div className="wrapper__content-detail-saving">
-              <p className="wrapper__content-detail-saving-title">
-                <CalendarTwoTone className="wrapper__content-detail-saving-title-icon" />
-                1 week smoke-free :
-                <span className="wrapper__content-detail-saving-value">
-                  ${savingData?.perWeek?.toFixed(2) || "0.00"}
-                </span>
-              </p>
-            </div>
-            <div className="wrapper__content-detail-saving">
-              <p className="wrapper__content-detail-saving-title">
-                <CalendarTwoTone className="wrapper__content-detail-saving-title-icon" />
-                1 month smoke-free :
-                <span className="wrapper__content-detail-saving-value">
-                  ${savingData?.perMonth?.toFixed(2) || "0.00"}
-                </span>
-              </p>
-            </div>
-
-            <div className="wrapper__content-detail-saving">
-              <p className="wrapper__content-detail-saving-title">
-                <CalendarTwoTone className="wrapper__content-detail-saving-title-icon" />
-                1 year smoke-free :
-                <span className="wrapper__content-detail-saving-value">
-                  ${savingData?.perYear?.toFixed(2) || "0.00"}
-                </span>
-              </p>
+            <div className="wrapper__content-detail-saving-container">
+              <div className="wrapper__content-detail-saving-item">
+                <p>
+                  <CalendarTwoTone className="wrapper__content-detail-saving-title-icon" />
+                  <span className="wrapper__content-detail-saving-period">
+                    1 week smoke-free
+                  </span>
+                  <span className="wrapper__content-detail-saving-value">
+                    ${savingData?.perWeek?.toFixed(2) || "0.00"}
+                  </span>
+                </p>
+              </div>
+              <div className="wrapper__content-detail-saving-item">
+                <p>
+                  <CalendarTwoTone className="wrapper__content-detail-saving-title-icon" />
+                  <span className="wrapper__content-detail-saving-period">
+                    1 month smoke-free
+                  </span>
+                  <span className="wrapper__content-detail-saving-value">
+                    ${savingData?.perMonth?.toFixed(2) || "0.00"}
+                  </span>
+                </p>
+              </div>
+              <div className="wrapper__content-detail-saving-item">
+                <p>
+                  <CalendarTwoTone className="wrapper__content-detail-saving-title-icon" />
+                  <span className="wrapper__content-detail-saving-period">
+                    1 year smoke-free
+                  </span>
+                  <span className="wrapper__content-detail-saving-value">
+                    ${savingData?.perYear?.toFixed(2) || "0.00"}
+                  </span>
+                </p>
+              </div>
             </div>
           </div>
-
           <div className="wrapper__content-detail">
             <h2 className="wrapper__content-detail-title">Overall Progress</h2>
             <p className="wrapper__content-detail-des">
@@ -156,54 +209,92 @@ function PlanDetail() {
               come and what you still need to do to stay on track.
             </p>
             <div className="wrapper__content-detail-progress">
-              <Row
-                gutter={[8, 16]}
-                className="wrapper__content-detail-progress-item"
-              >
-                <Col span={12}>
+              <div className="wrapper__content-detail-progress-container">
+                <div className="wrapper__content-detail-progress-item">
                   <p>
                     <FireOutlined className="wrapper__content-detail-progress-item-fire" />
                     <span className="wrapper__content-detail-progress-item-number">
-                      20
+                      {savingData?.cigarettesAvoided || 0}
                     </span>
                     cigarettes avoided
                   </p>
-                </Col>
-                <Col span={12}>
-                  <p>
-                    <FireOutlined className="wrapper__content-detail-progress-item-fire" />
-                    <span className="wrapper__content-detail-progress-item-number">
-                      20
-                    </span>
-                    won back
-                  </p>
-                </Col>
-                <Col span={12}>
+                </div>
+                <div className="wrapper__content-detail-progress-item">
                   <p>
                     <DollarOutlined className="wrapper__content-detail-progress-item-money" />
                     <span className="wrapper__content-detail-progress-item-number">
-                      20
+                      {savingData?.moneySaved || 0}
                     </span>
                     dollars saved
                   </p>
-                </Col>
-                <Col span={12}>
-                  <p>
-                    <CrownOutlined className="wrapper__content-detail-progress-item-badge" />
-                    <span className="wrapper__content-detail-progress-item-number">
-                      20
-                    </span>
-                    badges achieved
-                  </p>
-                </Col>
-              </Row>
-              <Button
-                color="danger"
-                variant="filled"
-                className="wrapper__content-detail-progress-btn"
-              >
-                I Have Smoked Today!
-              </Button>
+                </div>
+              </div>
+              <div className="wrapper__content-detail-progress-btn-container">
+                <Button
+                  color="danger"
+                  variant="filled"
+                  className="wrapper__content-detail-progress-btn"
+                >
+                  I Have Smoked Today!
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="wrapper__content-detail">
+            <h2 className="wrapper__content-detail-title">Health Metrics</h2>
+            <p className="wrapper__content-detail-des">
+              Your health is improving as you continue your smoke-free journey.
+              These metrics show the positive impact on your body.
+            </p>
+            <div className="wrapper__content-detail-health">
+              <div className="wrapper__content-detail-health-row">
+                <div className="wrapper__content-detail-progress-item1">
+                  <div className="wrapper__content-detail-progress-item1-title">
+                    <Heart className="wrapper__content-detail-progress-item1-blood" />
+                    Blood Pressure
+                    <div className="wrapper__content-detail-progress-item1-number">
+                      <h2>
+                        {healthMetrics?.bpSystolic || 0}/
+                        {healthMetrics?.bpDiastolic || 0}
+                      </h2>
+                      <h3>mmHg</h3>
+                    </div>
+                  </div>
+                </div>
+                <div className="wrapper__content-detail-progress-item1">
+                  <div className="wrapper__content-detail-progress-item1-title">
+                    <Activity className="wrapper__content-detail-progress-item1-heart" />
+                    Heart Rate
+                    <div className="wrapper__content-detail-progress-item1-number">
+                      <h2>{healthMetrics?.heartRate || 0}</h2>
+                      <h3>bpm</h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="wrapper__content-detail-health-row">
+                <div className="wrapper__content-detail-progress-item1">
+                  <div className="wrapper__content-detail-progress-item1-title">
+                    <Wind className="wrapper__content-detail-progress-item1-oxy" />
+                    Oxygen Saturation
+                    <div className="wrapper__content-detail-progress-item1-number">
+                      <h2>{healthMetrics?.spo2 || 0}%</h2>
+                      <h3>SpO2</h3>
+                    </div>
+                  </div>
+                </div>
+                <div className="wrapper__content-detail-progress-item1">
+                  <div className="wrapper__content-detail-progress-item1-title">
+                    <AlertTriangle className="wrapper__content-detail-progress-item1-co" />
+                    CO Level
+                    <div className="wrapper__content-detail-progress-item1-number">
+                      <h2>{healthMetrics?.cohb || 0}%</h2>
+                      <h3>COHb</h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -279,6 +370,15 @@ function PlanDetail() {
               </div>
             ))}
           </div>
+        </div>
+        <div className="completed-wrapper">
+          <Button
+            className="completed-wrapper-btn"
+            color="cyan"
+            variant="solid"
+          >
+            <ClipboardCheck /> I Have Completed My Quit Plan
+          </Button>
         </div>
       </div>
       <Footer />

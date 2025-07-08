@@ -21,9 +21,12 @@ import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import api from "../../../config/axios";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { ClipboardPlus } from "lucide-react";
 
 function MakePlan() {
   const user = useSelector((store) => store.user);
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const [selectedRadio, setSelectedRadio] = useState(1);
   const [triggerCategories, setTriggerCategories] = useState([]);
@@ -42,7 +45,6 @@ function MakePlan() {
   };
 
   const handleCreatePlan = async () => {
-    // Check if user is logged in
     if (!user) {
       notification.warning({
         message: "Login or Register to make your plan!",
@@ -57,15 +59,38 @@ function MakePlan() {
     try {
       const values = await form.validateFields();
       console.log("Form values:", values);
-      message.success("Quit plan created successfully!");
-      // Here you would make the API call to save the plan
-      // await api.post('/quit-plan', values);
-    } catch (errorInfo) {
-      console.log("Validation failed:", errorInfo);
 
-      const errorFields = errorInfo.errorFields;
-      if (errorFields && errorFields.length > 0) {
-        message.error("Please fill in all required fields");
+      const smokingProfileData = {
+        cigarettesPerDay: values.cigarettesPerDay,
+        cigarettesPerPack: values.cigarettesPerPack,
+        cigarettePackCost: values.pricePerPack,
+        quitDate: values.quitDate.format("YYYY-MM-DD"),
+      };
+
+      await Promise.all([
+        api.post("/user-smoking-profile/my", smokingProfileData),
+        api.post("/user-triggers/bulk", values.selectedTriggers || []),
+        api.post("/user-strategies/bulk", values.selectedStrategies || []),
+        api.post("/reasons/user-reasons", values.selectedReasons || []),
+      ]);
+
+      message.success("Quit plan created successfully!");
+
+      // Optional: Reset form or redirect to plan detail page
+      form.resetFields();
+      navigate("/plan-detail");
+    } catch (errorInfo) {
+      console.log("Validation or API failed:", errorInfo);
+
+      if (errorInfo.errorFields) {
+        const errorFields = errorInfo.errorFields;
+        if (errorFields && errorFields.length > 0) {
+          message.error("Please fill in all required fields");
+        }
+      } else {
+        // API error
+        console.error("API Error:", errorInfo);
+        message.error("Failed to create plan. Please try again.");
       }
     }
   };
@@ -385,13 +410,15 @@ function MakePlan() {
                 )}
               </div>
             </div>
-            <Button
-              type="primary"
-              className="wrapper__btn"
-              onClick={handleCreatePlan}
-            >
-              Create Plan
-            </Button>
+            <div className="wrapper__create-btn-container">
+              <Button
+                type="primary"
+                className="wrapper__create-btn"
+                onClick={handleCreatePlan}
+              >
+                <ClipboardPlus /> Create Plan
+              </Button>
+            </div>
           </Form>
         </div>
       </div>

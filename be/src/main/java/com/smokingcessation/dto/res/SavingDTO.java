@@ -7,9 +7,10 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class SavingDTO {
-    private double cigarettesPerDay;
+    private double dailyCost;
     private double perWeek;
     private double perMonth;
     private double perYear;
     private double actualSaving;
+    private Integer cigarettesAvoided;
 }
