@@ -27,10 +27,10 @@ public class StrategyService {
         return categoryRepository.save(category);
     }
 
-    public StrategyCategory updateCategory(Integer id, StrategyCategory updatedCategory) {
+    public StrategyCategory updateCategory(Integer id, String name) {
         return categoryRepository.findById(id)
                 .map(category -> {
-                    category.setName(updatedCategory.getName());
+                    category.setName(name);
                     return categoryRepository.save(category);
                 })
                 .orElseThrow(() -> new RuntimeException("Danh mục không tồn tại"));
@@ -61,7 +61,7 @@ public class StrategyService {
         return strategyRepository.save(strategy);
     }
 
-    public Strategy updateStrategy(Integer id, String name, String description, Integer categoryId) {
+    public Strategy updateStrategy(Integer id, String name, Integer categoryId) {
         StrategyCategory category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Danh mục không tồn tại"));
 

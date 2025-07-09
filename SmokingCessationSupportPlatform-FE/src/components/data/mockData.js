@@ -1,11 +1,9 @@
 // bảng mock data doanh thu
 export const REVENUE_DATA = [
-  { month: "Jan", premium: 105.46, free: 12.3 },
-  { month: "Feb", premium: 119.28, free: 15.7 },
-  { month: "Mar", premium: 72.22, free: 9.8 },
-  { month: "Apr", premium: 140.80, free: 11.2 },
-  { month: "May", premium: 107.64, free: 10.5 },
-  { month: "Jun", premium: 149.51, free: 13.9 },
+  { week: "Week 1", premium: 35 },
+  { week: "Week 2", premium: 42 },
+  { week: "Week 3", premium: 28 },
+  { week: "Week 4", premium: 50 },
 ];
 
 // bảng mock data sự phát triển của user (user mới theo tháng)
@@ -50,11 +48,6 @@ export const PREMIUM_MEMBERS_DISTRIBUTION = [
   { name: "Premium Members - Failed/Continuing", value: 70 },
 ];
 
-// Biểu đồ 3: Overall Members Distribution
-export const OVERALL_MEMBERS_DISTRIBUTION = [
-  { name: "Free Members", value: 680 },
-  { name: "Premium Members", value: 320 },
-];
 
 // Member type distribution (doughnut chart)
 export const MEMBER_TYPE_DISTRIBUTION = [

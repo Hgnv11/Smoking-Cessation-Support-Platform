@@ -56,4 +56,15 @@ public class ReasonController {
         reasonService.deleteAllReasonsByUserId(userId);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "Cập nhật nhiều lý do bỏ thuốc cho người dùng")
+    @PutMapping("/user-reasons/sync")
+    public ResponseEntity<String> updateReasonsForUser(
+            Principal principal,
+            @RequestBody List<Integer> reasonIds) {
+        String email = principal.getName();
+        reasonService.updateReasonsForUser(email, reasonIds);
+        return ResponseEntity.ok("Reasons updated successfully for user");
+    }
+
 }

@@ -2,7 +2,7 @@ import Header from "../../components/header/header";
 import Poster from "../../components/poster/poster";
 import Footer from "../../components/footer/footer";
 import "./home.css";
-import { Affix, Button, Card, message } from "antd";
+import { Affix, Button, Card, message, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import api from "../../config/axios";
@@ -11,7 +11,20 @@ import UserProgress from "../../components/progress/progress";
 
 function Home() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState(null);
   const [randomPosts, setRandomPosts] = useState([]);
+
+  const fetchUserProfile = async () => {
+    try {
+      const response = await api.get("/user-smoking-profile/my");
+      if (response.data && response.data.length > 0) {
+        setUserProfile(response.data[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    }
+  };
 
   const fetchAllPosts = async () => {
     try {
@@ -29,8 +42,17 @@ function Home() {
     }
   };
 
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([fetchUserProfile(), fetchAllPosts()]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetchAllPosts();
+    fetchData();
   }, []);
 
   return (
@@ -38,7 +60,25 @@ function Home() {
       <Affix offsetTop={0}>
         <Header />
       </Affix>
-      <Poster />
+
+      {loading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "450px",
+            backgroundColor: "#f0eeee",
+          }}
+        >
+          <Spin size="large" />
+        </div>
+      ) : userProfile?.status === "active" ? (
+        <UserProgress />
+      ) : (
+        <Poster />
+      )}
+
       <div className="wrapper">
         <div className="wrapper__title">
           <p>Explore</p>

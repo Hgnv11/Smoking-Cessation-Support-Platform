@@ -10,6 +10,7 @@ import {
   Divider,
   Space,
   Modal,
+  Result,
 } from "antd";
 import "./bookings.css";
 import Header from "../../../../components/header/header";
@@ -24,8 +25,10 @@ import {
 import api from "../../../../config/axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 function UserBookings() {
+  const user = useSelector((store) => store.user);
   const [bookings, setBookings] = useState([]);
   const [filteredBookings, setFilteredBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -112,8 +115,12 @@ function UserBookings() {
   };
 
   useEffect(() => {
-    fetchBookings();
-  }, []);
+    if (user.hasActive) {
+      fetchBookings();
+    } else {
+      setLoading(false);
+    }
+  }, [user.hasActive]);
 
   return (
     <>
@@ -128,124 +135,143 @@ function UserBookings() {
           <MyAccountNav />
           <div className="wrapper__profile-bookings">
             <h1 className="wrapper__community-posts-title">Bookings</h1>
-            <div className="wrapper__profile-bookings-categor">
-              <Card
-                hoverable
-                className={`wrapper__profile-bookings-categor-card ${
-                  activeFilter === "scheduled" ? "active" : ""
-                }`}
-                onClick={() => filterBookings("scheduled")}
-              >
-                Scheduled
-              </Card>
-              <Card
-                hoverable
-                className={`wrapper__profile-bookings-categor-card ${
-                  activeFilter === "completed" ? "active" : ""
-                }`}
-                onClick={() => filterBookings("completed")}
-              >
-                Completed
-              </Card>
-              <Card
-                hoverable
-                className={`wrapper__profile-bookings-categor-card ${
-                  activeFilter === "cancelled" ? "active" : ""
-                }`}
-                onClick={() => filterBookings("cancelled")}
-              >
-                Cancelled
-              </Card>
-            </div>
-            <Divider className="divider" />
-            {loading ? (
-              <div style={{ textAlign: "center", padding: "50px" }}>
-                <Spin size="large" />
-              </div>
-            ) : filteredBookings.length === 0 ? (
-              <Empty
-                description={`No ${activeFilter} appointments found!`}
-                style={{ margin: "20px 0" }}
+
+            {!user.hasActive ? (
+              <Result
+                title="Upgrade to PRO to unlock Booking a Consultation"
+                extra={
+                  <Button
+                    type="primary"
+                    key="console"
+                    className="wrapper__profile-bookings-upgrade-btn"
+                    onClick={() => navigate("/user-profile/membership")}
+                  >
+                    See Membership Plans
+                  </Button>
+                }
               />
             ) : (
-              filteredBookings.map((booking) => (
-                <Card
-                  key={booking.consultationId}
-                  className="wrapper__profile-bookings-card"
-                >
-                  <p className="wrapper__profile-bookings-card-note">
-                    Appointment Details
-                  </p>
-                  <div className="wrapper__profile-bookings-card-date">
-                    <p className="wrapper__profile-bookings-card-date-details">
-                      <CalendarTwoTone className="wrapper__profile-bookings-card-date-details-icon" />{" "}
-                      {formatDate(booking.slot.slotDate)}
-                    </p>
-                    <p className="wrapper__profile-bookings-card-date-details">
-                      <ClockCircleTwoTone className="wrapper__profile-bookings-card-date-details-icon" />{" "}
-                      {getSlotTimeRange(booking.slot.slotNumber)}
-                    </p>
+              <>
+                <div className="wrapper__profile-bookings-categor">
+                  <Card
+                    hoverable
+                    className={`wrapper__profile-bookings-categor-card ${
+                      activeFilter === "scheduled" ? "active" : ""
+                    }`}
+                    onClick={() => filterBookings("scheduled")}
+                  >
+                    Scheduled
+                  </Card>
+                  <Card
+                    hoverable
+                    className={`wrapper__profile-bookings-categor-card ${
+                      activeFilter === "completed" ? "active" : ""
+                    }`}
+                    onClick={() => filterBookings("completed")}
+                  >
+                    Completed
+                  </Card>
+                  <Card
+                    hoverable
+                    className={`wrapper__profile-bookings-categor-card ${
+                      activeFilter === "cancelled" ? "active" : ""
+                    }`}
+                    onClick={() => filterBookings("cancelled")}
+                  >
+                    Cancelled
+                  </Card>
+                </div>
+                <Divider className="divider" />
+                {loading ? (
+                  <div style={{ textAlign: "center", padding: "50px" }}>
+                    <Spin size="large" />
                   </div>
-                  <div className="wrapper__profile-bookings-card-coach">
-                    <div className="wrapper__profile-bookings-card-coach-info">
-                      <div className="wrapper__profile-bookings-card-coach-info-des">
-                        <Avatar
-                          src={booking.slot.mentor.avatarUrl}
-                          alt="Coach Avatar"
-                          className="wrapper__profile-bookings-card-coach-avatar"
-                        />
-                        <div>
-                          <h2 className="wrapper__profile-bookings-card-coach-info-des-name">
-                            {booking.slot.mentor.gender === "male"
-                              ? "Mr. "
-                              : "Mrs. "}
-                            {booking.slot.mentor.fullName}
-                          </h2>
-                          <p className="wrapper__profile-bookings-card-coach-info-des-email">
-                            <MailTwoTone className="wrapper__profile-bookings-card-coach-info-des-email-icon" />
-                            Email: {booking.slot.mentor.email}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="wrapper__profile-bookings-card-coach-info-rate">
-                        <Rate disabled allowHalf defaultValue={4.5} />
-                        <p className="wrapper__profile-bookings-card-coach-info-rate-number">
-                          Rating 4.5
+                ) : filteredBookings.length === 0 ? (
+                  <Empty
+                    description={`No ${activeFilter} appointments found!`}
+                    style={{ margin: "20px 0" }}
+                  />
+                ) : (
+                  filteredBookings.map((booking) => (
+                    <Card
+                      key={booking.consultationId}
+                      className="wrapper__profile-bookings-card"
+                    >
+                      <p className="wrapper__profile-bookings-card-note">
+                        Appointment Details
+                      </p>
+                      <div className="wrapper__profile-bookings-card-date">
+                        <p className="wrapper__profile-bookings-card-date-details">
+                          <CalendarTwoTone className="wrapper__profile-bookings-card-date-details-icon" />{" "}
+                          {formatDate(booking.slot.slotDate)}
+                        </p>
+                        <p className="wrapper__profile-bookings-card-date-details">
+                          <ClockCircleTwoTone className="wrapper__profile-bookings-card-date-details-icon" />{" "}
+                          {getSlotTimeRange(booking.slot.slotNumber)}
                         </p>
                       </div>
-                    </div>
-                  </div>
-                  <div className="wrapper__profile-bookings-card-btn">
-                    <Space
-                      className="wrapper__profile-bookings-card-btn-detail"
-                      wrap
-                    >
-                      <Button
-                        color="default"
-                        variant="filled"
-                        className="cancel-book"
-                        onClick={() =>
-                          showCancelConfirm(booking.consultationId)
-                        }
-                        disabled={booking.status !== "scheduled"}
-                      >
-                        Cancel Appointment
-                      </Button>
-                    </Space>
+                      <div className="wrapper__profile-bookings-card-coach">
+                        <div className="wrapper__profile-bookings-card-coach-info">
+                          <div className="wrapper__profile-bookings-card-coach-info-des">
+                            <Avatar
+                              src={booking.slot.mentor.avatarUrl}
+                              alt="Coach Avatar"
+                              className="wrapper__profile-bookings-card-coach-avatar"
+                            />
+                            <div>
+                              <h2 className="wrapper__profile-bookings-card-coach-info-des-name">
+                                {booking.slot.mentor.gender === "male"
+                                  ? "Mr. "
+                                  : "Mrs. "}
+                                {booking.slot.mentor.fullName}
+                              </h2>
+                              <p className="wrapper__profile-bookings-card-coach-info-des-email">
+                                <MailTwoTone className="wrapper__profile-bookings-card-coach-info-des-email-icon" />
+                                Email: {booking.slot.mentor.email}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="wrapper__profile-bookings-card-coach-info-rate">
+                            <Rate disabled allowHalf defaultValue={4.5} />
+                            <p className="wrapper__profile-bookings-card-coach-info-rate-number">
+                              Rating 4.5
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="wrapper__profile-bookings-card-btn">
+                        <Space
+                          className="wrapper__profile-bookings-card-btn-detail"
+                          wrap
+                        >
+                          <Button
+                            color="default"
+                            variant="filled"
+                            className="cancel-book"
+                            onClick={() =>
+                              showCancelConfirm(booking.consultationId)
+                            }
+                            disabled={booking.status !== "scheduled"}
+                          >
+                            Cancel Appointment
+                          </Button>
+                        </Space>
 
-                    <Button
-                      color="primary"
-                      variant="solid"
-                      className="wrapper__profile-bookings-card-btn-detail"
-                      onClick={() =>
-                        handleViewCoach(booking.slot.mentor.profileName)
-                      }
-                    >
-                      View Coach
-                    </Button>
-                  </div>
-                </Card>
-              ))
+                        <Button
+                          color="primary"
+                          variant="solid"
+                          className="wrapper__profile-bookings-card-btn-detail"
+                          onClick={() =>
+                            handleViewCoach(booking.slot.mentor.profileName)
+                          }
+                        >
+                          View Coach
+                        </Button>
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </>
             )}
           </div>
         </div>

@@ -130,4 +130,37 @@ public class ReasonService {
         }
         userReasonsRepository.deleteAllByUser_UserId(userId);
     }
+
+    @Transactional
+    public void updateReasonsForUser(String email, List<Integer> reasonIds) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        // Xoá tất cả lý do hiện tại của user
+        userReasonsRepository.deleteAllByUser_UserId(user.getUserId());
+
+        // Thêm lại các lý do mới
+        for (Integer reasonId : reasonIds) {
+            ReasonsQuit reason = reasonsQuitRepository.findById(reasonId)
+                    .orElseThrow(() -> new RuntimeException("Reason not found with ID: " + reasonId));
+
+            if (!reason.getIsActive()) {
+                continue; // Bỏ qua nếu lý do không active
+            }
+
+            UserReasons userReason = new UserReasons();
+            UserReasons.UserReasonsId id = new UserReasons.UserReasonsId();
+            id.setUserId(user.getUserId());
+            id.setReasonId(reasonId);
+
+            userReason.setId(id);
+            userReason.setUser(user);
+            userReason.setReason(reason);
+
+            userReasonsRepository.save(userReason);
+        }
+    }
+
+
+
 }

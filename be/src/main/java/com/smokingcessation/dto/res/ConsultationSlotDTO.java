@@ -17,6 +17,6 @@ public class ConsultationSlotDTO {
     private UserDTO mentor;
     private int slotNumber;
     private LocalDate slotDate;
-    private boolean isBooked;
+    private boolean booked;
     private LocalDateTime createdAt;
 }

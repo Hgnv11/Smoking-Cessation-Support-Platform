@@ -84,4 +84,14 @@ public class UserSmokingProfileController {
         return userSmokingProfileService.calculateSavings(principal.getName());
     }
 
+    @DeleteMapping("/{profileId}")
+    public ResponseEntity<Void> deleteProfileById(
+            @PathVariable Integer profileId,
+            Principal principal) {
+        String email = principal.getName();
+        userSmokingProfileService.deleteProfileByEmailAndProfileId(email, profileId);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }

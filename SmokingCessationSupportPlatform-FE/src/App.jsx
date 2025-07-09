@@ -25,7 +25,7 @@ import UserManagement from "./pages/AdminPages/UserManagement/UserManagement.jsx
 import BlogManagement from "./pages/AdminPages/BlogManagement/BlogManagement.jsx";
 import MembershipPayment from "./pages/AdminPages/MembershipPayment/MembershipPayment.jsx";
 import CoachManagement from "./pages/AdminPages/CoachManagement/CoachManagement.jsx";
-import ScheduleManagement from "./pages/AdminPages/ScheduleManagement/ScheduleManagement.jsx";
+import PlanManagement from "./pages/AdminPages/PlanManagement/PlanMangement.jsx";
 import Overview from "./pages/AdminPages/Dashboard/Overview.jsx";
 import ChangePassCode from "./pages/Authentication/ChangePass-code/changePass-code.jsx";
 import OthersProfile from "./pages/Profile/OthersProfile/profile/othersProfile.jsx";
@@ -42,6 +42,7 @@ import MentorOverview from "./pages/MentorPages/Overview/Overview.jsx";
 import MentorReports from "./pages/MentorPages/Reports/Report.jsx";
 import MentorClients from "./pages/MentorPages/Clients/Client.jsx";
 import AboutUs from "./pages/AboutUs/aboutUs.jsx";
+import ScheduleManagement from "./pages/AdminPages/ScheduleManagenment/ScheduleManagement.jsx";
 
 const ProtectRouteAuth = ({ children }) => {
   const user = useSelector((store) => store.user);
@@ -313,6 +314,14 @@ function App() {
           element: (
             <ProtectAdminRoute>
               <ScheduleManagement />
+            </ProtectAdminRoute>
+          ),
+        },
+        {
+          path: "admin/plan-management",
+          element: (
+            <ProtectAdminRoute>
+              <PlanManagement />
             </ProtectAdminRoute>
           ),
         },

@@ -20,6 +20,7 @@ import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { userService } from "../../../services/userService.js";
 import ModalForDetailsButton from "./ModalForDetailsButton.jsx";
+import ModalForEditUser from "./ModalForEditUser.jsx";
 
 const membershipOptions = [
   { value: "", label: "Filter membership" },
@@ -48,6 +49,8 @@ const UserManagement = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [editingUserId, setEditingUserId] = useState(null);
   const [userDetail, setUserDetail] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
@@ -67,7 +70,7 @@ const UserManagement = () => {
           membership: u.typeLogin,
           joinDate: u.createdAt,
           lastActivity: u.lastLogin,
-          status: u.block ? "locked" : "active",
+          status: u.isBlock ? "locked" : "active", // Sửa từ u.block thành u.isBlock
         }));
         setUsers(transformedUsers);
       } catch (err) {
@@ -153,39 +156,105 @@ const UserManagement = () => {
     }
   };
 
-  // View user details
+  // Đảm bảo function được định nghĩa đúng cách
   const handleViewDetails = async (user) => {
-    setSelectedUser(user);
-    setIsModalVisible(true);
-    setLoadingDetail(true);
-
     try {
+      setSelectedUser(user);
+      setIsModalVisible(true);
+      setLoadingDetail(true);
+
+      console.log("Selected user:", user);
+
       if (user.role === "Customer" || user.role === "user") {
-        // Đối với Customer/user: lấy smoking progress
-        const data = await userService.getSmokingProgressId(user.id);
-        setUserDetail(data && data.length > 0 ? data[0] : null);
+        try {
+          const data = await userService.getSmokingProgressId(user.id);
+          console.log("Smoking progress data:", data);
+
+          // Data trả về là array, lấy phần tử đầu tiên
+          if (data && data.length > 0) {
+            const progressData = data[0];
+
+            // Format data cho modal
+            const formattedData = {
+              ...user,
+              // Smoking progress information
+              daysSinceStart: progressData.daysSinceStart || 0,
+              cigarettesAvoided: progressData.cigarettesAvoided || 0,
+              moneySaved: progressData.moneySaved || 0,
+              targetDays: progressData.targetDays || "Not set",
+              cigarettesPerDay: progressData.cigarettesPerDay || "N/A",
+              cigarettePackCost: progressData.cigarettePackCost || 0,
+              status: progressData.status || "Unknown",
+              startDate: progressData.startDate,
+              endDate: progressData.endDate,
+              smokingHistoryByDate: progressData.smokingHistoryByDate || {},
+            };
+
+            setUserDetail(formattedData);
+          } else {
+            // Không có smoking progress data
+            setUserDetail({
+              ...user,
+              daysSinceStart: 0,
+              cigarettesAvoided: 0,
+              moneySaved: 0,
+              targetDays: "Not set",
+              cigarettesPerDay: "N/A",
+              cigarettePackCost: 0,
+              status: "No data",
+            });
+          }
+        } catch (progressError) {
+          console.warn("Failed to get smoking progress:", progressError);
+          setUserDetail(user);
+          message.warning(
+            "Failed to load smoking progress data. Showing basic user information."
+          );
+        }
       } else if (user.role === "Admin" || user.role === "Coach") {
-        // Đối với Admin và Coach: lấy thông tin chi tiết từ endpoint khác
         const data = await userService.getUserById(user.id);
         setUserDetail(data);
       } else {
-        // Các role khác không fetch thêm data
-        setUserDetail(null);
+        setUserDetail(user);
       }
     } catch (err) {
       console.error("Failed to fetch user details:", err);
-
-      if (err.response?.status === 500) {
-        message.error("Server error. Please try again later.");
-      } else if (err.response?.status === 404) {
-        message.warning("User details not found.");
-      } else {
-        message.error("Failed to load user details");
-      }
-
-      setUserDetail(null);
+      setUserDetail(user);
+      message.error("Failed to load user details");
     } finally {
       setLoadingDetail(false);
+    }
+  };
+
+  // Handle edit user
+  const handleEditUser = (user) => {
+    setEditingUserId(user.id);
+    setIsEditModalVisible(true);
+  };
+
+  // Handle user updated
+  const handleUserUpdated = async () => {
+    // Refresh users list after update
+    try {
+      setLoadingUsers(true);
+      const data = await userService.fetchAdminUsers();
+      const transformedUsers = data.map((u) => ({
+        id: u.userId,
+        name: u.fullName,
+        email: u.email,
+        profile: u.profileName,
+        role: u.role,
+        membership: u.typeLogin,
+        joinDate: u.createdAt,
+        lastActivity: u.lastLogin,
+        status: u.isBlock ? "locked" : "active", // Sửa từ u.block thành u.isBlock
+      }));
+      setUsers(transformedUsers);
+    } catch (err) {
+      console.error("Failed to refresh users", err);
+      message.error("Failed to refresh users list");
+    } finally {
+      setLoadingUsers(false);
     }
   };
 
@@ -257,16 +326,15 @@ const UserManagement = () => {
             type="default"
             icon={<EditOutlined />}
             size="small"
-            onClick={() => {}}
+            onClick={() => handleEditUser(row)}
           >
             Edit
           </Button>
-          {/* Details button */}
           <Button
             type="primary"
             icon={<EyeOutlined />}
             size="small"
-            onClick={() => handleViewDetails(row)}
+            onClick={() => handleViewDetails(row)} // Đảm bảo function được gọi đúng
           >
             Details
           </Button>
@@ -371,6 +439,17 @@ const UserManagement = () => {
           selectedUser={selectedUser}
           userDetail={userDetail}
           loadingDetail={loadingDetail}
+        />
+
+        {/* Modal for Edit User */}
+        <ModalForEditUser
+          open={isEditModalVisible}
+          onClose={() => {
+            setIsEditModalVisible(false);
+            setEditingUserId(null);
+          }}
+          userId={editingUserId}
+          onUserUpdated={handleUserUpdated}
         />
       </div>
     </AdminLayout>

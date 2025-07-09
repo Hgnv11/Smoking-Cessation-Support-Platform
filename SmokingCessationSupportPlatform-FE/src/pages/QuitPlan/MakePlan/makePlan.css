@@ -99,6 +99,8 @@
 
 .wrapper__content-step-triggers-card-content {
     margin-top: 5px;
+    display: flex;
+    flex-direction: column;
 }
 
 .wrapper__content-step-triggers-card {
@@ -112,3 +114,16 @@
     margin-bottom: 50px;
 }
 
+.wrapper__create-btn-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.wrapper__create-btn {
+    min-width: 20%;
+    height: 40px;
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 50px;
+}

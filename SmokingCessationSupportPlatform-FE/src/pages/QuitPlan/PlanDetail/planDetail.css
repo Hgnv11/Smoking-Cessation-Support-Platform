@@ -13,13 +13,46 @@
     padding-bottom: 30px;
 }
 
-.wrapper__content-detail-date {
-    font-size: 24px;
+.wrapper__content-detail-saving-container {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.wrapper__content-detail-saving-item {
+    flex: 1;
+    padding: 25px;
+    border-radius: 15px;
+    background-color: #f5f8fa;
+    text-align: center;
+}
+
+.wrapper__content-detail-saving-item p {
+    margin: 0;
+    font-size: 16px;
+    color: #7D7987;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.wrapper__content-detail-saving-period {
+    font-size: 16px;
+    color: #7D7987;
+    font-weight: 500;
+}
+
+.wrapper__content-detail-saving-value {
+    color: #0A52B5;
+    font-size: 20px;
+    font-weight: 600;
 }
 
 .wrapper__content-detail-saving-title-icon {
-    font-size: 20px;
-    margin-right: 10px;
+    font-size: 24px;
+    color: #1890ff;
 }
 
 .wrapper__content-detail-saving-value {
@@ -29,44 +62,150 @@
     margin-left: 10px;
 }
 
+.wrapper__content-detail-progress-item {
+    flex: 1;
+    padding: 20px;
+    border-radius: 15px;
+    background-color: #f5f8fa;
+    text-align: center;
+}
+
+.wrapper__content-detail-progress-item p {
+    margin: 0;
+    font-size: 16px;
+    color: #7D7987;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
 .wrapper__content-detail-progress-item-fire {
-    font-size: 20px;
+    font-size: 24px;
     color: #FB7B5C;
 }
 
 .wrapper__content-detail-progress-item-money {
-    font-size: 20px;
+    font-size: 24px;
     color: #EAC04C;
 }
 
-.wrapper__content-detail-progress-item-badge {
-    font-size: 20px;
-    color: #C09525;
-}
-
 .wrapper__content-detail-progress-item-number {
-    font-size: 18px;
+    font-size: 20px;
     color: #458FF6;
     font-weight: 600;
-    margin: 0 10px;
+    margin-top: 5px;
+}
+
+.wrapper__content-detail-progress-container {
+    display: flex;
+    gap: 20px;
+}
+
+.wrapper__content-detail-progress-btn-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
 .wrapper__content-detail-progress-btn {
     height: 40px;
     margin-top: 30px;
     font-weight: 600;
+    font-size: 16px;
+    width: 100%;
+}
+
+.wrapper__content-detail-health {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.wrapper__content-detail-health-row {
+    display: flex;
+    gap: 20px;
+}
+
+.wrapper__content-detail-health-row .wrapper__content-detail-progress-item1 {
+    flex: 1;
+}
+
+.wrapper__content-detail-progress-item1 {
+    flex: 1;
+    padding: 20px;
+    border-radius: 15px;
+    background-color: #f5f8fa;
+}
+
+.wrapper__content-detail-progress-item1-title {
+    font-size: 18px;
+    color: #7D7987;
+    font-weight: 600;
+}
+
+.wrapper__content-detail-progress-item1-number {
+    margin-top: 15px;
+    font-size: 20px;
+    color: #7D7987;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.wrapper__content-detail-progress-item1-number h2 {
+    color: #458FF6;
+}
+
+.wrapper__content-detail-progress-item1-number h3 {
+    font-size: 14px;
+    font-weight: lighter;
+}
+
+.wrapper__content-detail-progress-item1-blood {
+    font-size: 24px;
+    color: #ef4444;
+    margin-right: 10px;
+}
+
+.wrapper__content-detail-progress-item1-heart {
+    font-size: 24px;
+    color: #22C55E;
+    margin-right: 10px;
+}
+
+.wrapper__content-detail-progress-item1-oxy {
+    font-size: 24px;
+    color: #A855F7;
+    margin-right: 10px;
+}
+
+.wrapper__content-detail-progress-item1-co {
+    font-size: 24px;
+    color: #F97316;
+    margin-right: 10px;
 }
 
 .wrapper__content-detail-reasons {
+    padding: 30px;
+    border-radius: 15px;
+    background-color: #f5f8fa;
     font-size: 18px;
-    line-height: 1.6;
+    line-height: 1.8;
     color: #7D7987;
     list-style: none;
-    margin-top: 10px;
+    margin-top: 20px;
 }
 
 .wrapper__content-detail-triggers {
+    padding: 30px;
     margin-top: 20px;
+    border-radius: 15px;
+    background-color: #f5f8fa;
 }
 
 .wrapper__content-detail-triggers-title {
@@ -84,3 +223,16 @@
     list-style: none;
 }
 
+.completed-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 50px 0;
+}
+
+.completed-wrapper-btn {
+    min-width: 35%;
+    height: 40px;
+    font-weight: 600;
+    font-size: 16px;
+}

@@ -7,7 +7,7 @@ import api from "../../../config/axios";
 
 const { Title, Text } = Typography;
 
-export const MentorAppointment = () => {
+export const Appointment = () => {
   const navigate = useNavigate();
   const [scheduleData, setScheduleData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +18,7 @@ export const MentorAppointment = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await api.get("/consultations/mentor/16/slots");
+        const res = await api.get("/consultations/mentor");
         // Transform response to group by slotDate
         const consultations = res.data;
         // Group by slotDate
@@ -196,4 +196,4 @@ export const MentorAppointment = () => {
   );
 };
 
-export default MentorAppointment;
+export default Appointment;

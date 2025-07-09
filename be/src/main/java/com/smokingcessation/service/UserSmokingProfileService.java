@@ -12,6 +12,7 @@ import com.smokingcessation.repository.UserRepository;
 import com.smokingcessation.repository.UserSmokingProfileRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -149,56 +150,94 @@ public class UserSmokingProfileService {
     }
 
     public SavingDTO calculateSavings(String userEmail) {
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new RuntimeException("User not found"));
-        // Lấy profile
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Người dùng không tìm thấy"));
+
+        // Lấy hồ sơ với status = "active"
         UserSmokingProfile profile = userSmokingProfileRepository
                 .findByUserAndStatus(user, "active")
-                .orElseThrow(() -> new RuntimeException("No active quit plan found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy kế hoạch bỏ thuốc đang hoạt động"));
 
-        // Tính số tiền tiết kiệm mỗi ngày
+        // Tính chi phí mỗi ngày
+        int cigarettesPerDay = profile.getCigarettesPerDay() != null ? profile.getCigarettesPerDay() : 0;
+        int cigarettesPerPack = profile.getCigarettesPerPack() != null ? profile.getCigarettesPerPack() : 20;
+        BigDecimal packCost = profile.getCigarettePackCost() != null ? profile.getCigarettePackCost() : BigDecimal.ZERO;
+
+        BigDecimal costPerCigarette = BigDecimal.ZERO;
         BigDecimal dailyCost = BigDecimal.ZERO;
-        if (profile.getCigarettesPerDay() > 0 && profile.getCigarettesPerPack() > 0) {
-            BigDecimal costPerCigarette = profile.getCigarettePackCost()
-                    .divide(BigDecimal.valueOf(profile.getCigarettesPerPack()), 2, RoundingMode.HALF_UP);
-            dailyCost = costPerCigarette.multiply(BigDecimal.valueOf(profile.getCigarettesPerDay()));
+        if (cigarettesPerDay > 0 && cigarettesPerPack > 0 && packCost.compareTo(BigDecimal.ZERO) > 0) {
+            costPerCigarette = packCost.divide(BigDecimal.valueOf(cigarettesPerPack), 2, RoundingMode.HALF_UP);
+            dailyCost = costPerCigarette.multiply(BigDecimal.valueOf(cigarettesPerDay));
         }
 
-        // Số ngày kể từ ngày bỏ thuốc
+        // Số ngày kể từ ngày bỏ thuốc (tính cả ngày bắt đầu)
         LocalDate today = LocalDate.now();
-        long daysSinceQuit = ChronoUnit.DAYS.between(profile.getQuitDate(), today);
-        if (daysSinceQuit < 0) daysSinceQuit = 0;
+        LocalDate quitDate = profile.getQuitDate();
+        long daysSinceQuit = quitDate != null ? ChronoUnit.DAYS.between(quitDate, today) + 1 : 0;
+        if (daysSinceQuit < 1) daysSinceQuit = 0;
 
-        // Tổng số điếu thuốc đã hút từ ngày bỏ thuốc
-        LocalDateTime quitDateTime = profile.getQuitDate().atStartOfDay();
-        int cigarettesSmokedSinceQuit = smokingEventRepository.sumCigarettesSmokedSince(user.getUserId(), quitDateTime);
+        // Tổng số điếu thuốc đã hút kể từ khi bỏ thuốc
+        LocalDateTime quitDateTime = quitDate != null ? quitDate.atStartOfDay() : LocalDateTime.now();
+        int cigarettesSmokedSinceQuit = smokingEventRepository
+                .sumCigarettesSmokedSince(user.getUserId(), quitDateTime);
 
-        // Số tiền lẽ ra phải chi nếu vẫn hút như cũ
+        // Số điếu thuốc lẽ ra sẽ hút
+        int expectedCigarettes = cigarettesPerDay * (int) daysSinceQuit;
+
+        // Số điếu thuốc đã tránh được
+        int cigarettesAvoided = Math.max(expectedCigarettes - cigarettesSmokedSinceQuit, 0);
+
+        // Tổng chi phí lý thuyết nếu vẫn hút
         BigDecimal totalExpectedCost = dailyCost.multiply(BigDecimal.valueOf(daysSinceQuit));
 
-        // Số tiền thực sự đã chi vì hút lại một số điếu
-        BigDecimal actualSpent = BigDecimal.ZERO;
-        if (profile.getCigarettesPerPack() > 0) {
-            BigDecimal costPerCigarette = profile.getCigarettePackCost()
-                    .divide(BigDecimal.valueOf(profile.getCigarettesPerPack()), 2, RoundingMode.HALF_UP);
-            actualSpent = costPerCigarette.multiply(BigDecimal.valueOf(cigarettesSmokedSinceQuit));
-        }
+        // Số tiền đã tiêu vì hút lại
+        BigDecimal actualSpent = costPerCigarette.multiply(BigDecimal.valueOf(cigarettesSmokedSinceQuit));
 
         // Số tiền tiết kiệm thực tế
-        BigDecimal actualSaving = totalExpectedCost.subtract(actualSpent);
+        BigDecimal actualSaving = totalExpectedCost.subtract(actualSpent).max(BigDecimal.ZERO);
 
-        // Tiết kiệm lý thuyết theo tuần, tháng, năm
-        BigDecimal weekly = dailyCost.multiply(BigDecimal.valueOf(7));
-        BigDecimal monthly = dailyCost.multiply(BigDecimal.valueOf(30));
-        BigDecimal yearly = dailyCost.multiply(BigDecimal.valueOf(365));
+        // Tính tiết kiệm theo tuần/tháng/năm
+        BigDecimal perWeek = dailyCost.multiply(BigDecimal.valueOf(7));
+        BigDecimal perMonth = dailyCost.multiply(BigDecimal.valueOf(30));
+        BigDecimal perYear = dailyCost.multiply(BigDecimal.valueOf(365));
 
         return new SavingDTO(
                 dailyCost.doubleValue(),
-                weekly.doubleValue(),
-                monthly.doubleValue(),
-                yearly.doubleValue(),
-                actualSaving.doubleValue()
+                perWeek.doubleValue(),
+                perMonth.doubleValue(),
+                perYear.doubleValue(),
+                actualSaving.doubleValue(),
+                cigarettesAvoided
         );
     }
+
+    @Transactional
+    public void deleteProfileByEmailAndProfileId(String email, Integer profileId) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        UserSmokingProfile profile = userSmokingProfileRepository.findById(profileId)
+                .orElseThrow(() -> new RuntimeException("Profile not found with id: " + profileId));
+
+        if (!profile.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("You do not have permission to delete this profile");
+        }
+
+        // Xác định khoảng thời gian để xóa event
+        LocalDate quitDate = profile.getQuitDate();
+        LocalDate endDate = profile.getEndDate() != null ? profile.getEndDate() : LocalDate.now();
+
+        LocalDateTime from = quitDate.atStartOfDay();
+        LocalDateTime to = endDate.atTime(23, 59, 59);
+
+        // Xóa các sự kiện trong khoảng từ ngày bỏ thuốc đến kết thúc
+        smokingEventRepository.deleteAllByUserAndEventTimeBetween(user, from, to);
+
+        // Xóa profile
+        userSmokingProfileRepository.delete(profile);
+    }
+
+
 
 
 }
