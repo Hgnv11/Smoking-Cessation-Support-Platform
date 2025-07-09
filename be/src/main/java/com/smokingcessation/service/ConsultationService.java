@@ -23,7 +23,6 @@ public class ConsultationService {
     private final ConsultationRepository consultationRepository;
     private final ConsultationSlotRepository slotRepository;
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
     private final ConsultationMapper consultationMapper;
 
     public ConsultationDTO bookConsultation(String userEmail, Integer mentorId, LocalDate slotDate, Integer slotNumber) {

@@ -12,5 +12,6 @@ public interface UserSmokingProfileRepository extends JpaRepository<UserSmokingP
     Optional<UserSmokingProfile> findByUserAndStatusNot(User user, String status);
     Optional<UserSmokingProfile> findByUserAndStatus(User user, String status);
     List<UserSmokingProfile> findAllByUser(User user);
+    List<UserSmokingProfile> findAllByUserAndStatus(User user, String status);
 
 }

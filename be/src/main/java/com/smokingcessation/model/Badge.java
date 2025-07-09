@@ -14,16 +14,16 @@ public class Badge {
     @Column(name = "badge_id")
     private Long badgeId;
 
-    @Column(name = "badge_type", unique = true)
+    @Column(name = "badge_type", unique = true, nullable = false)
     private String badgeType;
 
-    @Column(name = "badge_name")
+    @Column(name = "badge_name", nullable = false)
     private String badgeName;
 
-    @Column(name = "badge_description")
+    @Column(name = "badge_description", nullable = false)
     private String badgeDescription;
 
-    @Column(name = "badge_image_url")
+    @Column(name = "badge_image_url", nullable = false)
     private String badgeImageUrl;
 
     @Column(name = "is_active")

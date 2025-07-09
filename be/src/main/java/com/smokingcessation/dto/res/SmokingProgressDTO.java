@@ -22,6 +22,7 @@ public class SmokingProgressDTO {
     private long daysSinceStart;
     private Integer targetDays;
     private String status;
+    private String planResult;
 
     private Integer cigarettesPerDay;
     private Integer cigarettesPerPack;

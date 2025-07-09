@@ -31,6 +31,8 @@ public class SmokingEventService {
     private final SmokingEventRepository smokingEventRepository;
     private final SmokingEventMapper smokingEventMapper;
     private final UserSmokingProfileRepository userSmokingProfileRepository;
+    private final AchievementService achievementService;
+    private final UserSmokingProfileService userSmokingProfileService;
 
 
     public SmokingEventDTO addNewSmokingEvent(String userEmail, SmokingEventDTO request) {
@@ -50,6 +52,7 @@ public class SmokingEventService {
         smokingEvent.setEventTime(LocalDateTime.now());
 
         SmokingEvent savedEvent = smokingEventRepository.save(smokingEvent);
+        achievementService.checkAndAwardMilestones(userEmail);
         return smokingEventMapper.toDto(savedEvent);
     }
 
@@ -82,6 +85,7 @@ public class SmokingEventService {
         smokingEvent.setEventTime(request.getEventTime() != null ? request.getEventTime() : LocalDateTime.now());
 
         SmokingEvent updatedEvent = smokingEventRepository.save(smokingEvent);
+        achievementService.checkAndAwardMilestones(userEmail);
         return smokingEventMapper.toDto(updatedEvent);
     }
 
@@ -92,6 +96,7 @@ public class SmokingEventService {
             throw new RuntimeException("You do not have permission to delete this smoking event");
         }
         smokingEventRepository.delete(smokingEvent);
+        achievementService.checkAndAwardMilestones(userEmail);
     }
 
     public List<SmokingProgressDTO> getAllSmokingProgressByUser(Integer UserId) {
@@ -105,7 +110,7 @@ public class SmokingEventService {
             LocalDate startDate = profile.getQuitDate();
             LocalDate endDate = profile.getEndDate();
 
-            long daysSinceStart = startDate != null ? ChronoUnit.DAYS.between(startDate, LocalDate.now()) : 0;
+            long daysSinceStart = startDate != null ? ChronoUnit.DAYS.between(startDate, LocalDate.now()) + 1 : 0;
             Integer targetDays = (startDate != null && endDate != null)
                     ? (int) ChronoUnit.DAYS.between(startDate, endDate)
                     : null;
@@ -142,6 +147,8 @@ public class SmokingEventService {
             BigDecimal expectedCost = pricePerCigarette.multiply(BigDecimal.valueOf(expected));
             BigDecimal spentCost = pricePerCigarette.multiply(BigDecimal.valueOf(totalSmoked));
             BigDecimal moneySaved = expectedCost.subtract(spentCost).max(BigDecimal.ZERO);
+            String planResult = userSmokingProfileService.evaluatePlanResult(user.getEmail(), profile.getProfileId());
+
 
             return SmokingProgressDTO.builder()
                     .profileId(profile.getProfileId())
@@ -150,6 +157,7 @@ public class SmokingEventService {
                     .daysSinceStart(daysSinceStart)
                     .targetDays(targetDays)
                     .status(profile.getStatus())
+                    .planResult(planResult)
                     .cigarettesPerDay(cigarettesPerDay)
                     .cigarettesPerPack(cigarettesPerPack)
                     .cigarettePackCost(packCost)
@@ -159,7 +167,4 @@ public class SmokingEventService {
                     .build();
         }).toList();
     }
-
-
-
 }

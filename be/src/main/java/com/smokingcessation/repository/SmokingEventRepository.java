@@ -16,8 +16,18 @@ import java.util.Optional;
 public interface SmokingEventRepository extends JpaRepository<SmokingEvent, Integer> {
 
     @Query("SELECT COALESCE(SUM(e.cigarettesSmoked), 0) " +
-            "FROM SmokingEvent e WHERE e.user.id = :userId AND e.eventTime >= :since")
+            "FROM SmokingEvent e WHERE e.user.userId = :userId AND e.eventTime >= :since")
     int sumCigarettesSmokedSince(@Param("userId") int userId, @Param("since") LocalDateTime since);
+
+    @Query("SELECT COALESCE(SUM(e.cigarettesSmoked), 0) " +
+            "FROM SmokingEvent e " +
+            "WHERE e.user.id = :userId AND e.eventTime BETWEEN :from AND :to")
+    int sumCigarettesSmokedBetween(
+            @Param("userId") int userId,
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to
+    );
+
 
     List<SmokingEvent> findByUser(User user);
     Optional<SmokingEvent> findTopByUserOrderByEventTimeDesc(User user);

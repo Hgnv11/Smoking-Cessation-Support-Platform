@@ -237,7 +237,40 @@ public class UserSmokingProfileService {
         userSmokingProfileRepository.delete(profile);
     }
 
+    public String evaluatePlanResult(String email, Integer profileId) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
+        UserSmokingProfile profile = userSmokingProfileRepository.findById(profileId)
+                .orElseThrow(() -> new RuntimeException("Profile not found"));
 
+        if (!profile.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("You do not have permission to view this profile");
+        }
 
+        if (!"completed".equalsIgnoreCase(profile.getStatus())) {
+            return "incomplete";
+        }
+
+        LocalDate quitDate = profile.getQuitDate();
+        LocalDate endDate = profile.getEndDate();
+
+        if (quitDate == null || endDate == null || quitDate.isAfter(endDate)) {
+            return "incomplete";
+        }
+
+        LocalDateTime from = quitDate.atStartOfDay();
+        LocalDateTime to = endDate.atTime(23, 59, 59);
+
+        long days = ChronoUnit.DAYS.between(quitDate, endDate) + 1;
+        if (days < 1) days = 1;
+
+        int expected = profile.getCigarettesPerDay() * (int) days;
+        int smoked = smokingEventRepository.sumCigarettesSmokedBetween(user.getUserId(), from, to);
+        int avoided = Math.max(expected - smoked, 0);
+
+        double successRate = expected > 0 ? (avoided * 1.0 / expected) : 0;
+
+        return successRate >= 0.7 ? "success" : "failed";
+    }
 }

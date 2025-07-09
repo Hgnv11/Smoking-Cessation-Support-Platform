@@ -12,5 +12,8 @@ public interface PostRepository extends JpaRepository<CommunityPost, Integer> {
     List<CommunityPost> findByUser(User user);
     List<CommunityPost> findByIsApproved(Boolean isApproved);
     List<CommunityPost> findAll();
+    int countByUserAndIsApprovedTrue(User user);
+
+
 
 }
