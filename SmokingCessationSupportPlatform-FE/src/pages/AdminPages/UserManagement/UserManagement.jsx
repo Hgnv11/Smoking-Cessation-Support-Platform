@@ -153,37 +153,71 @@ const UserManagement = () => {
     }
   };
 
-  // View user details
+  // Đảm bảo function được định nghĩa đúng cách
   const handleViewDetails = async (user) => {
-    setSelectedUser(user);
-    setIsModalVisible(true);
-    setLoadingDetail(true);
-
     try {
+      setSelectedUser(user);
+      setIsModalVisible(true);
+      setLoadingDetail(true);
+
+      console.log("Selected user:", user);
+
       if (user.role === "Customer" || user.role === "user") {
-        // Đối với Customer/user: lấy smoking progress
-        const data = await userService.getSmokingProgressId(user.id);
-        setUserDetail(data && data.length > 0 ? data[0] : null);
+        try {
+          const data = await userService.getSmokingProgressId(user.id);
+          console.log("Smoking progress data:", data);
+
+          // Data trả về là array, lấy phần tử đầu tiên
+          if (data && data.length > 0) {
+            const progressData = data[0];
+
+            // Format data cho modal
+            const formattedData = {
+              ...user,
+              // Smoking progress information
+              daysSinceStart: progressData.daysSinceStart || 0,
+              cigarettesAvoided: progressData.cigarettesAvoided || 0,
+              moneySaved: progressData.moneySaved || 0,
+              targetDays: progressData.targetDays || "Not set",
+              cigarettesPerDay: progressData.cigarettesPerDay || "N/A",
+              cigarettePackCost: progressData.cigarettePackCost || 0,
+              status: progressData.status || "Unknown",
+              startDate: progressData.startDate,
+              endDate: progressData.endDate,
+              smokingHistoryByDate: progressData.smokingHistoryByDate || {},
+            };
+
+            setUserDetail(formattedData);
+          } else {
+            // Không có smoking progress data
+            setUserDetail({
+              ...user,
+              daysSinceStart: 0,
+              cigarettesAvoided: 0,
+              moneySaved: 0,
+              targetDays: "Not set",
+              cigarettesPerDay: "N/A",
+              cigarettePackCost: 0,
+              status: "No data",
+            });
+          }
+        } catch (progressError) {
+          console.warn("Failed to get smoking progress:", progressError);
+          setUserDetail(user);
+          message.warning(
+            "Failed to load smoking progress data. Showing basic user information."
+          );
+        }
       } else if (user.role === "Admin" || user.role === "Coach") {
-        // Đối với Admin và Coach: lấy thông tin chi tiết từ endpoint khác
         const data = await userService.getUserById(user.id);
         setUserDetail(data);
       } else {
-        // Các role khác không fetch thêm data
-        setUserDetail(null);
+        setUserDetail(user);
       }
     } catch (err) {
       console.error("Failed to fetch user details:", err);
-
-      if (err.response?.status === 500) {
-        message.error("Server error. Please try again later.");
-      } else if (err.response?.status === 404) {
-        message.warning("User details not found.");
-      } else {
-        message.error("Failed to load user details");
-      }
-
-      setUserDetail(null);
+      setUserDetail(user);
+      message.error("Failed to load user details");
     } finally {
       setLoadingDetail(false);
     }
@@ -261,12 +295,11 @@ const UserManagement = () => {
           >
             Edit
           </Button>
-          {/* Details button */}
           <Button
             type="primary"
             icon={<EyeOutlined />}
             size="small"
-            onClick={() => handleViewDetails(row)}
+            onClick={() => handleViewDetails(row)} // Đảm bảo function được gọi đúng
           >
             Details
           </Button>

@@ -504,85 +504,354 @@ const BlogManagement = () => {
         <Modal
           open={showViewModal}
           onCancel={handleCloseViewModal}
-          footer={null}
-          width={800}
+          footer={[
+            <Button key="close" onClick={handleCloseViewModal}>
+              Close
+            </Button>,
+          ]}
+          width={900}
           centered
+          title={
+            <div
+              style={{
+                fontSize: "20px",
+                fontWeight: "600",
+                color: "#18181b",
+                borderBottom: "2px solid #e3e8f7",
+                paddingBottom: "12px",
+                marginBottom: "20px",
+              }}
+            >
+              Post Details
+            </div>
+          }
         >
-          <h1 className="modal-post-detail">Post Detail</h1>
           {loadingPostDetail ? (
-            <div style={{ textAlign: "center", padding: "50px" }}>
+            <div
+              style={{
+                textAlign: "center",
+                padding: "60px 20px",
+                background: "#f8f9fa",
+                borderRadius: "12px",
+              }}
+            >
               <Spin size="large" />
-              <p>Loading post details...</p>
+              <p
+                style={{
+                  marginTop: "16px",
+                  color: "#6b7280",
+                  fontSize: "16px",
+                }}
+              >
+                Loading post details...
+              </p>
             </div>
           ) : viewingPost ? (
-            <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
-              {/* Post ID */}
-              <div style={{ marginBottom: "16px" }}>
-                <Text strong>Post ID: </Text>
-                <Text>{viewingPost.postId}</Text>
+            <div
+              style={{
+                maxHeight: "70vh",
+                overflowY: "auto",
+                padding: "4px",
+              }}
+            >
+              {/* Header Info Section */}
+              <div
+                style={{
+                  background: "#ffffff",
+                  padding: "24px",
+                  borderRadius: "12px",
+                  marginBottom: "24px",
+                  border: "1px solid #e5e7eb",
+                  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                    gap: "20px",
+                  }}
+                >
+                  <div
+                    style={{
+                      padding: "16px",
+                      borderRadius: "8px",
+                      background: "#f8f9fa",
+                      border: "1px solid #e9ecef",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        color: "#6c757d",
+                        marginBottom: "8px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.5px",
+                      }}
+                    >
+                      Post ID
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "18px",
+                        fontWeight: "600",
+                        color: "#343a40",
+                      }}
+                    >
+                      #{viewingPost.postId}
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      padding: "16px",
+                      borderRadius: "8px",
+                      background: "#f8f9fa",
+                      border: "1px solid #e9ecef",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        color: "#6c757d",
+                        marginBottom: "8px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.5px",
+                      }}
+                    >
+                      Author
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "16px",
+                        fontWeight: "600",
+                        color: "#343a40",
+                      }}
+                    >
+                      {viewingPost.user?.profileName || "Unknown"}
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      padding: "16px",
+                      borderRadius: "8px",
+                      background: "#f8f9fa",
+                      border: "1px solid #e9ecef",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        color: "#6c757d",
+                        marginBottom: "8px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.5px",
+                      }}
+                    >
+                      Post Type
+                    </div>
+                    <div
+                      style={{
+                        display: "inline-block",
+                        background: "#e9ecef",
+                        padding: "4px 8px",
+                        borderRadius: "6px",
+                        fontSize: "14px",
+                        fontWeight: "500",
+                        color: "#495057",
+                        textTransform: "capitalize",
+                        border: "1px solid #dee2e6",
+                      }}
+                    >
+                      {viewingPost.postType}
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      padding: "16px",
+                      borderRadius: "8px",
+                      background: "#f8f9fa",
+                      border: "1px solid #e9ecef",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        color: "#6c757d",
+                        marginBottom: "8px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.5px",
+                      }}
+                    >
+                      Last Updated
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "16px",
+                        fontWeight: "600",
+                        color: "#343a40",
+                      }}
+                    >
+                      {dayjs(viewingPost.updatedAt).format("DD/MM/YYYY")}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "500",
+                        color: "#6c757d",
+                        marginTop: "2px",
+                      }}
+                    >
+                      {dayjs(viewingPost.updatedAt).format("HH:mm")}
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Author */}
-              <div style={{ marginBottom: "16px" }}>
-                <Text strong>Author: </Text>
-                <Text>{viewingPost.user?.profileName || "Unknown"}</Text>
-              </div>
-
-              {/* Post Type */}
-              <div style={{ marginBottom: "16px" }}>
-                <Text strong>Post Type: </Text>
-                <Tag color="blue">{viewingPost.postType}</Tag>
-              </div>
-
-              {/* Updated Date */}
-              <div style={{ marginBottom: "16px" }}>
-                <Text strong>Last Updated: </Text>
-                <Text>
-                  {dayjs(viewingPost.updatedAt).format("DD/MM/YYYY HH:mm")}
+              {/* Title Section */}
+              <div
+                style={{
+                  background: "#ffffff",
+                  padding: "20px",
+                  borderRadius: "12px",
+                  marginBottom: "20px",
+                  border: "1px solid #e3e8f7",
+                }}
+              >
+                <Text
+                  strong
+                  style={{
+                    color: "#374151",
+                    fontSize: "14px",
+                    display: "block",
+                    marginBottom: "12px",
+                  }}
+                >
+                  Title
                 </Text>
-              </div>
-
-              {/* Title */}
-              <div style={{ marginBottom: "16px" }}>
-                <Text strong>Title:</Text>
                 <Title
-                  level={4}
-                  style={{ marginTop: "8px", marginBottom: "0" }}
+                  level={3}
+                  style={{
+                    margin: "0",
+                    color: "#1f2937",
+                    fontSize: "24px",
+                    fontWeight: "600",
+                    lineHeight: "1.4",
+                  }}
                 >
                   {viewingPost.title}
                 </Title>
               </div>
 
-              {/* Image */}
+              {/* Image Section */}
               {viewingPost.imageUrl && (
-                <div style={{ marginBottom: "16px" }}>
-                  <Text strong>Image:</Text>
-                  <div style={{ marginTop: "8px" }}>
+                <div
+                  style={{
+                    background: "#ffffff",
+                    padding: "20px",
+                    borderRadius: "12px",
+                    marginBottom: "20px",
+                    border: "1px solid #e3e8f7",
+                  }}
+                >
+                  <Text
+                    strong
+                    style={{
+                      color: "#374151",
+                      fontSize: "14px",
+                      display: "block",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    Image
+                  </Text>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      background: "#f8f9fa",
+                      borderRadius: "8px",
+                      padding: "12px",
+                    }}
+                  >
                     <Image
                       src={viewingPost.imageUrl}
                       alt="Post Image"
                       style={{
                         maxWidth: "100%",
-                        maxHeight: "300px",
+                        maxHeight: "400px",
                         objectFit: "cover",
                         borderRadius: "8px",
-                        border: "1px solid #ddd",
+                        border: "1px solid #e5e7eb",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                       }}
                     />
                   </div>
                 </div>
               )}
 
-              {/* Content */}
-              <div style={{ marginBottom: "16px" }}>
-                <Text strong>Content:</Text>
-                <Paragraph style={{ marginTop: "8px", whiteSpace: "pre-wrap" }}>
-                  {viewingPost.content}
-                </Paragraph>
+              {/* Content Section */}
+              <div
+                style={{
+                  background: "#ffffff",
+                  padding: "20px",
+                  borderRadius: "12px",
+                  border: "1px solid #e3e8f7",
+                }}
+              >
+                <Text
+                  strong
+                  style={{
+                    color: "#374151",
+                    fontSize: "14px",
+                    display: "block",
+                    marginBottom: "12px",
+                  }}
+                >
+                  Content
+                </Text>
+                <div
+                  style={{
+                    background: "#f8f9fa",
+                    padding: "16px",
+                    borderRadius: "8px",
+                    border: "1px solid #e5e7eb",
+                  }}
+                >
+                  <Paragraph
+                    style={{
+                      margin: "0",
+                      whiteSpace: "pre-wrap",
+                      color: "#1f2937",
+                      fontSize: "15px",
+                      lineHeight: "1.6",
+                    }}
+                  >
+                    {viewingPost.content}
+                  </Paragraph>
+                </div>
               </div>
             </div>
           ) : (
-            <Empty description="No post data available" />
+            <div
+              style={{
+                textAlign: "center",
+                padding: "60px 20px",
+                background: "#f8f9fa",
+                borderRadius: "12px",
+              }}
+            >
+              <Empty
+                description="No post data available"
+                style={{ color: "#6b7280" }}
+              />
+            </div>
           )}
         </Modal>
       </div>

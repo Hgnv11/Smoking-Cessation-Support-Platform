@@ -25,8 +25,8 @@
 }
 
 .progress__content-inner-circle{
-  width: 12rem;
-  height: 12rem;
+  width: 11rem;
+  height: 11rem;
   background-color: #71ACFF;
   border-radius: 50%;
   display: flex;
