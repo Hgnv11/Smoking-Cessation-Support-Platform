@@ -32,9 +32,10 @@ const statusOptions = [
   { value: "active", label: "Active" },
 ];
 const roleOptions = [
-  { value: "", label: "Filter roles" },
-  { value: "Customer", label: "Customer" },
-  { value: "Coach", label: "Coach" },
+  { value: "", label: "All roles" },
+  { value: "user", label: "User" },
+  { value: "admin", label: "Admin" },
+  { value: "guest", label: "Guest" },
 ];
 
 const UserManagement = () => {
@@ -61,17 +62,27 @@ const UserManagement = () => {
       setLoadingUsers(true);
       try {
         const data = await userService.fetchAdminUsers();
-        const transformedUsers = data.map((u) => ({
-          id: u.userId,
-          name: u.fullName,
-          email: u.email,
-          profile: u.profileName,
-          role: u.role,
-          membership: u.typeLogin,
-          joinDate: u.createdAt,
-          lastActivity: u.lastLogin,
-          status: u.isBlock ? "locked" : "active", // Sửa từ u.block thành u.isBlock
-        }));
+        const transformedUsers = data.map((u) => {
+          // Chuẩn hóa membership
+          let membership = "Free";
+          if (
+            typeof u.typeLogin === "string" &&
+            u.typeLogin.trim().toLowerCase() === "prenium"
+          ) {
+            membership = "Premium";
+          }
+          return {
+            id: u.userId,
+            name: u.fullName,
+            email: u.email,
+            profile: u.profileName,
+            role: u.role,
+            membership, // dùng giá trị đã chuẩn hóa
+            joinDate: u.createdAt,
+            lastActivity: u.lastLogin,
+            status: u.isBlock ? "locked" : "active",
+          };
+        });
         setUsers(transformedUsers);
       } catch (err) {
         console.error("Failed to fetch users", err);
@@ -238,17 +249,27 @@ const UserManagement = () => {
     try {
       setLoadingUsers(true);
       const data = await userService.fetchAdminUsers();
-      const transformedUsers = data.map((u) => ({
-        id: u.userId,
-        name: u.fullName,
-        email: u.email,
-        profile: u.profileName,
-        role: u.role,
-        membership: u.typeLogin,
-        joinDate: u.createdAt,
-        lastActivity: u.lastLogin,
-        status: u.isBlock ? "locked" : "active", // Sửa từ u.block thành u.isBlock
-      }));
+      const transformedUsers = data.map((u) => {
+        // Chuẩn hóa membership
+        let membership = "Free";
+        if (
+          typeof u.typeLogin === "string" &&
+          u.typeLogin.trim().toLowerCase() === "prenium"
+        ) {
+          membership = "Premium";
+        }
+        return {
+          id: u.userId,
+          name: u.fullName,
+          email: u.email,
+          profile: u.profileName,
+          role: u.role,
+          membership, // dùng giá trị đã chuẩn hóa
+          joinDate: u.createdAt,
+          lastActivity: u.lastLogin,
+          status: u.isBlock ? "locked" : "active",
+        };
+      });
       setUsers(transformedUsers);
     } catch (err) {
       console.error("Failed to refresh users", err);
@@ -287,18 +308,24 @@ const UserManagement = () => {
       ),
     },
     {
+      title: "Account Status",
+      dataIndex: "status",
+      render: (value) =>
+        value === "active" ? (
+          <Tag color="green">Active</Tag>
+        ) : (
+          <Tag color="red">Inactive</Tag>
+        ),
+    },
+    {
       title: "Membership package",
       dataIndex: "membership",
       render: (value) => (
-        <span
-          className={
-            value === "Premium"
-              ? styles["membership-premium"]
-              : styles["membership-free"]
-          }
-        >
-          {value}
-        </span>
+        value === "Premium" ? (
+          <Tag color="gold">Prenium</Tag>
+        ) : (
+          <Tag color="blue">Free</Tag>
+        )
       ),
     },
     {

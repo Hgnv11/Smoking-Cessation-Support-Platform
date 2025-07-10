@@ -144,7 +144,7 @@ export const userService = {
   },
 
   /**
-   * Xóa người dùng
+   * Xóa mềm người dùng
    * @param {string} id - ID của người dùng cần xóa
    * @returns {Promise<Object>} - Kết quả xóa người dùng
    */

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { 
   Modal, Form, Input, Switch, Button, message, DatePicker, 
-  Row, Col, Spin, Avatar, Typography, Divider 
+  Row, Col, Spin, Avatar, Typography, Divider, Select 
 } from "antd";
 import { UserOutlined, CheckCircleOutlined, SaveOutlined, CloseOutlined, StopOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -68,9 +68,25 @@ const BasicInfoForm = () => (
           <DatePicker style={{ width: '100%' }} placeholder="Select birth date" format="DD/MM/YYYY" />
         </Form.Item>
       </Col>
+      <Col span={12}>
+        <Form.Item label="Gender" name="gender">
+          <Select placeholder="Select gender">
+            {genderOptions.map((option) => (
+              <Select.Option key={option.value} value={option.value}>
+                {option.label}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+      </Col>
     </Row>
   </>
 );
+const genderOptions = [
+  { value: "male", label: "Male" },
+  { value: "female", label: "Female" },
+  { value: "other", label: "Other" }
+]
 
 const AccountStatusForm = () => (
   <>
@@ -144,6 +160,7 @@ const ModalForEditUser = ({ open, onClose, userId, onUserUpdated }) => {
         email: data.email,
         phone: data.phone || '',
         birthDate: data.birthDate ? dayjs(data.birthDate) : null,
+        gender: data.gender || undefined,
         isActive: !data.isBlock, // `isActive` is the opposite of `isBlock`
         isVerified: data.isVerified
       });
@@ -170,6 +187,7 @@ const ModalForEditUser = ({ open, onClose, userId, onUserUpdated }) => {
         email: values.email,
         phone: values.phone || null,
         birthDate: values.birthDate ? values.birthDate.format('YYYY-MM-DD') : null,
+        gender: values.gender,
         isBlock: !values.isActive, // Convert back for the API
         isVerified: values.isVerified
       };
