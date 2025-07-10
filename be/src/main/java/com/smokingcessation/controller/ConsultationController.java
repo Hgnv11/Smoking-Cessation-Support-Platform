@@ -118,5 +118,15 @@ public class ConsultationController {
         return ResponseEntity.ok(slots);
     }
 
+    @Operation(summary = "User xem chi tiết một lịch tư vấn của mình")
+    @GetMapping("/user/{consultationId}")
+    public ResponseEntity<ConsultationDTO> getUserConsultationDetail(@PathVariable Integer consultationId, Principal principal) {
+        String userEmail = principal.getName();
+        ConsultationDTO dto = consultationService.getUserConsultationDetail(consultationId, userEmail);
+        return ResponseEntity.ok(dto);
+    }
+
+
+
 
 }

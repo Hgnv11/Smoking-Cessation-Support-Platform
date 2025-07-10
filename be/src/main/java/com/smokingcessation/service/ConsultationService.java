@@ -235,4 +235,22 @@ public class ConsultationService {
         consultationRepository.save(consultation);
     }
 
+    public ConsultationDTO getUserConsultationDetail(Integer consultationId, String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (!Boolean.TRUE.equals(user.getHasActive())) {
+            throw new RuntimeException("User account is inactive");
+        }
+
+        Consultation consultation = consultationRepository.findById(consultationId)
+                .orElseThrow(() -> new RuntimeException("Consultation not found"));
+
+        if (!consultation.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("You are not authorized to view this consultation");
+        }
+
+        return consultationMapper.toDto(consultation);
+    }
+
+
 }
