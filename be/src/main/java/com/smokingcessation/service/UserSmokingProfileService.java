@@ -173,8 +173,8 @@ public class UserSmokingProfileService {
         // Số ngày kể từ ngày bỏ thuốc (tính cả ngày bắt đầu)
         LocalDate today = LocalDate.now();
         LocalDate quitDate = profile.getQuitDate();
-        long daysSinceQuit = quitDate != null ? ChronoUnit.DAYS.between(quitDate, today) + 1 : 0;
-        if (daysSinceQuit < 1) daysSinceQuit = 0;
+        long daysSinceQuit = ChronoUnit.DAYS.between(quitDate, today);
+        if (daysSinceQuit < 0) daysSinceQuit = 0;
 
         // Tổng số điếu thuốc đã hút kể từ khi bỏ thuốc
         LocalDateTime quitDateTime = quitDate != null ? quitDate.atStartOfDay() : LocalDateTime.now();

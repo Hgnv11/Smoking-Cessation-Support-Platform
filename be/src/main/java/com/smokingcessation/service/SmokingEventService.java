@@ -99,43 +99,48 @@ public class SmokingEventService {
         achievementService.checkAndAwardMilestones(userEmail);
     }
 
-    public List<SmokingProgressDTO> getAllSmokingProgressByUser(Integer UserId) {
-        User user = userRepository.findByUserId(UserId)
+    public List<SmokingProgressDTO> getAllSmokingProgressByUser(Integer userId) {
+        User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         List<UserSmokingProfile> profiles = userSmokingProfileRepository.findByUser(user);
-        List<SmokingEvent> allEvents = smokingEventRepository.findByUser(user);
 
         return profiles.stream().map(profile -> {
             LocalDate startDate = profile.getQuitDate();
             LocalDate endDate = profile.getEndDate();
+            LocalDate today = LocalDate.now();
 
-            long daysSinceStart = startDate != null ? ChronoUnit.DAYS.between(startDate, LocalDate.now()) + 1 : 0;
+            // Ngày kết thúc hợp lệ (hôm nay nếu chưa kết thúc)
+            LocalDate effectiveEnd = (endDate != null && endDate.isBefore(today)) ? endDate : today;
+
+            // Tính số ngày thực hiện, nhưng không tính nếu hôm nay là ngày bắt đầu
+            long daysSinceStart = 0;
+            if (startDate != null && !effectiveEnd.isBefore(startDate) && startDate.isBefore(today)) {
+                daysSinceStart = ChronoUnit.DAYS.between(startDate, effectiveEnd) + 1;
+            }
+
             Integer targetDays = (startDate != null && endDate != null)
                     ? (int) ChronoUnit.DAYS.between(startDate, endDate)
                     : null;
 
-            // Lọc sự kiện thuộc profile này (theo ngày nằm trong khoảng kế hoạch)
-            List<SmokingEvent> profileEvents = allEvents.stream()
-                    .filter(e -> {
-                        LocalDate date = e.getEventTime().toLocalDate();
-                        return (startDate == null || !date.isBefore(startDate)) &&
-                                (endDate == null || !date.isAfter(endDate));
-                    })
-                    .toList();
+            // Lấy khoảng thời gian sự kiện
+            LocalDateTime from = (startDate != null) ? startDate.atStartOfDay() : LocalDateTime.MIN;
+            LocalDateTime to = (endDate != null) ? endDate.atTime(23, 59, 59) : LocalDateTime.now();
+            List<SmokingEvent> profileEvents = smokingEventRepository.findByUserAndEventTimeBetween(user, from, to);
 
             // Gom nhóm theo ngày
             Map<LocalDate, List<SmokingEventDTO>> grouped = profileEvents.stream()
                     .map(smokingEventMapper::toDto)
                     .collect(Collectors.groupingBy(dto -> dto.getEventTime().toLocalDate()));
 
-            // Tính toán tiết kiệm và điếu thuốc đã tránh
-            int cigarettesPerDay = profile.getCigarettesPerDay() != null ? profile.getCigarettesPerDay() : 0;
-            int cigarettesPerPack = profile.getCigarettesPerPack() != null ? profile.getCigarettesPerPack() : 20;
-            BigDecimal packCost = profile.getCigarettePackCost() != null ? profile.getCigarettePackCost() : BigDecimal.ZERO;
+            int cigarettesPerDay = Optional.ofNullable(profile.getCigarettesPerDay()).orElse(0);
+            int cigarettesPerPack = Optional.ofNullable(profile.getCigarettesPerPack()).orElse(20);
+            BigDecimal packCost = Optional.ofNullable(profile.getCigarettePackCost()).orElse(BigDecimal.ZERO);
 
-            BigDecimal pricePerCigarette = packCost
-                    .divide(BigDecimal.valueOf(cigarettesPerPack), 2, RoundingMode.HALF_UP);
+            BigDecimal pricePerCigarette = BigDecimal.ZERO;
+            if (cigarettesPerPack > 0) {
+                pricePerCigarette = packCost.divide(BigDecimal.valueOf(cigarettesPerPack), 2, RoundingMode.HALF_UP);
+            }
 
             int totalSmoked = profileEvents.stream()
                     .mapToInt(SmokingEvent::getCigarettesSmoked)
@@ -147,8 +152,8 @@ public class SmokingEventService {
             BigDecimal expectedCost = pricePerCigarette.multiply(BigDecimal.valueOf(expected));
             BigDecimal spentCost = pricePerCigarette.multiply(BigDecimal.valueOf(totalSmoked));
             BigDecimal moneySaved = expectedCost.subtract(spentCost).max(BigDecimal.ZERO);
-            String planResult = userSmokingProfileService.evaluatePlanResult(user.getEmail(), profile.getProfileId());
 
+            String planResult = userSmokingProfileService.evaluatePlanResult(user.getEmail(), profile.getProfileId());
 
             return SmokingProgressDTO.builder()
                     .profileId(profile.getProfileId())
@@ -167,4 +172,5 @@ public class SmokingEventService {
                     .build();
         }).toList();
     }
+
 }

@@ -27,8 +27,7 @@ public interface SmokingEventRepository extends JpaRepository<SmokingEvent, Inte
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to
     );
-
-
+    List<SmokingEvent> findByUserAndEventTimeBetween(User user, LocalDateTime from, LocalDateTime to);
     List<SmokingEvent> findByUser(User user);
     Optional<SmokingEvent> findTopByUserOrderByEventTimeDesc(User user);
     List<SmokingEvent> findByUser_UserIdAndEventTimeAfter(Integer userId, LocalDateTime time);
