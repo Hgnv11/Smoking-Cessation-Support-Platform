@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Avatar,
@@ -9,6 +9,8 @@ import {
   Col,
   Input,
   Tag,
+  Spin,
+  Alert,
 } from "antd";
 import {
   CalendarOutlined,
@@ -18,17 +20,112 @@ import {
   EyeOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { getAllClients } from "./mockData"; // ✅ Import từ mockData
+import { coachService } from "../../../services/coachService";
 import styles from "./Client.module.css";
 
 const { Title, Text } = Typography;
 
 export default function ClientsPage() {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState(""); // State để lưu từ khóa tìm kiếm
+  const [searchTerm, setSearchTerm] = useState("");
+  const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  /**
+   * Chuyển số slot thành chuỗi thời gian
+   */
+  const slotNumberToTime = (slotNumber) => {
+    const times = ["09:00", "10:00", "11:00", "14:00"];
+    return times[slotNumber] || "00:00";
+  };
+
+  /**
+   * Ánh xạ trạng thái consultation sang trạng thái client
+   */
+  const mapConsultationStatusToClientStatus = (consultationStatus) => {
+    switch(consultationStatus) {
+      case "completed": return "completed";
+      case "scheduled": return "active";
+      case "missed": return "at-risk";
+      case "cancelled": return "inactive";
+      default: return "active";
+    }
+  };
+
+  // Fetch data từ API
+  useEffect(() => {
+    /**
+     * Chuyển đổi dữ liệu consultation thành dữ liệu client
+     */
+    const extractClientsFromConsultations = (consultations) => {
+      const clientMap = {};
+      
+      consultations.forEach(consultation => {
+        const { user, createdAt, status, slot } = consultation;
+        const userId = user.userId;
+        
+        // Nếu client chưa tồn tại trong map, thêm client mới
+        if (!clientMap[userId]) {
+          clientMap[userId] = {
+            id: userId,
+            name: user.fullName || user.profileName || "Unknown Client",
+            avatar: user.avatarUrl || "",
+            joinDate: new Date(createdAt).toISOString(),
+            status: mapConsultationStatusToClientStatus(status),
+            email: user.email || "N/A",
+            phone: user.phoneNumber || "N/A",
+            gender: user.gender || "N/A",
+            consultations: [],
+            currentProgress: {
+              nextSession: null
+            }
+          };
+        }
+        
+        // Thêm consultation vào danh sách consultations của client
+        clientMap[userId].consultations.push({
+          consultationId: consultation.consultationId,
+          date: slot.slotDate,
+          time: slotNumberToTime(slot.slotNumber),
+          status: status,
+          rating: consultation.rating,
+          feedback: consultation.feedback
+        });
+        
+        // Cập nhật nextSession nếu đây là phiên sắp tới
+        const sessionDate = new Date(slot.slotDate);
+        const today = new Date();
+        if (sessionDate >= today && 
+            (!clientMap[userId].currentProgress.nextSession || 
+             sessionDate < new Date(clientMap[userId].currentProgress.nextSession))) {
+          clientMap[userId].currentProgress.nextSession = slot.slotDate;
+        }
+      });
+      
+      // Chuyển object map thành array clients
+      return Object.values(clientMap);
+    };
+
+    const fetchClients = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const consultations = await coachService.getMentorConsultations();
+        const clientData = extractClientsFromConsultations(consultations);
+        setClients(clientData);
+      } catch (err) {
+        setError("Failed to load clients");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchClients();
+  }, []);
 
   // ✅ Lấy dữ liệu clients từ mock data
-  const clients = getAllClients();
 
   // Hàm filter clients dựa trên từ khóa tìm kiếm
   const filteredClients = clients.filter((client) => {
@@ -69,10 +166,33 @@ export default function ClientsPage() {
     return configs[status] || configs.active;
   };
 
-  // Updated handleViewDetails to navigate to ClientDetails page
   const handleViewDetails = (clientId) => {
     navigate(`/mentor/clients/${clientId}`); // Route to ClientDetails page instead of showing modal
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", padding: "100px 0" }}>
+        <Spin size="large" />
+        <div style={{ marginTop: 16 }}>Loading clients...</div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div style={{ textAlign: "center", padding: "100px 0" }}>
+        <Alert
+          message="Error"
+          description={error}
+          type="error"
+          showIcon
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.pageContainer}>
@@ -184,11 +304,15 @@ export default function ClientsPage() {
                   <div className={styles.nextSession}>
                     <CalendarOutlined className={styles.sessionIcon} />
                     <Text className={styles.sessionText}>
-                      Next Session: {new Date(client.currentProgress.nextSession).toLocaleDateString("en-US", {
-                        month: "numeric",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
+                      Next Session: {
+                        client.currentProgress.nextSession 
+                          ? new Date(client.currentProgress.nextSession).toLocaleDateString("en-US", {
+                              month: "numeric",
+                              day: "numeric",
+                              year: "numeric",
+                            })
+                          : "No upcoming sessions"
+                      }
                     </Text>
                   </div>
 

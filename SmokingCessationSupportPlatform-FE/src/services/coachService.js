@@ -1,7 +1,7 @@
 import api from "../config/axios";
 
 export const coachService = {
-    // Tổng quan dashboard huấn luyện viên
+  // Tổng quan dashboard huấn luyện viên
   getDashboardOverview: async () => {
     const response = await api.get("mentor-dashboard/overview");
     return response.data;
@@ -13,7 +13,14 @@ export const coachService = {
   },
   // Lấy tiến trình cai thuốc của user theo userId
   getUserSmokingProgress: async (userId) => {
-    const response = await api.get(`/mentor-dashboard/smoking-progress/user/${userId}`);
+    const response = await api.get(`mentor-dashboard/smoking-progress/user/${userId}`);
+    return response.data;
+  },
+  // Thêm ghi chú cho consultation
+  addConsultationNote: async (consultationId, notes) => {
+    const response = await api.post(`mentor-dashboard/consultations/${consultationId}/add-note`, {
+      notes: notes
+    });
     return response.data;
   }
 };

@@ -16,6 +16,8 @@ import {
   Statistic,
   List,
   Badge,
+  Spin,
+  Alert,
 } from "antd";
 import {
   ArrowLeftOutlined,
@@ -26,7 +28,7 @@ import {
   EyeOutlined,
   CalendarOutlined, 
 } from "@ant-design/icons";
-import { getClientData } from "./mockData"; // ✅ Import từ mockData
+import { coachService } from "../../../services/coachService";
 import styles from "./ClientDetails.module.css";
 
 const { Title, Text, Paragraph } = Typography;
@@ -40,15 +42,167 @@ export const MentorClientDetails = () => {
   const [selectedConsultation, setSelectedConsultation] = useState(null);
   const [coachNotes, setCoachNotes] = useState("");
   const [clientData, setClientData] = useState(null);
+  const [smokingProgress, setSmokingProgress] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [savingNotes, setSavingNotes] = useState(false);
+  const [latestConsultationId, setLatestConsultationId] = useState(null);
+
+  /**
+   * Chuyển số slot thành chuỗi thời gian
+   */
+  const slotNumberToTime = (slotNumber) => {
+    const times = ["09:00", "10:00", "11:00", "14:00"];
+    return times[slotNumber] || "00:00";
+  };
+
+  /**
+   * Ánh xạ trạng thái consultation sang trạng thái client
+   */
+  const mapConsultationStatusToClientStatus = (consultationStatus) => {
+    switch(consultationStatus) {
+      case "completed": return "completed";
+      case "scheduled": return "active";
+      case "missed": return "at-risk";
+      case "cancelled": return "inactive";
+      default: return "active";
+    }
+  };
 
   useEffect(() => {
-    // ✅ Lấy dữ liệu client từ mockData thống nhất
-    const data = getClientData(clientId);
-    setClientData(data);
-    if (data?.detailedInfo?.notes) {
-      setCoachNotes(data.detailedInfo.notes);
+    /**
+     * Tạo dữ liệu client từ consultations và smoking progress
+     */
+    const buildClientData = (consultations, progressData) => {
+      // Tìm consultations của client hiện tại
+      const clientConsultations = consultations.filter(
+        consultation => consultation.user.userId.toString() === clientId
+      );
+
+      if (clientConsultations.length === 0) {
+        return null; // Client không tồn tại
+      }
+
+      // Lấy thông tin client từ consultation đầu tiên
+      const firstConsultation = clientConsultations[0];
+      const user = firstConsultation.user;
+
+      // Xây dựng consultation history
+      const consultationHistory = clientConsultations.map(consultation => ({
+        id: consultation.consultationId,
+        type: "Video Consultation",
+        date: consultation.slot.slotDate,
+        time: slotNumberToTime(consultation.slot.slotNumber),
+        status: consultation.status,
+        notes: consultation.notes || "No notes available for this consultation.",
+        rating: consultation.rating,
+        feedback: consultation.feedback
+      }));        // Xác định trạng thái client
+        const latestStatus = clientConsultations
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0]?.status;
+
+        // Lấy consultation mới nhất để lưu notes
+        const latestConsultation = clientConsultations
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+
+        // Sử dụng dữ liệu từ smoking progress nếu có
+        const progress = progressData || {};
+      
+      return {
+        id: user.userId,
+        name: user.fullName || user.profileName || "Unknown Client",
+        email: user.email || "N/A",
+        avatar: user.avatarUrl || "",
+        status: mapConsultationStatusToClientStatus(latestStatus),
+        joinDate: firstConsultation.createdAt,
+        currentProgress: {
+          daysSmokeFreee: progress.daysSinceStart || 0,
+          cravingLevel: progress.averageCravingLevel || 5,
+          nextSession: null // Có thể tính toán từ scheduled consultations
+        },
+        detailedInfo: {
+          totalSavings: progress.moneySaved || 0,
+          consultationsAttended: clientConsultations.filter(c => c.status === "completed").length,
+          motivations: ["Improve health", "Save money", "Family"], // Default values
+          goals: ["30 days smoke-free", "Reduce daily cigarettes"], // Default values
+          notes: latestConsultation?.notes || "", // Lấy notes từ consultation mới nhất
+          consultationHistory: consultationHistory,
+          cigarettesPerDay: progress.cigarettesPerDay || 0,
+          cigarettesAvoided: progress.cigarettesAvoided || 0,
+          smokingHistoryByDate: progress.smokingHistoryByDate || {}
+        },
+        latestConsultationId: latestConsultation?.consultationId || null
+      };
+    };
+
+    const fetchClientData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Gọi API để lấy consultations và smoking progress
+        const [consultations, progressData] = await Promise.all([
+          coachService.getMentorConsultations(),
+          coachService.getUserSmokingProgress(clientId).catch(() => null) // Không bắt buộc có progress data
+        ]);
+
+        // Xây dựng dữ liệu client
+        const clientInfo = buildClientData(consultations, progressData?.[0]);
+        
+        if (!clientInfo) {
+          setError("Client not found");
+          return;
+        }
+
+        setClientData(clientInfo);
+        setSmokingProgress(progressData?.[0]);
+        setLatestConsultationId(clientInfo.latestConsultationId);
+        
+        if (clientInfo?.detailedInfo?.notes) {
+          setCoachNotes(clientInfo.detailedInfo.notes);
+        }
+      } catch (err) {
+        setError("Failed to load client data");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (clientId) {
+      fetchClientData();
     }
   }, [clientId]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", padding: "100px 0" }}>
+        <Spin size="large" />
+        <div style={{ marginTop: 16 }}>Loading client details...</div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div style={{ textAlign: "center", padding: "100px 0" }}>
+        <Alert
+          message="Error"
+          description={error}
+          type="error"
+          showIcon
+        />
+        <Button 
+          type="primary" 
+          onClick={() => navigate("/mentor/clients")}
+          style={{ marginTop: 16 }}
+        >
+          Back to Clients List
+        </Button>
+      </div>
+    );
+  }
 
   // Handle case where client is not found
   if (!clientData) {
@@ -95,9 +249,41 @@ export const MentorClientDetails = () => {
     }
   };
 
-  const saveCoachNotes = () => {
-    console.log("Saving coach notes:", coachNotes);
-    // In a real app, this would save to backend
+  const saveCoachNotes = async () => {
+    if (!latestConsultationId || !coachNotes.trim()) {
+      Modal.warning({
+        title: 'Cannot Save Notes',
+        content: 'No consultation found or notes are empty. Please ensure there is at least one consultation for this client.',
+      });
+      return;
+    }
+
+    setSavingNotes(true);
+    try {
+      await coachService.addConsultationNote(latestConsultationId, coachNotes);
+      
+      // Cập nhật local state
+      setClientData(prev => ({
+        ...prev,
+        detailedInfo: {
+          ...prev.detailedInfo,
+          notes: coachNotes
+        }
+      }));
+
+      Modal.success({
+        title: 'Notes Saved',
+        content: 'Your notes have been saved successfully.',
+      });
+    } catch (error) {
+      console.error("Failed to save notes:", error);
+      Modal.error({
+        title: 'Save Failed',
+        content: 'Failed to save notes. Please try again.',
+      });
+    } finally {
+      setSavingNotes(false);
+    }
   };
 
   return (
@@ -268,6 +454,8 @@ export const MentorClientDetails = () => {
                       size="small"
                       icon={<EditOutlined />}
                       onClick={saveCoachNotes}
+                      loading={savingNotes}
+                      disabled={!coachNotes.trim() || !latestConsultationId}
                       className={styles.saveNotesButton}
                     >
                       Save Notes
@@ -316,18 +504,105 @@ export const MentorClientDetails = () => {
                       <Space>
                         <Text strong>{consultation.type}</Text>
                         <Badge status="success" />
+                        {consultation.rating > 0 && (
+                          <Text type="secondary">({consultation.rating}/5 stars)</Text>
+                        )}
                       </Space>
                     }
                     description={
-                      <Text type="secondary">
-                        {new Date(consultation.date).toLocaleDateString()}
-                      </Text>
+                      <Space direction="vertical" size="small">
+                        <Text type="secondary">
+                          {new Date(consultation.date).toLocaleDateString()} at {consultation.time}
+                        </Text>
+                        {consultation.feedback && (
+                          <Text italic>"{consultation.feedback}"</Text>
+                        )}
+                      </Space>
                     }
                   />
                 </List.Item>
               )}
             />
           </Tabs.TabPane>
+
+          {/* Smoking Progress Tab - hiển thị nếu có dữ liệu */}
+          {smokingProgress && (
+            <Tabs.TabPane tab="Smoking Progress" key="progress">
+              <Row gutter={24}>
+                <Col span={8}>
+                  <Card className={styles.statCard}>
+                    <Statistic
+                      title="Cigarettes Per Day"
+                      value={smokingProgress.cigarettesPerDay}
+                      valueStyle={{ color: "#ff4d4f" }}
+                    />
+                  </Card>
+                </Col>
+                <Col span={8}>
+                  <Card className={styles.statCard}>
+                    <Statistic
+                      title="Cigarettes Avoided"
+                      value={smokingProgress.cigarettesAvoided}
+                      valueStyle={{ color: "#52c41a" }}
+                    />
+                  </Card>
+                </Col>
+                <Col span={8}>
+                  <Card className={styles.statCard}>
+                    <Statistic
+                      title="Days Since Start"
+                      value={smokingProgress.daysSinceStart}
+                      valueStyle={{ color: "#1890ff" }}
+                    />
+                  </Card>
+                </Col>
+              </Row>
+
+              {/* Recent Smoking History */}
+              {smokingProgress.smokingHistoryByDate && 
+               Object.keys(smokingProgress.smokingHistoryByDate).length > 0 && (
+                <Card 
+                  title="Recent Smoking History" 
+                  style={{ marginTop: 24 }}
+                  className={styles.smokingHistoryCard}
+                >
+                  {Object.entries(smokingProgress.smokingHistoryByDate)
+                    .slice(-7) // Hiển thị 7 ngày gần nhất
+                    .map(([date, events]) => (
+                      <div key={date} style={{ marginBottom: 16 }}>
+                        <Title level={5}>{date}</Title>
+                        <List
+                          size="small"
+                          dataSource={events}
+                          renderItem={(event) => (
+                            <List.Item>
+                              <List.Item.Meta
+                                title={
+                                  <Space>
+                                    <Text strong>{event.cigarettesSmoked} cigarettes</Text>
+                                    <Tag color={getCravingColor(event.cravingLevel)}>
+                                      Craving: {event.cravingLevel}/10
+                                    </Tag>
+                                  </Space>
+                                }
+                                description={
+                                  <Space direction="vertical" size="small">
+                                    <Text type="secondary">
+                                      {new Date(event.eventTime).toLocaleTimeString()}
+                                    </Text>
+                                    {event.notes && <Text italic>{event.notes}</Text>}
+                                  </Space>
+                                }
+                              />
+                            </List.Item>
+                          )}
+                        />
+                      </div>
+                    ))}
+                </Card>
+              )}
+            </Tabs.TabPane>
+          )}
         </Tabs>
       </Card>
 
