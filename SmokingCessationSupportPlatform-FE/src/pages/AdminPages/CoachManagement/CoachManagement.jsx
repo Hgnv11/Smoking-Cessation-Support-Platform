@@ -32,25 +32,54 @@ const CoachManagement = () => {
       const response = await coachService.getCoaches();
       console.log("coachService response received:", response);
 
-      // Mapping the response to match the expected structure
-      const transformedData = response.map((mentor) => ({
-        id: mentor.userId.toString(),
-        name: mentor.fullName,
-        email: mentor.email,
-        expertise: mentor.note ? [mentor.note] : ["No expertise specified"],
-        rating: mentor.rating || 0,
-        todayConsults: 0, // Update with actual data if available
-        currentCases: 0, // Update with actual data if available
-        joinDate: mentor.createdAt,
-        lastLogin: mentor.lastLogin,
-        status: mentor.hasActive ? "ACTIVE" : "INACTIVE",
-      }));
+      // Fetch slots for each mentor to calculate today's consultations
+      const transformedData = await Promise.all(
+        response.map(async (mentor) => {
+          let todayConsults = 0;
+          let rating = 0;
+
+          try {
+            const slots = await coachService.getMentorSlots(mentor.userId);
+            const today = dayjs().format('YYYY-MM-DD');
+            todayConsults = slots.filter(slot => 
+              slot.booked && dayjs(slot.slotDate).format('YYYY-MM-DD') === today
+            ).length;
+          } catch (error) {
+            console.error(`Error fetching slots for mentor ${mentor.userId}:`, error);
+            todayConsults = 0;
+          }
+
+          try {
+            rating = await coachService.getMentorRating(mentor.userId);
+          } catch (error) {
+            rating = 0;
+          }
+
+          return {
+            id: mentor.userId.toString(),
+            name: mentor.fullName,
+            email: mentor.email,
+            rating: rating,
+            todayConsults: todayConsults,
+            joinDate: mentor.createdAt,
+            lastLogin: mentor.lastLogin,
+            status: mentor.hasActive ? "ACTIVE" : "INACTIVE",
+          };
+        })
+      );
+      
       setCoaches(transformedData);
 
       // Update statistics based on the fetched data
       const activeCoaches = transformedData.filter(
         (coach) => coach.status === "ACTIVE"
       ).length;
+      
+      const totalTodayConsults = transformedData.reduce(
+        (sum, coach) => sum + coach.todayConsults,
+        0
+      );
+      
       const totalRating = transformedData.reduce(
         (sum, coach) => sum + coach.rating,
         0
@@ -61,7 +90,7 @@ const CoachManagement = () => {
 
       setStatistics({
         activeCoaches,
-        todayConsultations: 0, // Update with actual data if available
+        todayConsultations: totalTodayConsults,
         avgRating: parseFloat(avgRating),
       });
       setError(null);
@@ -297,13 +326,8 @@ const CoachManagement = () => {
     { title: "User ID", dataIndex: "id" },
     { title: "Coach name", dataIndex: "name" },
     { title: "Email", dataIndex: "email" },
-    { title: "About", dataIndex: "expertise", render: renderExpertise },
     { title: "Rating", dataIndex: "rating", render: renderRating },
     { title: "Number of consultations today", dataIndex: "todayConsults" },
-    {
-      title: "Number of cases currently consulting",
-      dataIndex: "currentCases",
-    },
     {
       title: "Joining date",
       dataIndex: "joinDate",

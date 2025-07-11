@@ -75,143 +75,86 @@ const handleApiError = (error, operation) => {
  * User Service để quản lý các API liên quan đến người dùng
  */
 export const userService = {
-  /**
-   * Lấy thông tin chi tiết một người dùng
-   * @param {string} id - ID của người dùng
-   * @returns {Promise<Object>} - Thông tin chi tiết người dùng
-   */
-  getUserById: async (id) => {
-    try {
-      console.log('Fetching user details for ID:', id);
-      
-      if (!id) {
-        throw new Error(ERROR_MESSAGES.USER_ID_REQUIRED);
-      }
-
-      const response = await api.get(`admin/users/${id}`);
-      console.log('User details fetched successfully:', response.data);
-      return response.data;
-    } catch (error) {
-      throw handleApiError(error, 'getUserById');
-    }
-  },
-
-  /**
-   * Tạo người dùng mới
-   * @param {Object} userData - Dữ liệu người dùng
-   * @returns {Promise<Object>} - Thông tin người dùng đã tạo
-   */
-  createUser: async (userData) => {
-    try {
-      console.log('Creating new user with data:', userData);
-      
-      if (!validateUserData(userData)) {
-        throw new Error(ERROR_MESSAGES.INVALID_USER_DATA);
-      }
-
-      const response = await api.post('users', userData);
-      console.log('User created successfully:', response.data);
-      return response.data;
-    } catch (error) {
-      throw handleApiError(error, 'createUser');
-    }
-  },
-
-  /**
-   * Cập nhật thông tin người dùng
-   * @param {string} id - ID của người dùng
-   * @param {Object} userData - Dữ liệu cập nhật
-   * @returns {Promise<Object>} - Thông tin người dùng đã cập nhật
-   */
-  updateUser: async (id, userData) => {
-    try {
-      console.log('Updating user:', id, 'with data:', userData);
-      
-      if (!id) {
-        throw new Error(ERROR_MESSAGES.USER_ID_REQUIRED);
-      }
-      
-      if (!validateUserData(userData)) {
-        throw new Error(ERROR_MESSAGES.INVALID_USER_DATA);
-      }
-      
-      const response = await api.put(`admin/users/${id}`, userData);
-      console.log('Update response:', response.data);
-      return response.data;
-    } catch (error) {
-      throw handleApiError(error, 'updateUser');
-    }
-  },
-
-  /**
-   * Xóa mềm người dùng
-   * @param {string} id - ID của người dùng cần xóa
-   * @returns {Promise<Object>} - Kết quả xóa người dùng
-   */
-  deleteUser: async (id) => {
-    try {
-      console.log('Deleting user with ID:', id);
-      
-      if (!id) {
-        throw new Error(ERROR_MESSAGES.USER_ID_REQUIRED);
-      }
-      
-      const response = await api.delete(`admin/users/${id}`);
-      console.log('User deleted successfully:', response.data);
-      return response.data;
-    } catch (error) {
-      throw handleApiError(error, 'deleteUser');
-    }
-  },
-
-  /**
-   * Lấy danh sách user cho admin
-   * @returns {Promise<Array>} - Danh sách người dùng
-   */
+  // Lấy danh sách tất cả users cho admin
   fetchAdminUsers: async () => {
     try {
-      console.log('Fetching admin users list');
-      
       const response = await api.get('admin/users');
-      console.log('Admin users fetched successfully, count:', response.data?.length || 0);
       return response.data;
     } catch (error) {
-      throw handleApiError(error, 'fetchAdminUsers');
+      console.error('Error fetching users:', error);
+      throw error;
     }
   },
 
-  /**
-   * Lấy lịch sử hút thuốc của người dùng
-   * @param {string} userId - ID của người dùng
-   * @returns {Promise<Array>} - Dữ liệu lịch sử hút thuốc
-   */
-  getSmokingProgressId: async (userId) => {
+  // Lấy thông tin chi tiết một user
+  getUserById: async (id) => {
     try {
-      console.log('Fetching smoking progress for user ID:', userId);
-      
-      if (!userId) {
-        throw new Error(ERROR_MESSAGES.USER_ID_REQUIRED);
-      }
-      
-      const response = await api.get(`admin/smoking-progress/user/${userId}`);
-      console.log("Smoking progress data:", response.data);
+      const response = await api.get(`admin/users/${id}`);
       return response.data;
     } catch (error) {
-      console.error("getSmokingProgressId error:", error);
-      
-      // Đối với smoking progress, có thể user chưa có data nên trả về array rỗng thay vì throw error
-      if (error.message === ERROR_MESSAGES.USER_ID_REQUIRED) {
-        throw error;
-      } else if (error.response?.status === 404) {
-        console.warn("No smoking progress found for user, returning empty array");
-        return [];
-      } else if (error.response?.status >= 500) {
-        console.warn("Server error, returning empty array");
-        return [];
-      } else {
-        console.warn("Unknown error, returning empty array");
+      console.error('Error fetching user by ID:', error);
+      throw error;
+    }
+  },
+
+  // Tạo user mới
+  createUser: async (userData) => {
+    try {
+      const response = await api.post('users', userData);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
+  },
+
+  // Cập nhật thông tin user
+  updateUser: async (id, userData) => {
+    try {
+      const response = await api.put(`admin/users/${id}`, userData);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating user:', error);
+      throw error;
+    }
+  },
+  // Tạo user mới bằng admin
+  createUserByAdmin: async (userData) => {
+    try {
+      console.log('API call - sending data:', userData); // Debug log
+      const response = await api.post('admin/users', userData);
+      console.log('API response:', response.data); // Debug response
+      return response.data;
+    } catch (error) {
+      console.error('API Error:', error);
+      console.error('API Error details:', error.response?.data); // Chi tiết lỗi
+      throw error;
+    }
+  },
+
+  // Xóa user
+  deleteUser: async (id) => {
+    try {
+      const response = await api.delete(`admin/users/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      throw error;
+    }
+  },
+
+  // Lấy lịch sử hút thuốc của user
+  getSmokingProgressId: async (userId) => {
+    try {
+      const response = await api.get(`admin/smoking-progress/user/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching smoking progress:', error);
+      // Trả về array rỗng nếu không có data thay vì throw error
+      if (error.response?.status === 404) {
         return [];
       }
+      throw error;
     }
   }
 };

@@ -15,12 +15,13 @@ import {
   Card,
   Space,
 } from "antd";
-import { EyeOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EyeOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { userService } from "../../../services/userService.js";
 import ModalForDetailsButton from "./ModalForDetailsButton.jsx";
 import ModalForEditUser from "./ModalForEditUser.jsx";
+import ModalForAddUser from "./ModalForAddUser.jsx";
 
 const membershipOptions = [
   { value: "", label: "Filter membership" },
@@ -52,6 +53,7 @@ const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false); // Thêm state cho Add User modal
   const [editingUserId, setEditingUserId] = useState(null);
   const [userDetail, setUserDetail] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
@@ -241,6 +243,11 @@ const UserManagement = () => {
     setIsEditModalVisible(true);
   };
 
+  // Handle add user
+  const handleAddUser = () => {
+    setIsAddModalVisible(true);
+  };
+
   // Handle user updated
   const handleUserUpdated = async () => {
     // Refresh users list after update
@@ -272,6 +279,13 @@ const UserManagement = () => {
     } finally {
       setLoadingUsers(false);
     }
+  };
+
+  // Handle user added
+  const handleUserAdded = async () => {
+    // Refresh users list after adding new user
+    await handleUserUpdated();
+    setIsAddModalVisible(false);
   };
 
   const handleSelectAll = (checked) => {
@@ -425,6 +439,19 @@ const UserManagement = () => {
             value={filters.role || undefined}
             options={roleOptions}
           />
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            size="large"
+            onClick={handleAddUser}
+            style={{ 
+              marginLeft: 16,
+              borderRadius: '6px',
+              fontWeight: 500
+            }}
+          >
+            Add User
+          </Button>
         </div>
         {selectedRowKeys.length > 0 && (
           <div className={styles["bulk-actions"]}>
@@ -472,6 +499,15 @@ const UserManagement = () => {
           }}
           userId={editingUserId}
           onUserUpdated={handleUserUpdated}
+        />
+
+        {/* Modal for Add User */}
+        <ModalForAddUser
+          open={isAddModalVisible}
+          onClose={() => {
+            setIsAddModalVisible(false);
+          }}
+          onUserAdded={handleUserAdded}
         />
       </div>
     </AdminLayout>

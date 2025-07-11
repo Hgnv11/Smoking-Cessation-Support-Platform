@@ -1,26 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Card, Button, Typography, Space, Row, Col, Spin, Alert } from "antd";
-import { ClockCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import { Card, Button, Typography, Space, Row, Col, Spin, Alert, Modal, Avatar, Divider, Rate } from "antd";
+import { ClockCircleOutlined, CheckCircleOutlined, UserOutlined, CalendarOutlined, StarOutlined } from "@ant-design/icons";
 import styles from "./Appointment.module.css";
 import api from "../../../config/axios";
+import { coachService } from "../../../services/coachService"; // <-- import mới
 
 const { Title, Text } = Typography;
 
 export const Appointment = () => {
-  const navigate = useNavigate();
   const [scheduleData, setScheduleData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedConsultation, setSelectedConsultation] = useState(null);
+  const [smokingProgress, setSmokingProgress] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
 
   useEffect(() => {
     const fetchConsultations = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await api.get("consultations/mentor");
-        // Transform response to group by slotDate
-        const consultations = res.data;
+        // Gọi api để lấy danh sách consultations
+        const consultations = await coachService.getMentorConsultations();
         // Group by slotDate
         const grouped = {};
         consultations.forEach((c) => {
@@ -30,8 +32,6 @@ export const Appointment = () => {
         });
         // Convert to array of days
         const days = Object.entries(grouped).map(([date, consults]) => {
-          // There are max 4 slots per day, slotNumber: 0-3 or 1-4
-          // Build slots array for UI
           const slots = [0, 1, 2, 3].map((slotIdx) => {
             const found = consults.find((c) => c.slot.slotNumber === slotIdx);
             if (found) {
@@ -78,6 +78,30 @@ export const Appointment = () => {
     return slotTimes[slotNumber] || "";
   }
 
+  // Fetch consultation details for modal (cập nhật để lấy cả progress)
+  const fetchConsultationDetails = async (consultationId, userId) => {
+    setModalLoading(true);
+    try {
+      const [consultationRes, progressRes] = await Promise.all([
+        api.get(`/mentor-dashboard/consultations/${consultationId}`),
+        coachService.getUserSmokingProgress(userId),
+      ]);
+      setSelectedConsultation(consultationRes.data);
+      setSmokingProgress(progressRes[0] || null); // response là array
+      setModalVisible(true);
+    } catch (error) {
+      console.error("Failed to fetch consultation details:", error);
+      Alert.error("Failed to load consultation details");
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  // Handle click on client name (truyền thêm userId)
+  const handleClientNameClick = (consultationId, userId) => {
+    fetchConsultationDetails(consultationId, userId);
+  };
+
   const handleStartConsultation = (clientName, time, meetingLink) => {
     if (meetingLink) {
       window.open(meetingLink, "_blank");
@@ -112,16 +136,12 @@ export const Appointment = () => {
               <CheckCircleOutlined className={styles.slotIconBooked} />
               <Text className={styles.slotStatusBooked}>
                 Booked by{" "}
-                {slot.clientId && slot.clientName ? (
-                  <Typography.Link
-                    onClick={() => navigate(`/mentor/clients/${slot.clientId}`)}
-                    className={styles.clientNameLink}
-                  >
-                    {slot.clientName}
-                  </Typography.Link>
-                ) : (
-                  slot.clientName || "Unknown Client"
-                )}
+                <Typography.Link
+                  onClick={() => handleClientNameClick(slot.consultationId, slot.clientId)}
+                  className={styles.clientNameLink}
+                >
+                  {slot.clientName || "Unknown Client"}
+                </Typography.Link>
               </Text>
               <Button
                 type="primary"
@@ -192,6 +212,186 @@ export const Appointment = () => {
           </div>
         ))}
       </Space>
+
+      {/* Consultation Details Modal */}
+      <Modal
+        title="Consultation Details"
+        visible={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setModalVisible(false)}>
+            Close
+          </Button>,
+          selectedConsultation?.meetingLink && (
+            <Button
+              key="start"
+              type="primary"
+              onClick={() => {
+                window.open(selectedConsultation.meetingLink, "_blank");
+                setModalVisible(false);
+              }}
+            >
+              Start Consultation
+            </Button>
+          ),
+        ]}
+        width={600}
+        loading={modalLoading}
+      >
+        {selectedConsultation && (
+          <div>
+            {/* Client Information */}
+            <div style={{ marginBottom: 24 }}>
+              <Title level={5}>
+                <UserOutlined style={{ marginRight: 8 }} />
+                Client Information
+              </Title>
+              <Space align="start" size={16}>
+                <Avatar
+                  size={64}
+                  src={selectedConsultation.user?.avatarUrl}
+                  icon={<UserOutlined />}
+                />
+                <div>
+                  <Text strong style={{ fontSize: 16 }}>
+                    {selectedConsultation.user?.fullName}
+                  </Text>
+                  <br />
+                  <Text type="secondary">
+                    {selectedConsultation.user?.email}
+                  </Text>
+                  <br />
+                  <Text type="secondary">
+                    Gender: {selectedConsultation.user?.gender || "N/A"}
+                  </Text>
+                  {selectedConsultation.user?.birthDate && (
+                    <>
+                      <br />
+                      <Text type="secondary">
+                        Birth Date: {new Date(selectedConsultation.user.birthDate).toLocaleDateString()}
+                      </Text>
+                    </>
+                  )}
+                </div>
+              </Space>
+            </div>
+
+            <Divider />
+
+            {/* Consultation Information */}
+            <div style={{ marginBottom: 24 }}>
+              <Title level={5}>
+                <CalendarOutlined style={{ marginRight: 8 }} />
+                Consultation Information
+              </Title>
+              <Row gutter={[16, 8]}>
+                <Col span={12}>
+                  <Text strong>Date: </Text>
+                  <Text>{selectedConsultation.slot?.slotDate}</Text>
+                </Col>
+                <Col span={12}>
+                  <Text strong>Time: </Text>
+                  <Text>{slotTimeFromNumber(selectedConsultation.slot?.slotNumber)}</Text>
+                </Col>
+                <Col span={12}>
+                  <Text strong>Status: </Text>
+                  <Text>{selectedConsultation.status}</Text>
+                </Col>
+                <Col span={12}>
+                  <Text strong>Created: </Text>
+                  <Text>{new Date(selectedConsultation.createdAt).toLocaleDateString()}</Text>
+                </Col>
+              </Row>
+            </div>
+
+            {/* Rating and Feedback */}
+            {(selectedConsultation.rating > 0 || selectedConsultation.feedback) && (
+              <>
+                <Divider />
+                <div style={{ marginBottom: 24 }}>
+                  <Title level={5}>
+                    <StarOutlined style={{ marginRight: 8 }} />
+                    Rating & Feedback
+                  </Title>
+                  {selectedConsultation.rating > 0 && (
+                    <div style={{ marginBottom: 8 }}>
+                      <Text strong>Rating: </Text>
+                      <Rate disabled defaultValue={selectedConsultation.rating} />
+                      <Text style={{ marginLeft: 8 }}>
+                        ({selectedConsultation.rating}/5)
+                      </Text>
+                    </div>
+                  )}
+                  {selectedConsultation.feedback && (
+                    <div>
+                      <Text strong>Feedback: </Text>
+                      <br />
+                      <Text>{selectedConsultation.feedback}</Text>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* Notes */}
+            {selectedConsultation.notes && (
+              <>
+                <Divider />
+                <div>
+                  <Title level={5}>Notes</Title>
+                  <Text>{selectedConsultation.notes}</Text>
+                </div>
+              </>
+            )}
+
+            {/* Smoking Cessation Progress */}
+            {smokingProgress && (
+              <>
+                <Divider />
+                <Title level={5}>Smoking Cessation Progress</Title>
+                <Row gutter={[16, 8]}>
+                  <Col span={12}>
+                    <Text strong>Cigarettes/day: </Text>
+                    <Text>{smokingProgress.cigarettesPerDay}</Text>
+                  </Col>
+                  <Col span={12}>
+                    <Text strong>Money saved: </Text>
+                    <Text>{smokingProgress.moneySaved} đ</Text>
+                  </Col>
+                  <Col span={12}>
+                    <Text strong>Cigarettes avoided: </Text>
+                    <Text>{smokingProgress.cigarettesAvoided}</Text>
+                  </Col>
+                  <Col span={12}>
+                    <Text strong>Avg. craving level: </Text>
+                    <Text>{smokingProgress.averageCravingLevel}</Text>
+                  </Col>
+                </Row>
+                <Divider />
+                <Title level={5}>Recent Smoking History</Title>
+                {smokingProgress.smokingHistoryByDate &&
+                  Object.entries(smokingProgress.smokingHistoryByDate)
+                    .slice(-3)
+                    .map(([date, events]) => (
+                      <div key={date} style={{ marginBottom: 8 }}>
+                        <Text strong>{date}:</Text>
+                        <ul style={{ margin: 0, paddingLeft: 20 }}>
+                          {events.map((event) => (
+                            <li key={event.eventId}>
+                              <Text>
+                                {event.cigarettesSmoked} cigarettes, craving: {event.cravingLevel} /10
+                                {event.notes && <> – <i>{event.notes}</i></>}
+                              </Text>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+              </>
+            )}
+          </div>
+        )}
+      </Modal>
     </>
   );
 };
