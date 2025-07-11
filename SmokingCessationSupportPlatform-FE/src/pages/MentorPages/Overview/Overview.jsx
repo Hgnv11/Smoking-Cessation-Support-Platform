@@ -22,6 +22,84 @@ import api from "../../../config/axios";
 
 const { Title, Text, Paragraph } = Typography;
 
+// Mock data
+const mockScheduleData = [
+  {
+    date: "2025-07-11", // Today
+    bookedSlots: 2,
+    totalSlots: 4,
+    timeSlots: [
+      {
+        time: "09:00",
+        isAvailable: false,
+        clientName: "Matthew Paul",
+        clientId: 1,
+        consultationId: 101,
+        meetingLink: "#",
+        status: "Confirmed",
+        slotDate: "2025-07-11",
+      },
+      {
+        time: "10:00",
+        isAvailable: true,
+        statusText: "Available slot",
+        slotDate: "2025-07-11",
+      },
+      {
+        time: "11:00",
+        isAvailable: false,
+        clientName: "Sophia Rodriguez",
+        clientId: 2,
+        consultationId: 102,
+        meetingLink: "#",
+        status: "Confirmed",
+        slotDate: "2025-07-11",
+      },
+      {
+        time: "14:00",
+        isAvailable: true,
+        statusText: "Available slot",
+        slotDate: "2025-07-11",
+      },
+    ],
+  },
+  {
+    date: "2025-07-14", // Next Monday
+    bookedSlots: 1,
+    totalSlots: 4,
+    timeSlots: [
+      {
+        time: "09:00",
+        isAvailable: true,
+        statusText: "Available slot",
+        slotDate: "2025-07-14",
+      },
+      {
+        time: "10:00",
+        isAvailable: false,
+        clientName: "David Chen",
+        clientId: 3,
+        consultationId: 103,
+        meetingLink: "#",
+        status: "Confirmed",
+        slotDate: "2025-07-14",
+      },
+      {
+        time: "11:00",
+        isAvailable: true,
+        statusText: "Available slot",
+        slotDate: "2025-07-14",
+      },
+      {
+        time: "14:00",
+        isAvailable: true,
+        statusText: "Available slot",
+        slotDate: "2025-07-14",
+      },
+    ],
+  },
+];
+
 export const MentorOverview = () => {
   const navigate = useNavigate();
   const [scheduleData, setScheduleData] = useState([]);
@@ -81,7 +159,9 @@ export const MentorOverview = () => {
         setLoading(false);
       }
     };
-    fetchConsultations();
+    // fetchConsultations(); // Comment out API call
+    setScheduleData(mockScheduleData); // Use mock data
+    setLoading(false); // Set loading to false
   }, []);
 
   // Helper: slot number to time string

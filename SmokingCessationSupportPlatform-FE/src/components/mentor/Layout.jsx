@@ -48,15 +48,6 @@ export const MentorLayout = () => {
     },
   ];
 
-  const getCurrentPageTitle = () => {
-    const currentPath = location.pathname;
-    // Handle /mentor as /mentor/overview
-    const pathToMatch =
-      currentPath === "/mentor" ? "/mentor/overview" : currentPath;
-    const currentItem = sidebarItems.find((item) => item.path === pathToMatch);
-    return currentItem ? currentItem.label : "Overview";
-  };
-
   const handleLogout = () => {
     dispatch(logout());
     toast.success("Logged out successfully");
@@ -157,30 +148,15 @@ export const MentorLayout = () => {
       </Sider>
 
       <AntLayout style={{ marginLeft: 240 }}>
-        {/* Header */}
-        <Header
+        {/* Main Content */}
+        <Content
           style={{
-            background: "#fff",
-            borderBottom: "1px solid #f0f0f0",
-            padding: "0 24px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            position: "fixed",
-            width: "calc(100% - 240px)",
-            zIndex: 99,
+            padding: 32, // tăng padding cho thoáng
+            marginTop: 0, // giảm marginTop vì đã bỏ header
+            minHeight: "100vh",
+            background: "#f8fafc", // thêm màu nền nhẹ nếu muốn
           }}
         >
-          <Space>
-            <Text type="secondary">Dashboards</Text>
-            <Text type="secondary">/</Text>
-            <Text strong>{getCurrentPageTitle()}</Text>
-          </Space>
-          <Button type="text" icon={<CalendarOutlined />} />
-        </Header>
-
-        {/* Main Content */}
-        <Content style={{ padding: 24, marginTop: 64 }}>
           <Outlet />
         </Content>
       </AntLayout>

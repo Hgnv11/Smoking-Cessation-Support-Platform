@@ -8,325 +8,235 @@ import {
   Row,
   Col,
   Input,
-  Select,
-  Progress,
   Tag,
-  Statistic,
 } from "antd";
 import {
-  SearchOutlined,
-  MessageOutlined,
-  MailOutlined,
   CalendarOutlined,
+  PhoneOutlined,
+  MailOutlined,
+  SearchOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { getAllClients } from "./mockData"; // ✅ Import từ mockData
 import styles from "./Client.module.css";
 
 const { Title, Text } = Typography;
-const { Option } = Select;
 
-export const MentorClients = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
+export default function ClientsPage() {
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState(""); // State để lưu từ khóa tìm kiếm
 
-  // Mock client data based on the image
-  const clients = [
-    {
-      id: 1,
-      name: "Matthew Paul",
-      email: "james.wilson@example.com",
-      avatar:
-        "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
-      joinDate: "December 10, 2023",
-      status: "Premium",
-      smokeFreedays: 15,
-      cigarettesAvoided: 300,
-      moneySaved: 200,
-      cravingLevel: "High", // High, Moderate, Low
-      cravingProgress: 85,
-    },
-    {
-      id: 2,
-      name: "Sophia Rodriguez",
-      email: "sophia.rodriguez@example.com",
-      avatar:
-        "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
-      joinDate: "November 25, 2023",
-      status: "Premium",
-      smokeFreedays: 28,
-      cigarettesAvoided: 560,
-      moneySaved: 420,
-      cravingLevel: "Moderate",
-      cravingProgress: 45,
-    },
-    {
-      id: 3,
-      name: "David Chen",
-      email: "david.chen@example.com",
-      avatar:
-        "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
-      joinDate: "January 5, 2024",
-      status: "Basic",
-      smokeFreedays: 7,
-      cigarettesAvoided: 140,
-      moneySaved: 105,
-      cravingLevel: "Low",
-      cravingProgress: 20,
-    },
-    {
-      id: 4,
-      name: "Emily Johnson",
-      email: "emily.johnson@example.com",
-      avatar:
-        "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
-      joinDate: "October 15, 2023",
-      status: "Premium",
-      smokeFreedays: 45,
-      cigarettesAvoided: 900,
-      moneySaved: 675,
-      cravingLevel: "Low",
-      cravingProgress: 15,
-    },
-  ];
+  // ✅ Lấy dữ liệu clients từ mock data
+  const clients = getAllClients();
 
-  const getCravingColor = (level) => {
-    switch (level) {
-      case "High":
-        return "#ff4d4f";
-      case "Moderate":
-        return "#faad14";
-      case "Low":
-        return "#52c41a";
-      default:
-        return "#d9d9d9";
-    }
-  };
-
-  const getStatusColor = (status) => {
-    return status === "Premium" ? "#722ed1" : "#1890ff";
-  };
-
+  // Hàm filter clients dựa trên từ khóa tìm kiếm
   const filteredClients = clients.filter((client) => {
-    const matchesSearch =
-      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter =
-      filterStatus === "all" ||
-      client.status.toLowerCase() === filterStatus.toLowerCase();
-    return matchesSearch && matchesFilter;
+    const searchLower = searchTerm.toLowerCase(); // Chuyển từ khóa về chữ thường
+
+    return (
+      // Tìm kiếm theo tên (không phân biệt hoa thường)
+      client.name.toLowerCase().includes(searchLower) ||
+
+      // Tìm kiếm theo email (không phân biệt hoa thường)
+      client.email.toLowerCase().includes(searchLower) ||
+
+      // Tìm kiếm theo số điện thoại
+      client.phone.includes(searchTerm) ||
+
+      // Tìm kiếm theo trạng thái (active, at-risk, completed, inactive)
+      client.status.toLowerCase().includes(searchLower)
+    );
   });
 
-  return (
-    <>
-      <Title level={2} className={styles.pageTitle}>
-        Client Management
-      </Title>
+  // Hàm xử lý thay đổi giá trị trong ô tìm kiếm
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value); // Cập nhật state searchTerm
+  };
 
-      {/* Search and Filter */}
-      <Row gutter={16} className={styles.searchFilterRow}>
-        <Col span={12}>
-          <Input
-            placeholder="Search by name or email"
-            prefix={<SearchOutlined />}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-        </Col>
-        <Col span={6}>
-          <Select
-            value={filterStatus}
-            onChange={setFilterStatus}
-            className={styles.filterSelect}
-          >
-            <Option value="all">All clients</Option>
-            <Option value="premium">Premium</Option>
-            <Option value="basic">Basic</Option>
-          </Select>
-        </Col>
-      </Row>
-      {/* Summary Stats */}
-      <Card className={styles.summaryCard}>
-        <Row gutter={24}>
-          <Col span={6}>
-            <Statistic
-              title="Total Clients"
-              value={clients.length}
-              className={styles.totalClientsStatistic}
-            />
-          </Col>
-          <Col span={6}>
-            <Statistic
-              title="Premium Clients"
-              value={clients.filter((c) => c.status === "Premium").length}
-              className={styles.premiumClientsStatistic}
-            />
-          </Col>
-          <Col span={6}>
-            <Statistic
-              title="High Craving Clients"
-              value={clients.filter((c) => c.cravingLevel === "High").length}
-              className={styles.highCravingClientsStatistic}
-            />
-          </Col>
-          <Col span={6}>
-            <Statistic
-              title="Total Money Saved"
-              value={clients.reduce((sum, c) => sum + c.moneySaved, 0)}
-              prefix="$"
-              className={styles.moneySavedStatistic}
-            />
-          </Col>
-        </Row>
+  // Hàm clear tìm kiếm (nếu cần)
+  const handleClearSearch = () => {
+    setSearchTerm(""); // Reset về rỗng
+  };
+
+  const getStatusConfig = (status) => {
+    const configs = {
+      active: { color: "#52c41a", bg: "#f6ffed", text: "active" },
+      "at-risk": { color: "#ff4d4f", bg: "#fff2f0", text: "at-risk" },
+      completed: { color: "#1890ff", bg: "#e6f7ff", text: "completed" },
+      inactive: { color: "#d9d9d9", bg: "#f5f5f5", text: "inactive" },
+    };
+    return configs[status] || configs.active;
+  };
+
+  // Updated handleViewDetails to navigate to ClientDetails page
+  const handleViewDetails = (clientId) => {
+    navigate(`/mentor/clients/${clientId}`); // Route to ClientDetails page instead of showing modal
+  };
+
+  return (
+    <div className={styles.pageContainer}>
+      {/* Header */}
+      <div className={styles.pageHeader}>
+        <div className={styles.headerContent}>
+          <div>
+            <Title level={1} className={styles.pageTitle}>
+              Client Management
+            </Title>
+            <Text className={styles.pageDescription}>
+              Track progress and manage your smoking cessation clients
+            </Text>
+
+            {/* Hiển thị số lượng kết quả tìm kiếm */}
+            {searchTerm && (
+              <div style={{ marginTop: 8 }}>
+                <Text type="secondary" style={{ fontSize: 14 }}>
+                  Found {filteredClients.length} client(s) matching "{searchTerm}"
+                  {filteredClients.length === 0 && (
+                    <Button
+                      type="link"
+                      size="small"
+                      onClick={handleClearSearch}
+                      style={{ padding: 0, marginLeft: 8 }}
+                    >
+                      Clear search
+                    </Button>
+                  )}
+                </Text>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Search Card với chức năng tìm kiếm */}
+      <Card className={styles.searchCard}>
+        <Input
+          prefix={<SearchOutlined className={styles.searchIcon} />}
+          placeholder="Search by name, email, phone, or status..." // Cập nhật placeholder
+          value={searchTerm}
+          onChange={handleSearchChange} // Gọi hàm xử lý khi có thay đổi
+          className={styles.searchInput}
+          size="large"
+          allowClear // Cho phép clear nội dung
+          onClear={handleClearSearch} // Xử lý khi clear
+        />
       </Card>
 
-      {/* Client Cards Grid */}
+      {/* Clients Grid - Hiển thị kết quả đã được filter */}
       <Row gutter={[24, 24]}>
-        {filteredClients.map((client) => (
-          <Col key={client.id} span={12}>
-            <Card className={styles.clientCard}>
-              {/* Client Header */}
-              <div className={styles.clientHeader}>
-                <Row justify="space-between" align="top">
-                  <Col>
-                    <Space size={16}>
-                      <Avatar size={64} src={client.avatar}>
-                        {client.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
+        {filteredClients.length > 0 ? (
+          // Nếu có kết quả, hiển thị danh sách clients đã filter
+          filteredClients.map((client) => {
+            const statusConfig = getStatusConfig(client.status);
+
+            return (
+              <Col key={client.id} xs={24} sm={12} lg={8}>
+                <Card className={styles.clientCard}>
+                  {/* Client Header */}
+                  <div className={styles.clientHeader}>
+                    <div className={styles.clientInfo}>
+                      <Avatar
+                        size={48}
+                        src={client.avatar}
+                        className={styles.clientAvatar}
+                      >
+                        {client.name.split(" ").map((n) => n[0]).join("")}
                       </Avatar>
-                      <div>
+                      <div className={styles.clientNameSection}>
                         <Title level={4} className={styles.clientName}>
                           {client.name}
                         </Title>
-                        <Space direction="vertical" size={2}>
-                          <Space size={8}>
-                            <MailOutlined className={styles.icon} />
-                            <Text
-                              type="secondary"
-                              className={styles.clientDetail}
-                            >
-                              {client.email}
-                            </Text>
-                          </Space>
-                          <Space size={8}>
-                            <CalendarOutlined className={styles.icon} />
-                            <Text
-                              type="secondary"
-                              className={styles.clientDetail}
-                            >
-                              Joined {client.joinDate}
-                            </Text>
-                          </Space>
-                        </Space>
+                        <Text className={styles.joinDate}>
+                          Joined {new Date(client.joinDate).toLocaleDateString("en-US", {
+                            month: "numeric",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </Text>
                       </div>
-                    </Space>
-                  </Col>
-                  <Col>
-                    <Space direction="vertical" align="end" size={8}>
-                      <Tag color={getStatusColor(client.status)}>
-                        {client.status}
+                      <Tag
+                        className={styles.statusTag}
+                        style={{
+                          backgroundColor: statusConfig.bg,
+                          color: statusConfig.color,
+                          border: "none",
+                        }}
+                      >
+                        {statusConfig.text}
                       </Tag>
-                      <Space size={8}>
-                        <Button
-                          type="primary"
-                          size="small"
-                          className={styles.actionButton}
-                          onClick={() =>
-                            navigate(`/mentor/clients/${client.id}`)
-                          }
-                        >
-                          View Details
-                        </Button>
-                        <Button
-                          type="default"
-                          size="small"
-                          icon={<MessageOutlined />}
-                          className={styles.actionButton}
-                        />
-                      </Space>
-                    </Space>
-                  </Col>
-                </Row>
-              </div>
-
-              {/* Progress Overview */}
-              <div className={styles.progressOverview}>
-                <Title level={5} className={styles.sectionTitle}>
-                  Progress Overview
-                </Title>
-
-                <Row gutter={24}>
-                  <Col span={8}>
-                    <div className={styles.statBox}>
-                      <Text type="secondary" className={styles.statLabel}>
-                        Smoke-Free Days
-                      </Text>
-                      <div className={styles.smokeFreeValue}>
-                        {client.smokeFreedays}
-                      </div>
                     </div>
-                  </Col>
-                  <Col span={8}>
-                    <div className={styles.statBox}>
-                      <Text type="secondary" className={styles.statLabel}>
-                        Cigarettes Avoided
-                      </Text>
-                      <div className={styles.cigarettesValue}>
-                        {client.cigarettesAvoided}
-                      </div>
-                    </div>
-                  </Col>
-                  <Col span={8}>
-                    <div className={styles.statBox}>
-                      <Text type="secondary" className={styles.statLabel}>
-                        Money Saved
-                      </Text>
-                      <div className={styles.moneySavedValue}>
-                        ${client.moneySaved}
-                      </div>
-                    </div>
-                  </Col>
-                </Row>
-              </div>
+                  </div>
 
-              {/* Craving Intensity */}
-              <div>
-                <div className={styles.cravingHeader}>
-                  <Text strong className={styles.cravingTitle}>
-                    Craving Intensity
-                  </Text>
-                  <Tag color={getCravingColor(client.cravingLevel)}>
-                    {client.cravingLevel}
-                  </Tag>
-                </div>
-                <Progress
-                  percent={client.cravingProgress}
-                  strokeColor={getCravingColor(client.cravingLevel)}
-                  trailColor="#f0f0f0"
-                  strokeWidth={8}
-                  showInfo={false}
-                  className={styles.cravingProgress}
-                />
-                <div className={styles.cravingLabels}>
-                  <Text type="secondary" className={styles.cravingLabel}>
-                    Low
-                  </Text>
-                  <Text type="secondary" className={styles.cravingLabel}>
-                    Moderate
-                  </Text>
-                  <Text type="secondary" className={styles.cravingLabel}>
-                    High
-                  </Text>
-                </div>
-              </div>
-            </Card>
+                  {/* Contact Info */}
+                  <div className={styles.contactInfo}>
+                    <div className={styles.contactItem}>
+                      <MailOutlined className={styles.contactIcon} />
+                      <Text className={styles.contactText}>{client.email}</Text>
+                    </div>
+                    <div className={styles.contactItem}>
+                      <PhoneOutlined className={styles.contactIcon} />
+                      <Text className={styles.contactText}>{client.phone}</Text>
+                    </div>
+                  </div>
+
+                  {/* Next Session */}
+                  <div className={styles.nextSession}>
+                    <CalendarOutlined className={styles.sessionIcon} />
+                    <Text className={styles.sessionText}>
+                      Next Session: {new Date(client.currentProgress.nextSession).toLocaleDateString("en-US", {
+                        month: "numeric",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </Text>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className={styles.actionButtons}>
+                    <Button className={styles.actionButton}>
+                      <PhoneOutlined />
+                      Call
+                    </Button>
+                    <Button className={styles.actionButton}>
+                      <CalendarOutlined />
+                      Schedule
+                    </Button>
+                    <Button
+                      type="primary"
+                      className={styles.viewDetailsButton}
+                      onClick={() => handleViewDetails(client.id)} // Pass client.id for routing
+                    >
+                      <EyeOutlined />
+                      View Details
+                    </Button>
+                  </div>
+                </Card>
+              </Col>
+            );
+          })
+        ) : (
+          // Nếu không có kết quả tìm kiếm, hiển thị thông báo
+          <Col span={24}>
+            <div style={{ textAlign: "center", padding: "48px 0" }}>
+              <SearchOutlined style={{ fontSize: 48, color: "#d9d9d9", marginBottom: 16 }} />
+              <Title level={4} style={{ color: "#999" }}>
+                No clients found
+              </Title>
+              <Text type="secondary">
+                Try adjusting your search criteria or
+                <Button
+                  type="link"
+                  onClick={handleClearSearch}
+                  style={{ padding: 0, marginLeft: 4 }}
+                >
+                  clear the search
+                </Button>
+              </Text>
+            </div>
           </Col>
-        ))}
+        )}
       </Row>
-    </>
+    </div>
   );
-};
-export default MentorClients;
+}

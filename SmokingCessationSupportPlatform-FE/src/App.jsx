@@ -41,6 +41,7 @@ import MentorAppointment from "./pages/MentorPages/Appointments/Appointment.jsx"
 import MentorOverview from "./pages/MentorPages/Overview/Overview.jsx";
 import MentorReports from "./pages/MentorPages/Reports/Report.jsx";
 import MentorClients from "./pages/MentorPages/Clients/Client.jsx";
+import MentorClientDetails from "./pages/MentorPages/Clients/ClientDetails.jsx"; // Import ClientDetails
 import AboutUs from "./pages/AboutUs/aboutUs.jsx";
 import ScheduleManagement from "./pages/AdminPages/ScheduleManagenment/ScheduleManagement.jsx";
 
@@ -337,6 +338,7 @@ function App() {
             { path: "overview", element: <MentorOverview /> },
             { path: "appointments", element: <MentorAppointment /> },
             { path: "clients", element: <MentorClients /> },
+            { path: "clients/:clientId", element: <MentorClientDetails /> }, // Thêm route cho client details
             { path: "reports", element: <MentorReports /> },
           ],
         },

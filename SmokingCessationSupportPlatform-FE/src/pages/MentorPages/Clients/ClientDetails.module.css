@@ -39,7 +39,8 @@
   }
   
   .clientEmail {
-    font-size: 16px;
+    font-size: 14px;
+    color: #64748b;
   }
   
   .videoCallButton {
@@ -163,7 +164,7 @@
   }
   
   .sectionTitle {
-    margin-bottom: 8px;
+    margin-bottom: 16px;
     color: #262626;
   }
   
@@ -212,25 +213,117 @@
     border-radius: 12px;
   }
   
-  .modalContent {
-    padding: 8px 0;
+  .modal {
+    border-radius: 12px;
   }
   
-  .modalField {
+  .modalHeader {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .avatar {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modalContent {
+    padding: 16px 0;
+  }
+  
+  .section {
+    margin-bottom: 24px;
+  }
+  
+  .sectionTitle {
     margin-bottom: 16px;
   }
   
-  .modalNotes {
-    margin-bottom: 0;
+  .progressBar {
+    margin-bottom: 8px;
   }
   
-  .modalNotesText {
-    margin-top: 8px;
+  .statBox {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f0f9ff;
     padding: 12px;
-    background: #fafafa;
     border-radius: 8px;
-    margin-bottom: 0;
-    line-height: 1.6;
+  }
+  
+  .statIcon {
+    font-size: 24px;
+    color: #52c41a;
+  }
+  
+  .statValue {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .statLabel {
+    font-size: 14px;
+    color: #64748b;
+  }
+  
+  .cravingLevel {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 8px;
+  }
+  
+  .historyBox {
+    text-align: center;
+  }
+  
+  .historyValue {
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  .historyLabel {
+    font-size: 14px;
+    color: #64748b;
+  }
+  
+  .scheduleBox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    padding: 12px;
+    border-radius: 8px;
+  }
+  
+  .scheduleIcon {
+    font-size: 20px;
+    color: #1890ff;
+  }
+  
+  .journeyBox {
+    text-align: center;
+  }
+  
+  .journeyValue {
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  .journeyLabel {
+    font-size: 14px;
+    color: #64748b;
   }
   
   /* Responsive Design */
