@@ -215,4 +215,33 @@ public class UserService {
         user.setIsDelete(true);
         userRepository.save(user);
     }
+
+    public MentorWithRatingDTO getMentorByIdForUser(Integer mentorId) {
+        User mentor = userRepository.findByUserId(mentorId)
+                .orElseThrow(() -> new RuntimeException("Mentor not found"));
+
+        if (!"mentor".equals(mentor.getRole().name())) {
+            throw new RuntimeException("User is not a mentor");
+        }
+
+        List<Consultation> consultations = consultationRepository.findByMentor(mentor);
+        int total = 0;
+        int count = 0;
+
+        for (Consultation c : consultations) {
+            Integer rating = c.getRating();
+            if (c.getStatus() == Consultation.Status.completed && rating != null && rating >= 1 && rating <= 5) {
+                total += rating;
+                count++;
+            }
+        }
+
+        double avgRating = count == 0 ? 0.0 : Math.round((double) total / count * 10.0) / 10.0;
+
+        return MentorWithRatingDTO.builder()
+                .mentor(userMapper.toDto(mentor))
+                .averageRating(avgRating)
+                .build();
+    }
+
 }

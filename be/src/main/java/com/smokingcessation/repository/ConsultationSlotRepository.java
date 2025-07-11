@@ -15,4 +15,5 @@ public interface ConsultationSlotRepository extends JpaRepository<ConsultationSl
     boolean existsByMentorAndSlotNumberAndSlotDate(User mentor, Integer slotNumber, LocalDate slotDate);
     boolean existsByMentorAndSlotNumberAndSlotDateAndSlotIdNot(User mentor, Integer slotNumber, LocalDate slotDate, Integer slotId);
     Optional<ConsultationSlot> findByMentorAndSlotNumberAndSlotDate(User mentor, Integer slotNumber, LocalDate slotDate);
+    List<ConsultationSlot> findByMentorAndSlotDate(User mentor, LocalDate today);
 }

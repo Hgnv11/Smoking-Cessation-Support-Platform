@@ -7,7 +7,7 @@ import ActionDropdown from "../../../components/admin/AdminReusableUI/ActionDrop
 import ReusableTable from "../../../components/admin/ReusableTable/ReusableTable";
 import dayjs from "dayjs";
 import api from "../../../config/axios.js";
-import { coachService } from "../../../services/coachService.js";
+import { coachService } from "../../../services/coachManagementService.js";
 
 const CoachManagement = () => {
   const [coaches, setCoaches] = useState([]);

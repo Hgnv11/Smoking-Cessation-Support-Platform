@@ -9,20 +9,29 @@ import java.time.LocalDateTime;
 @Table(name = "user_badges")
 @Data
 public class UserBadge {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "badge_id")
-    private Long badgeId;
+    @Column(name = "user_badge_id")
+    private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "badge_id", nullable = false)
+    private Badge badge;
+
+    @Column(name = "badge_type", nullable = false)
     private String badgeType;
 
+    @Column(name = "badge_image_url", nullable = false)
     private String badgeImageUrl;
 
-    private LocalDateTime earnedDate;
+    @Column(name = "earned_date")
+    private LocalDateTime earnedDate = LocalDateTime.now();
 
+    @Column(name = "is_active")
     private boolean isActive = true;
 }

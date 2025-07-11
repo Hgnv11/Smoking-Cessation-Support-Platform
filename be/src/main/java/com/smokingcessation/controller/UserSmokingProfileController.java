@@ -93,5 +93,14 @@ public class UserSmokingProfileController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Đánh giá kết quả kế hoạch theo profileId")
+    @GetMapping("/{profileId}/result")
+    public ResponseEntity<String> getQuitPlanResult(@PathVariable Integer profileId, Principal principal) {
+        String email = principal.getName();
+        String result = userSmokingProfileService.evaluatePlanResult(email, profileId);
+        return ResponseEntity.ok(result); // "success", "failed" hoặc "incomplete"
+    }
+
+
 
 }

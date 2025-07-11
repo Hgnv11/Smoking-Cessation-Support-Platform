@@ -19,3 +19,67 @@
 .smallText {
   font-size: 12px;
 }
+
+.dashboardUpcomingAppointmentsCard {
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+  border: none;
+  margin-bottom: 24px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cardIcon {
+  font-size: 24px !important; /* Use important to override Ant Design styles if needed */
+  color: #fff;
+  margin-right: 12px;
+}
+
+.cardTitle {
+  color: #fff;
+  margin: 0;
+}
+
+.statsContainer {
+  display: flex;
+  align-items: baseline;
+  margin: 16px 0;
+}
+
+.mainStat {
+  color: #fff;
+  font-size: 48px !important; /* Use important to override Ant Design styles if needed */
+  margin: 0;
+}
+
+.mainStatLabel {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 20px;
+  margin-left: 8px;
+}
+
+.cardFooter {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 18px;
+  margin: 0;
+}
+
+.arrowIcon {
+  margin-left: 4px;
+  font-size: 20px;
+}
+
+.loader {
+  display: block;
+  margin: 40px auto;
+}
+
+.errorAlert {
+  margin: 24px;
+}

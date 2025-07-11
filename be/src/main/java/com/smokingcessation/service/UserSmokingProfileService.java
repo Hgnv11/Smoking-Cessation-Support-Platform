@@ -173,8 +173,8 @@ public class UserSmokingProfileService {
         // Số ngày kể từ ngày bỏ thuốc (tính cả ngày bắt đầu)
         LocalDate today = LocalDate.now();
         LocalDate quitDate = profile.getQuitDate();
-        long daysSinceQuit = quitDate != null ? ChronoUnit.DAYS.between(quitDate, today) + 1 : 0;
-        if (daysSinceQuit < 1) daysSinceQuit = 0;
+        long daysSinceQuit = ChronoUnit.DAYS.between(quitDate, today);
+        if (daysSinceQuit < 0) daysSinceQuit = 0;
 
         // Tổng số điếu thuốc đã hút kể từ khi bỏ thuốc
         LocalDateTime quitDateTime = quitDate != null ? quitDate.atStartOfDay() : LocalDateTime.now();
@@ -237,7 +237,59 @@ public class UserSmokingProfileService {
         userSmokingProfileRepository.delete(profile);
     }
 
+    public String evaluatePlanResult(String email, Integer profileId) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
+        UserSmokingProfile profile = userSmokingProfileRepository.findById(profileId)
+                .orElseThrow(() -> new RuntimeException("Profile not found"));
 
+        if (!profile.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("You do not have permission to view this profile");
+        }
 
+        if (!"completed".equalsIgnoreCase(profile.getStatus())) {
+            return "incomplete";
+        }
+
+        LocalDate quitDate = profile.getQuitDate();
+        LocalDate endDate = profile.getEndDate();
+
+        if (quitDate == null || endDate == null || quitDate.isAfter(endDate)) {
+            return "incomplete";
+        }
+
+        LocalDateTime from = quitDate.atStartOfDay();
+        LocalDateTime to = endDate.atTime(23, 59, 59);
+
+        long days = ChronoUnit.DAYS.between(quitDate, endDate) + 1;
+        if (days < 1) days = 1;
+
+        int expected = profile.getCigarettesPerDay() * (int) days;
+        int smoked = smokingEventRepository.sumCigarettesSmokedBetween(user.getUserId(), from, to);
+        int avoided = Math.max(expected - smoked, 0);
+
+        double successRate = expected > 0 ? (avoided * 1.0 / expected) : 0;
+
+        return successRate >= 0.7 ? "success" : "failed";
+    }
+
+    public double calculateSuccessRate(UserSmokingProfile profile, User user) {
+        LocalDate quitDate = profile.getQuitDate();
+        LocalDate endDate = profile.getEndDate() != null ? profile.getEndDate() : LocalDate.now();
+
+        if (quitDate == null || endDate.isBefore(quitDate)) return 0;
+
+        LocalDateTime from = quitDate.atStartOfDay();
+        LocalDateTime to = endDate.atTime(23, 59, 59);
+
+        long days = ChronoUnit.DAYS.between(quitDate, endDate) + 1;
+        if (days < 1) days = 1;
+
+        int expected = profile.getCigarettesPerDay() * (int) days;
+        int smoked = smokingEventRepository.sumCigarettesSmokedBetween(user.getUserId(), from, to);
+
+        int avoided = Math.max(expected - smoked, 0);
+        return expected > 0 ? (avoided * 1.0 / expected) : 0;
+    }
 }

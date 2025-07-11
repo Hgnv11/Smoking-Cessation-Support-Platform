@@ -44,6 +44,9 @@ public class Consultation {
     @Column(name = "meeting_link")
     private String meetingLink;
 
+    @Column(name = "google_event_id")
+    private String googleEventId;
+
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 

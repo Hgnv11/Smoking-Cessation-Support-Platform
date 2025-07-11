@@ -15,11 +15,11 @@ public class ProgressMilestone {
     private Long milestoneId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "milestone_type")
+    @Column(name = "milestone_type", nullable = false)
     private MilestoneType milestoneType;
 
     @Column(name = "achieved_date")
@@ -29,6 +29,22 @@ public class ProgressMilestone {
     private int rewardPoints;
 
     public enum MilestoneType {
-        TWENTY_FOUR_HOURS, ONE_WEEK, ONE_MONTH, THREE_MONTHS, SIX_MONTHS, ONE_YEAR
+        TWENTY_FOUR_HOURS("24_hours"),
+        ONE_WEEK("1_week"),
+        ONE_MONTH("1_month"),
+        THREE_MONTHS("3_months"),
+        SIX_MONTHS("6_months"),
+        ONE_YEAR("1_year");
+
+        private final String value;
+
+        MilestoneType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
     }
 }

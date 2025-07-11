@@ -24,16 +24,17 @@ import ModalForEditUser from "./ModalForEditUser.jsx";
 
 const membershipOptions = [
   { value: "", label: "Filter membership" },
-  { value: "Premium", label: "Premium" },
-  { value: "Free", label: "Free" },
+  { value: "Premium Plan", label: "Premium Plan " },
+  { value: "Free Plan", label: "Free Plan" },
 ];
 const statusOptions = [
-  { value: "", label: "Filter account status" },
+  { value: "", label: "All account status" },
   { value: "active", label: "Active" },
+  { value: "locked", label: "Locked" },
 ];
 const roleOptions = [
   { value: "", label: "All roles" },
-  { value: "user", label: "User" },
+  { value: "user", label: "Customer" },
   { value: "admin", label: "Admin" },
   { value: "guest", label: "Guest" },
 ];
@@ -64,12 +65,9 @@ const UserManagement = () => {
         const data = await userService.fetchAdminUsers();
         const transformedUsers = data.map((u) => {
           // Chuẩn hóa membership
-          let membership = "Free";
-          if (
-            typeof u.typeLogin === "string" &&
-            u.typeLogin.trim().toLowerCase() === "prenium"
-          ) {
-            membership = "Premium";
+          let membership = "Free Plan";
+          if (u.hasActive === true) {
+            membership = "Premium Plan";
           }
           return {
             id: u.userId,
@@ -77,7 +75,7 @@ const UserManagement = () => {
             email: u.email,
             profile: u.profileName,
             role: u.role,
-            membership, // dùng giá trị đã chuẩn hóa
+            membership: membership, 
             joinDate: u.createdAt,
             lastActivity: u.lastLogin,
             status: u.isBlock ? "locked" : "active",
@@ -251,12 +249,9 @@ const UserManagement = () => {
       const data = await userService.fetchAdminUsers();
       const transformedUsers = data.map((u) => {
         // Chuẩn hóa membership
-        let membership = "Free";
-        if (
-          typeof u.typeLogin === "string" &&
-          u.typeLogin.trim().toLowerCase() === "prenium"
-        ) {
-          membership = "Premium";
+        let membership = "Free Plan";
+        if (u.hasActive === true) {
+          membership = "Premium Plan";
         }
         return {
           id: u.userId,
@@ -264,7 +259,7 @@ const UserManagement = () => {
           email: u.email,
           profile: u.profileName,
           role: u.role,
-          membership, // dùng giá trị đã chuẩn hóa
+          membership: membership, // dùng giá trị đã chuẩn hóa
           joinDate: u.createdAt,
           lastActivity: u.lastLogin,
           status: u.isBlock ? "locked" : "active",
@@ -314,17 +309,17 @@ const UserManagement = () => {
         value === "active" ? (
           <Tag color="green">Active</Tag>
         ) : (
-          <Tag color="red">Inactive</Tag>
+          <Tag color="red">Locked</Tag>
         ),
     },
     {
       title: "Membership package",
       dataIndex: "membership",
       render: (value) => (
-        value === "Premium" ? (
-          <Tag color="gold">Prenium</Tag>
+        value === "Premium Plan" ? (
+          <Tag color="gold">Premium Plan</Tag>
         ) : (
-          <Tag color="blue">Free</Tag>
+          <Tag color="blue">Free Plan</Tag>
         )
       ),
     },

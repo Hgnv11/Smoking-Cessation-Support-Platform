@@ -23,7 +23,9 @@ public class StrategyService {
         return categoryRepository.findAll();
     }
 
-    public StrategyCategory createCategory(StrategyCategory category) {
+    public StrategyCategory createCategory(String nameCategory) {
+        StrategyCategory category = new StrategyCategory();
+        category.setName(nameCategory);
         return categoryRepository.save(category);
     }
 
