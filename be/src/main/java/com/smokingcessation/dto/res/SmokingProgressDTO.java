@@ -30,6 +30,7 @@ public class SmokingProgressDTO {
 
     private BigDecimal moneySaved;
     private Integer cigarettesAvoided;
+    private BigDecimal averageCravingLevel;
 
     private Map<LocalDate, List<SmokingEventDTO>> smokingHistoryByDate;
 }

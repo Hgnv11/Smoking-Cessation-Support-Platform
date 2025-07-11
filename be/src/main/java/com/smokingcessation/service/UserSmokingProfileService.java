@@ -273,4 +273,23 @@ public class UserSmokingProfileService {
 
         return successRate >= 0.7 ? "success" : "failed";
     }
+
+    public double calculateSuccessRate(UserSmokingProfile profile, User user) {
+        LocalDate quitDate = profile.getQuitDate();
+        LocalDate endDate = profile.getEndDate() != null ? profile.getEndDate() : LocalDate.now();
+
+        if (quitDate == null || endDate.isBefore(quitDate)) return 0;
+
+        LocalDateTime from = quitDate.atStartOfDay();
+        LocalDateTime to = endDate.atTime(23, 59, 59);
+
+        long days = ChronoUnit.DAYS.between(quitDate, endDate) + 1;
+        if (days < 1) days = 1;
+
+        int expected = profile.getCigarettesPerDay() * (int) days;
+        int smoked = smokingEventRepository.sumCigarettesSmokedBetween(user.getUserId(), from, to);
+
+        int avoided = Math.max(expected - smoked, 0);
+        return expected > 0 ? (avoided * 1.0 / expected) : 0;
+    }
 }

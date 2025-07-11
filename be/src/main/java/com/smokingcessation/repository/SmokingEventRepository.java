@@ -32,5 +32,5 @@ public interface SmokingEventRepository extends JpaRepository<SmokingEvent, Inte
     Optional<SmokingEvent> findTopByUserOrderByEventTimeDesc(User user);
     List<SmokingEvent> findByUser_UserIdAndEventTimeAfter(Integer userId, LocalDateTime time);
     void deleteAllByUserAndEventTimeBetween(User user, LocalDateTime from, LocalDateTime to);
-
+    boolean existsByUserAndCravingLevelGreaterThan(User user, int level);
 }

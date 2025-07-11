@@ -155,6 +155,12 @@ public class SmokingEventService {
 
             String planResult = userSmokingProfileService.evaluatePlanResult(user.getEmail(), profile.getProfileId());
 
+            double averageCravingLevel = profileEvents.stream()
+                    .filter(e -> e.getCravingLevel() != null)
+                    .mapToInt(SmokingEvent::getCravingLevel)
+                    .average()
+                    .orElse(0.0);
+
             return SmokingProgressDTO.builder()
                     .profileId(profile.getProfileId())
                     .startDate(startDate)
@@ -168,6 +174,7 @@ public class SmokingEventService {
                     .cigarettePackCost(packCost)
                     .moneySaved(moneySaved.setScale(0, RoundingMode.HALF_UP))
                     .cigarettesAvoided(avoided)
+                    .averageCravingLevel(BigDecimal.valueOf(averageCravingLevel).setScale(2, RoundingMode.HALF_UP))
                     .smokingHistoryByDate(grouped)
                     .build();
         }).toList();
