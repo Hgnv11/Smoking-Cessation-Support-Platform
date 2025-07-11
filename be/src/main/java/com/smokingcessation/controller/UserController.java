@@ -40,6 +40,14 @@ public class UserController {
         return ResponseEntity.ok(mentors);
     }
 
+    @Operation(summary = "Lấy thông tin một mentor cụ thể kèm theo rating trung bình")
+    @GetMapping("/mentors/{mentorId}")
+    public ResponseEntity<MentorWithRatingDTO> getMentorById(@PathVariable Integer mentorId) {
+        MentorWithRatingDTO mentor = userService.getMentorByIdForUser(mentorId);
+        return ResponseEntity.ok(mentor);
+    }
+
+
     @Operation(
             summary = "Update profile user "
     )
