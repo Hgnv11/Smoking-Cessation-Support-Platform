@@ -126,6 +126,33 @@ public class ConsultationService {
         consultationRepository.save(consultation);
     }
 
+    public void updateFeedback(String userEmail, Integer consultationId, Integer rating, String feedback) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (!Boolean.TRUE.equals(user.getHasActive())) {
+            throw new RuntimeException("User account is inactive");
+        }
+
+        Consultation consultation = consultationRepository.findById(consultationId)
+                .orElseThrow(() -> new RuntimeException("Consultation not found"));
+        if (!consultation.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("Unauthorized to update feedback");
+        }
+        if (!consultation.getStatus().equals(Consultation.Status.completed)) {
+            throw new RuntimeException("Can only update feedback for completed consultations");
+        }
+        if (rating < 0 || rating > 5) {
+            throw new RuntimeException("Rating must be between 0 and 5");
+        }
+        if (consultation.getRating() == null && consultation.getFeedback() == null) {
+            throw new RuntimeException("No existing feedback to update");
+        }
+
+        consultation.setRating(rating);
+        consultation.setFeedback(feedback);
+        consultationRepository.save(consultation);
+    }
+
     public void mentorAddNote(String mentorEmail, Integer consultationId, String notes) {
         User mentor = userRepository.findByEmail(mentorEmail)
                 .orElseThrow(() -> new RuntimeException("Mentor not found"));

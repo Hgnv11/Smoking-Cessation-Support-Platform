@@ -216,8 +216,8 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public MentorWithRatingDTO getMentorByIdForUser(Integer mentorId) {
-        User mentor = userRepository.findByUserId(mentorId)
+    public MentorWithRatingDTO getMentorByIdForUser(String profileNameMentor) {
+        User mentor = userRepository.findByProfileName(profileNameMentor)
                 .orElseThrow(() -> new RuntimeException("Mentor not found"));
 
         if (!"mentor".equals(mentor.getRole().name())) {
