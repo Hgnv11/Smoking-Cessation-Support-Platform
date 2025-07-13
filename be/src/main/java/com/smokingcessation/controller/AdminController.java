@@ -31,6 +31,7 @@ public class AdminController {
     private final TriggerService triggerService;
     private final StrategyService strategyService;
     private final SmokingEventService smokingEventService;
+    private final AchievementService achievementService;
 
     // ========== USER CRUD ==========
 
@@ -217,8 +218,8 @@ public class AdminController {
 
     @Operation(summary = "Tạo mới danh mục trigger")
     @PostMapping("/trigger-categories")
-    public ResponseEntity<TriggerCategory> createCategory(@RequestBody TriggerCategory category) {
-        return ResponseEntity.ok(triggerService.createCategory(category));
+    public ResponseEntity<TriggerCategory> createCategory(@RequestParam String name) {
+        return ResponseEntity.ok(triggerService.createCategory(name));
     }
 
     @Operation(summary = "Cập nhật danh mục trigger")
@@ -266,8 +267,8 @@ public class AdminController {
 
     @Operation(summary = "Tạo mới danh mục strategy")
     @PostMapping("/strategy-categories")
-    public ResponseEntity<StrategyCategory> createStrategyCategory(@RequestBody StrategyCategory category) {
-        return ResponseEntity.ok(strategyService.createCategory(category));
+    public ResponseEntity<StrategyCategory> createStrategyCategory(@RequestParam String name) {
+        return ResponseEntity.ok(strategyService.createCategory(name));
     }
 
     @Operation(summary = "Cập nhật danh mục strategy")
@@ -283,6 +284,16 @@ public class AdminController {
     public ResponseEntity<Void> deleteStrategyCategory(@PathVariable Integer id) {
         strategyService.deleteCategory(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // ========== ACHIEVEMENTS ==========
+    @Operation(summary = "Cap nhat link ảnh huy hiệu")
+    @PutMapping("badges/{badgeId}/image")
+    public ResponseEntity<String> updateBadgeImage(
+            @PathVariable Long badgeId,
+            @RequestParam String imageUrl) {
+        achievementService.updateBadgeImageUrl(badgeId, imageUrl);
+        return ResponseEntity.ok("Badge image updated successfully.");
     }
 
 }

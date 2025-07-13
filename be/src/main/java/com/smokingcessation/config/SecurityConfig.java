@@ -53,6 +53,7 @@ public class SecurityConfig {
                                 "/api/profile/mentors",
                                 "/api/consultations/mentor/{mentorId}/slots",
                                 "/api/consultations/mentor/{mentorId}/ratings-feedback",
+                                "/api/profile/mentors/{profileNameMentor}",
                                 "/api/triggers/categories",
                                 "/api/strategies/categories",
                                 "/api/reasons"
@@ -82,8 +83,6 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5173",
-                "http://localhost:5174",
-                "http://localhost:5175",
                 "http://localhost:3000",
                 "http://localhost:8080"
 //                "https://smokingcessationsupport.space"

@@ -15,25 +15,29 @@ import {
   Card,
   Space,
 } from "antd";
-import { EyeOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EyeOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { userService } from "../../../services/userService.js";
 import ModalForDetailsButton from "./ModalForDetailsButton.jsx";
+import ModalForEditUser from "./ModalForEditUser.jsx";
+import ModalForAddUser from "./ModalForAddUser.jsx";
 
 const membershipOptions = [
   { value: "", label: "Filter membership" },
-  { value: "Premium", label: "Premium" },
-  { value: "Free", label: "Free" },
+  { value: "Premium Plan", label: "Premium Plan " },
+  { value: "Free Plan", label: "Free Plan" },
 ];
 const statusOptions = [
-  { value: "", label: "Filter account status" },
+  { value: "", label: "All account status" },
   { value: "active", label: "Active" },
+  { value: "locked", label: "Locked" },
 ];
 const roleOptions = [
-  { value: "", label: "Filter roles" },
-  { value: "Customer", label: "Customer" },
-  { value: "Coach", label: "Coach" },
+  { value: "", label: "All roles" },
+  { value: "user", label: "Customer" },
+  { value: "admin", label: "Admin" },
+  { value: "guest", label: "Guest" },
 ];
 
 const UserManagement = () => {
@@ -48,6 +52,9 @@ const UserManagement = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false); // Thêm state cho Add User modal
+  const [editingUserId, setEditingUserId] = useState(null);
   const [userDetail, setUserDetail] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
@@ -58,17 +65,24 @@ const UserManagement = () => {
       setLoadingUsers(true);
       try {
         const data = await userService.fetchAdminUsers();
-        const transformedUsers = data.map((u) => ({
-          id: u.userId,
-          name: u.fullName,
-          email: u.email,
-          profile: u.profileName,
-          role: u.role,
-          membership: u.typeLogin,
-          joinDate: u.createdAt,
-          lastActivity: u.lastLogin,
-          status: u.block ? "locked" : "active",
-        }));
+        const transformedUsers = data.map((u) => {
+          // Chuẩn hóa membership
+          let membership = "Free Plan";
+          if (u.hasActive === true) {
+            membership = "Premium Plan";
+          }
+          return {
+            id: u.userId,
+            name: u.fullName,
+            email: u.email,
+            profile: u.profileName,
+            role: u.role,
+            membership: membership, 
+            joinDate: u.createdAt,
+            lastActivity: u.lastLogin,
+            status: u.isBlock ? "locked" : "active",
+          };
+        });
         setUsers(transformedUsers);
       } catch (err) {
         console.error("Failed to fetch users", err);
@@ -223,6 +237,57 @@ const UserManagement = () => {
     }
   };
 
+  // Handle edit user
+  const handleEditUser = (user) => {
+    setEditingUserId(user.id);
+    setIsEditModalVisible(true);
+  };
+
+  // Handle add user
+  const handleAddUser = () => {
+    setIsAddModalVisible(true);
+  };
+
+  // Handle user updated
+  const handleUserUpdated = async () => {
+    // Refresh users list after update
+    try {
+      setLoadingUsers(true);
+      const data = await userService.fetchAdminUsers();
+      const transformedUsers = data.map((u) => {
+        // Chuẩn hóa membership
+        let membership = "Free Plan";
+        if (u.hasActive === true) {
+          membership = "Premium Plan";
+        }
+        return {
+          id: u.userId,
+          name: u.fullName,
+          email: u.email,
+          profile: u.profileName,
+          role: u.role,
+          membership: membership, // dùng giá trị đã chuẩn hóa
+          joinDate: u.createdAt,
+          lastActivity: u.lastLogin,
+          status: u.isBlock ? "locked" : "active",
+        };
+      });
+      setUsers(transformedUsers);
+    } catch (err) {
+      console.error("Failed to refresh users", err);
+      message.error("Failed to refresh users list");
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  // Handle user added
+  const handleUserAdded = async () => {
+    // Refresh users list after adding new user
+    await handleUserUpdated();
+    setIsAddModalVisible(false);
+  };
+
   const handleSelectAll = (checked) => {
     setSelectedRowKeys(checked ? filteredUsers.map((u) => u.id) : []);
   };
@@ -252,18 +317,24 @@ const UserManagement = () => {
       ),
     },
     {
+      title: "Account Status",
+      dataIndex: "status",
+      render: (value) =>
+        value === "active" ? (
+          <Tag color="green">Active</Tag>
+        ) : (
+          <Tag color="red">Locked</Tag>
+        ),
+    },
+    {
       title: "Membership package",
       dataIndex: "membership",
       render: (value) => (
-        <span
-          className={
-            value === "Premium"
-              ? styles["membership-premium"]
-              : styles["membership-free"]
-          }
-        >
-          {value}
-        </span>
+        value === "Premium Plan" ? (
+          <Tag color="gold">Premium Plan</Tag>
+        ) : (
+          <Tag color="blue">Free Plan</Tag>
+        )
       ),
     },
     {
@@ -291,7 +362,7 @@ const UserManagement = () => {
             type="default"
             icon={<EditOutlined />}
             size="small"
-            onClick={() => {}}
+            onClick={() => handleEditUser(row)}
           >
             Edit
           </Button>
@@ -368,6 +439,19 @@ const UserManagement = () => {
             value={filters.role || undefined}
             options={roleOptions}
           />
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            size="large"
+            onClick={handleAddUser}
+            style={{ 
+              marginLeft: 16,
+              borderRadius: '6px',
+              fontWeight: 500
+            }}
+          >
+            Add User
+          </Button>
         </div>
         {selectedRowKeys.length > 0 && (
           <div className={styles["bulk-actions"]}>
@@ -404,6 +488,26 @@ const UserManagement = () => {
           selectedUser={selectedUser}
           userDetail={userDetail}
           loadingDetail={loadingDetail}
+        />
+
+        {/* Modal for Edit User */}
+        <ModalForEditUser
+          open={isEditModalVisible}
+          onClose={() => {
+            setIsEditModalVisible(false);
+            setEditingUserId(null);
+          }}
+          userId={editingUserId}
+          onUserUpdated={handleUserUpdated}
+        />
+
+        {/* Modal for Add User */}
+        <ModalForAddUser
+          open={isAddModalVisible}
+          onClose={() => {
+            setIsAddModalVisible(false);
+          }}
+          onUserAdded={handleUserAdded}
         />
       </div>
     </AdminLayout>

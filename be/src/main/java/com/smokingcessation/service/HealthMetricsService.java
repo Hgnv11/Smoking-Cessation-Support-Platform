@@ -6,6 +6,8 @@ import com.smokingcessation.repository.SmokingEventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.Duration;
 import java.util.List;
@@ -79,7 +81,13 @@ public class HealthMetricsService {
         spo2 = Math.max(spo2, 90);
         cohb = Math.min(cohb, 10);
 
-        return new HealthMetrics(bpSystolic, bpDiastolic, heartRate, spo2, cohb);
+        return new HealthMetrics(
+                BigDecimal.valueOf(bpSystolic).setScale(1, RoundingMode.HALF_UP).doubleValue(),
+                BigDecimal.valueOf(bpDiastolic).setScale(1, RoundingMode.HALF_UP).doubleValue(),
+                BigDecimal.valueOf(heartRate).setScale(1, RoundingMode.HALF_UP).doubleValue(),
+                BigDecimal.valueOf(spo2).setScale(1, RoundingMode.HALF_UP).doubleValue(),
+                BigDecimal.valueOf(cohb).setScale(2, RoundingMode.HALF_UP).doubleValue()
+        );
     }
 
 }

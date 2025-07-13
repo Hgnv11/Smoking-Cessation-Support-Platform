@@ -11,12 +11,13 @@ import {
   Col,
   Progress,
   Tag,
-  Calendar,
   Modal,
   Input,
   Statistic,
   List,
   Badge,
+  Spin,
+  Alert,
 } from "antd";
 import {
   ArrowLeftOutlined,
@@ -25,239 +26,13 @@ import {
   VideoCameraOutlined,
   EditOutlined,
   EyeOutlined,
+  CalendarOutlined, 
 } from "@ant-design/icons";
+import { coachService } from "../../../services/coachService";
 import styles from "./ClientDetails.module.css";
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
-
-// Mock detailed client data
-const getClientData = (id) => {
-  const clients = {
-    1: {
-      id: 1,
-      name: "Matthew Paul",
-      email: "james.wilson@example.com",
-      avatar:
-        "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
-      smokeFreedays: 15,
-      moneySaved: 200,
-      cravingIntensity: 8,
-      status: "Premium",
-      joinDate: "2023-12-10",
-      totalConsultations: 8,
-      motivation:
-        "I want to be healthy for my family and save money for important expenses.",
-      goals:
-        "Quit smoking completely within 3 months, save $1000 by the end of the year.",
-      coachNotes:
-        "Matthew is motivated but struggles with work stress. Focus on stress management techniques and positive reinforcement.",
-      progressLog: {
-        "2024-06-01": "smoke-free",
-        "2024-06-02": "smoke-free",
-        "2024-06-03": "relapse",
-        "2024-06-04": "smoke-free",
-        "2024-06-05": "smoke-free",
-        "2024-06-06": "smoke-free",
-        "2024-06-07": "smoke-free",
-        "2024-06-08": "smoke-free",
-        "2024-06-09": "smoke-free",
-        "2024-06-10": "smoke-free",
-        "2024-06-11": "smoke-free",
-        "2024-06-12": "smoke-free",
-        "2024-06-13": "smoke-free",
-        "2024-06-14": "smoke-free",
-        "2024-06-15": "smoke-free",
-        "2024-06-16": "smoke-free",
-      },
-      consultationHistory: [
-        {
-          id: 1,
-          date: "2024-06-10",
-          type: "Video Session",
-          notes:
-            "Discussed coping strategies for stress. Matthew is improving with breathing exercises.",
-        },
-        {
-          id: 2,
-          date: "2024-06-03",
-          type: "Video Session",
-          notes:
-            "Addressed relapse on June 3rd. Identified work triggers and created action plan.",
-        },
-        {
-          id: 3,
-          date: "2024-05-26",
-          type: "Video Session",
-          notes:
-            "Weekly check-in. Matthew reported strong motivation despite challenges.",
-        },
-      ],
-    },
-    2: {
-      id: 2,
-      name: "Sophia Rodriguez",
-      email: "sophia.rodriguez@example.com",
-      avatar:
-        "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
-      smokeFreedays: 28,
-      moneySaved: 420,
-      cravingIntensity: 4,
-      status: "Premium",
-      joinDate: "2023-11-25",
-      totalConsultations: 12,
-      motivation:
-        "Health concerns and wanting to be a good role model for my children.",
-      goals:
-        "Complete cessation and maintain smoke-free lifestyle for at least 6 months.",
-      coachNotes:
-        "Sophia is very consistent and responds well to goal-setting. Continue with current approach.",
-      progressLog: {
-        "2024-06-01": "smoke-free",
-        "2024-06-02": "smoke-free",
-        "2024-06-03": "smoke-free",
-        "2024-06-04": "smoke-free",
-        "2024-06-05": "smoke-free",
-        "2024-06-06": "smoke-free",
-        "2024-06-07": "smoke-free",
-        "2024-06-08": "smoke-free",
-        "2024-06-09": "smoke-free",
-        "2024-06-10": "smoke-free",
-        "2024-06-11": "smoke-free",
-        "2024-06-12": "smoke-free",
-        "2024-06-13": "smoke-free",
-        "2024-06-14": "smoke-free",
-        "2024-06-15": "smoke-free",
-        "2024-06-16": "smoke-free",
-      },
-      consultationHistory: [
-        {
-          id: 1,
-          date: "2024-06-12",
-          type: "Video Session",
-          notes:
-            "Excellent progress. Discussed maintaining motivation long-term.",
-        },
-        {
-          id: 2,
-          date: "2024-06-05",
-          type: "Video Session",
-          notes:
-            "Weekly check-in. Sophia is doing very well with all aspects of the program.",
-        },
-      ],
-    },
-    3: {
-      id: 3,
-      name: "David Chen",
-      email: "david.chen@example.com",
-      avatar:
-        "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
-      smokeFreedays: 7,
-      moneySaved: 105,
-      cravingIntensity: 3,
-      status: "Basic",
-      joinDate: "2024-01-05",
-      totalConsultations: 4,
-      motivation:
-        "I want to improve my health and set a good example for my family.",
-      goals: "Quit smoking within 2 months, save money for family vacation.",
-      coachNotes:
-        "David shows good progress with low craving intensity. Focus on maintaining motivation and building healthy habits.",
-      progressLog: {
-        "2024-06-10": "smoke-free",
-        "2024-06-11": "smoke-free",
-        "2024-06-12": "smoke-free",
-        "2024-06-13": "smoke-free",
-        "2024-06-14": "smoke-free",
-        "2024-06-15": "smoke-free",
-        "2024-06-16": "smoke-free",
-      },
-      consultationHistory: [
-        {
-          id: 1,
-          date: "2024-06-14",
-          type: "Video Session",
-          notes:
-            "David is making excellent progress. Discussed strategies for maintaining motivation.",
-        },
-        {
-          id: 2,
-          date: "2024-06-07",
-          type: "Video Session",
-          notes:
-            "Weekly check-in. David reported low cravings and good progress with habit replacement.",
-        },
-      ],
-    },
-    4: {
-      id: 4,
-      name: "Emily Johnson",
-      email: "emily.johnson@example.com",
-      avatar:
-        "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
-      smokeFreedays: 22,
-      moneySaved: 330,
-      cravingIntensity: 6,
-      status: "Premium",
-      joinDate: "2023-12-20",
-      totalConsultations: 9,
-      motivation:
-        "I want to improve my lung health and save money for my future.",
-      goals: "Achieve 30 smoke-free days and maintain long-term cessation.",
-      coachNotes:
-        "Emily has moderate cravings but good determination. Continue with current support plan.",
-      progressLog: {
-        "2024-05-26": "smoke-free",
-        "2024-05-27": "smoke-free",
-        "2024-05-28": "relapse",
-        "2024-05-29": "smoke-free",
-        "2024-05-30": "smoke-free",
-        "2024-05-31": "smoke-free",
-        "2024-06-01": "smoke-free",
-        "2024-06-02": "smoke-free",
-        "2024-06-03": "smoke-free",
-        "2024-06-04": "smoke-free",
-        "2024-06-05": "smoke-free",
-        "2024-06-06": "smoke-free",
-        "2024-06-07": "smoke-free",
-        "2024-06-08": "smoke-free",
-        "2024-06-09": "smoke-free",
-        "2024-06-10": "smoke-free",
-        "2024-06-11": "smoke-free",
-        "2024-06-12": "smoke-free",
-        "2024-06-13": "smoke-free",
-        "2024-06-14": "smoke-free",
-        "2024-06-15": "smoke-free",
-        "2024-06-16": "smoke-free",
-      },
-      consultationHistory: [
-        {
-          id: 1,
-          date: "2024-06-13",
-          type: "Video Session",
-          notes:
-            "Emily discussed challenges with social situations. Provided coping strategies.",
-        },
-        {
-          id: 2,
-          date: "2024-06-06",
-          type: "Video Session",
-          notes:
-            "Good progress overall. Addressed concerns about weight gain after quitting.",
-        },
-        {
-          id: 3,
-          date: "2024-05-30",
-          type: "Video Session",
-          notes: "Weekly check-in. Emily recovered well from recent relapse.",
-        },
-      ],
-    },
-  };
-
-  return clients[id];
-};
 
 export const MentorClientDetails = () => {
   const navigate = useNavigate();
@@ -267,14 +42,167 @@ export const MentorClientDetails = () => {
   const [selectedConsultation, setSelectedConsultation] = useState(null);
   const [coachNotes, setCoachNotes] = useState("");
   const [clientData, setClientData] = useState(null);
+  const [smokingProgress, setSmokingProgress] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [savingNotes, setSavingNotes] = useState(false);
+  const [latestConsultationId, setLatestConsultationId] = useState(null);
+
+  /**
+   * Chuyển số slot thành chuỗi thời gian
+   */
+  const slotNumberToTime = (slotNumber) => {
+    const times = ["09:00", "10:00", "11:00", "14:00"];
+    return times[slotNumber] || "00:00";
+  };
+
+  /**
+   * Ánh xạ trạng thái consultation sang trạng thái client
+   */
+  const mapConsultationStatusToClientStatus = (consultationStatus) => {
+    switch(consultationStatus) {
+      case "completed": return "completed";
+      case "scheduled": return "active";
+      case "missed": return "at-risk";
+      case "cancelled": return "inactive";
+      default: return "active";
+    }
+  };
 
   useEffect(() => {
-    const data = getClientData(clientId);
-    setClientData(data);
-    if (data) {
-      setCoachNotes(data.coachNotes || "");
+    /**
+     * Tạo dữ liệu client từ consultations và smoking progress
+     */
+    const buildClientData = (consultations, progressData) => {
+      // Tìm consultations của client hiện tại
+      const clientConsultations = consultations.filter(
+        consultation => consultation.user.userId.toString() === clientId
+      );
+
+      if (clientConsultations.length === 0) {
+        return null; // Client không tồn tại
+      }
+
+      // Lấy thông tin client từ consultation đầu tiên
+      const firstConsultation = clientConsultations[0];
+      const user = firstConsultation.user;
+
+      // Xây dựng consultation history
+      const consultationHistory = clientConsultations.map(consultation => ({
+        id: consultation.consultationId,
+        type: "Video Consultation",
+        date: consultation.slot.slotDate,
+        time: slotNumberToTime(consultation.slot.slotNumber),
+        status: consultation.status,
+        notes: consultation.notes || "No notes available for this consultation.",
+        rating: consultation.rating,
+        feedback: consultation.feedback
+      }));        // Xác định trạng thái client
+        const latestStatus = clientConsultations
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0]?.status;
+
+        // Lấy consultation mới nhất để lưu notes
+        const latestConsultation = clientConsultations
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+
+        // Sử dụng dữ liệu từ smoking progress nếu có
+        const progress = progressData || {};
+      
+      return {
+        id: user.userId,
+        name: user.fullName || user.profileName || "Unknown Client",
+        email: user.email || "N/A",
+        avatar: user.avatarUrl || "",
+        status: mapConsultationStatusToClientStatus(latestStatus),
+        joinDate: firstConsultation.createdAt,
+        currentProgress: {
+          daysSmokeFreee: progress.daysSinceStart || 0,
+          cravingLevel: progress.averageCravingLevel || 5,
+          nextSession: null // Có thể tính toán từ scheduled consultations
+        },
+        detailedInfo: {
+          totalSavings: progress.moneySaved || 0,
+          consultationsAttended: clientConsultations.filter(c => c.status === "completed").length,
+          motivations: ["Improve health", "Save money", "Family"], // Default values
+          goals: ["30 days smoke-free", "Reduce daily cigarettes"], // Default values
+          notes: latestConsultation?.notes || "", // Lấy notes từ consultation mới nhất
+          consultationHistory: consultationHistory,
+          cigarettesPerDay: progress.cigarettesPerDay || 0,
+          cigarettesAvoided: progress.cigarettesAvoided || 0,
+          smokingHistoryByDate: progress.smokingHistoryByDate || {}
+        },
+        latestConsultationId: latestConsultation?.consultationId || null
+      };
+    };
+
+    const fetchClientData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Gọi API để lấy consultations và smoking progress
+        const [consultations, progressData] = await Promise.all([
+          coachService.getMentorConsultations(),
+          coachService.getUserSmokingProgress(clientId).catch(() => null) // Không bắt buộc có progress data
+        ]);
+
+        // Xây dựng dữ liệu client
+        const clientInfo = buildClientData(consultations, progressData?.[0]);
+        
+        if (!clientInfo) {
+          setError("Client not found");
+          return;
+        }
+
+        setClientData(clientInfo);
+        setSmokingProgress(progressData?.[0]);
+        setLatestConsultationId(clientInfo.latestConsultationId);
+        
+        if (clientInfo?.detailedInfo?.notes) {
+          setCoachNotes(clientInfo.detailedInfo.notes);
+        }
+      } catch (err) {
+        setError("Failed to load client data");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (clientId) {
+      fetchClientData();
     }
   }, [clientId]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", padding: "100px 0" }}>
+        <Spin size="large" />
+        <div style={{ marginTop: 16 }}>Loading client details...</div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div style={{ textAlign: "center", padding: "100px 0" }}>
+        <Alert
+          message="Error"
+          description={error}
+          type="error"
+          showIcon
+        />
+        <Button 
+          type="primary" 
+          onClick={() => navigate("/mentor/clients")}
+          style={{ marginTop: 16 }}
+        >
+          Back to Clients List
+        </Button>
+      </div>
+    );
+  }
 
   // Handle case where client is not found
   if (!clientData) {
@@ -308,42 +236,54 @@ export const MentorClientDetails = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Premium":
-        return "#722ed1";
-      case "Basic":
+      case "active":
+        return "#52c41a";
+      case "at-risk":
+        return "#ff4d4f";
+      case "completed":
         return "#1890ff";
-      case "On Track":
-        return "green";
-      case "Struggling":
-        return "red";
+      case "inactive":
+        return "#d9d9d9";
       default:
-        return "default";
+        return "#1890ff";
     }
   };
 
-  const dateCellRender = (value) => {
-    const dateStr = value.format("YYYY-MM-DD");
-    const status = clientData.progressLog[dateStr];
-
-    if (status === "smoke-free") {
-      return (
-        <div className={styles.smokeFreeDay}>
-          <div className={styles.smokeFreeIcon}>✓</div>
-        </div>
-      );
-    } else if (status === "relapse") {
-      return (
-        <div className={styles.relapseDay}>
-          <div className={styles.relapseIcon}>✗</div>
-        </div>
-      );
+  const saveCoachNotes = async () => {
+    if (!latestConsultationId || !coachNotes.trim()) {
+      Modal.warning({
+        title: 'Cannot Save Notes',
+        content: 'No consultation found or notes are empty. Please ensure there is at least one consultation for this client.',
+      });
+      return;
     }
-    return null;
-  };
 
-  const saveCoachNotes = () => {
-    console.log("Saving coach notes:", coachNotes);
-    // In a real app, this would save to backend
+    setSavingNotes(true);
+    try {
+      await coachService.addConsultationNote(latestConsultationId, coachNotes);
+      
+      // Cập nhật local state
+      setClientData(prev => ({
+        ...prev,
+        detailedInfo: {
+          ...prev.detailedInfo,
+          notes: coachNotes
+        }
+      }));
+
+      Modal.success({
+        title: 'Notes Saved',
+        content: 'Your notes have been saved successfully.',
+      });
+    } catch (error) {
+      console.error("Failed to save notes:", error);
+      Modal.error({
+        title: 'Save Failed',
+        content: 'Failed to save notes. Please try again.',
+      });
+    } finally {
+      setSavingNotes(false);
+    }
   };
 
   return (
@@ -426,7 +366,7 @@ export const MentorClientDetails = () => {
                 <Card className={styles.statCard}>
                   <Statistic
                     title="Smoke-Free Days"
-                    value={clientData.smokeFreedays}
+                    value={clientData.currentProgress.daysSmokeFreee}
                     prefix={<FireOutlined className={styles.smokeFreeIcon} />}
                     valueStyle={{ color: "#52c41a" }}
                   />
@@ -436,7 +376,7 @@ export const MentorClientDetails = () => {
                 <Card className={styles.statCard}>
                   <Statistic
                     title="Money Saved"
-                    value={clientData.moneySaved}
+                    value={clientData.detailedInfo.totalSavings}
                     prefix={<DollarOutlined className={styles.moneyIcon} />}
                     valueStyle={{ color: "#1890ff" }}
                   />
@@ -452,11 +392,11 @@ export const MentorClientDetails = () => {
                       <Progress
                         type="circle"
                         size={80}
-                        percent={(clientData.cravingIntensity / 10) * 100}
+                        percent={(clientData.currentProgress.cravingLevel / 10) * 100}
                         strokeColor={getCravingColor(
-                          clientData.cravingIntensity
+                          clientData.currentProgress.cravingLevel
                         )}
-                        format={() => `${clientData.cravingIntensity}/10`}
+                        format={() => `${clientData.currentProgress.cravingLevel}/10`}
                       />
                     </div>
                   </div>
@@ -466,7 +406,7 @@ export const MentorClientDetails = () => {
                 <Card className={styles.statCard}>
                   <Statistic
                     title="Total Consultations"
-                    value={clientData.totalConsultations}
+                    value={clientData.detailedInfo.consultationsAttended}
                     prefix={
                       <VideoCameraOutlined
                         className={styles.consultationIcon}
@@ -477,22 +417,6 @@ export const MentorClientDetails = () => {
                 </Card>
               </Col>
             </Row>
-          </Tabs.TabPane>
-
-          <Tabs.TabPane tab="Progress Log" key="progress">
-            <div className={styles.progressSection}>
-              <Title level={4} className={styles.progressTitle}>
-                Monthly Progress Calendar
-              </Title>
-              <Text type="secondary" className={styles.progressDescription}>
-                Green days indicate smoke-free days, red days indicate relapse
-                days.
-              </Text>
-            </div>
-            <Calendar
-              dateCellRender={dateCellRender}
-              className={styles.progressCalendar}
-            />
           </Tabs.TabPane>
 
           <Tabs.TabPane tab="Plan & Notes" key="plan">
@@ -507,7 +431,7 @@ export const MentorClientDetails = () => {
                       Initial Motivation
                     </Title>
                     <Paragraph className={styles.motivationText}>
-                      {clientData.motivation}
+                      {clientData.detailedInfo.motivations.join(", ")}
                     </Paragraph>
                   </div>
                   <div className={styles.goalsSection}>
@@ -515,7 +439,7 @@ export const MentorClientDetails = () => {
                       Goals
                     </Title>
                     <Paragraph className={styles.goalsText}>
-                      {clientData.goals}
+                      {clientData.detailedInfo.goals.join(", ")}
                     </Paragraph>
                   </div>
                 </Card>
@@ -530,6 +454,8 @@ export const MentorClientDetails = () => {
                       size="small"
                       icon={<EditOutlined />}
                       onClick={saveCoachNotes}
+                      loading={savingNotes}
+                      disabled={!coachNotes.trim() || !latestConsultationId}
                       className={styles.saveNotesButton}
                     >
                       Save Notes
@@ -551,7 +477,7 @@ export const MentorClientDetails = () => {
           <Tabs.TabPane tab="Consultation History" key="history">
             <List
               itemLayout="horizontal"
-              dataSource={clientData.consultationHistory}
+              dataSource={clientData.detailedInfo.consultationHistory}
               className={styles.consultationList}
               renderItem={(consultation) => (
                 <List.Item
@@ -578,18 +504,105 @@ export const MentorClientDetails = () => {
                       <Space>
                         <Text strong>{consultation.type}</Text>
                         <Badge status="success" />
+                        {consultation.rating > 0 && (
+                          <Text type="secondary">({consultation.rating}/5 stars)</Text>
+                        )}
                       </Space>
                     }
                     description={
-                      <Text type="secondary">
-                        {new Date(consultation.date).toLocaleDateString()}
-                      </Text>
+                      <Space direction="vertical" size="small">
+                        <Text type="secondary">
+                          {new Date(consultation.date).toLocaleDateString()} at {consultation.time}
+                        </Text>
+                        {consultation.feedback && (
+                          <Text italic>"{consultation.feedback}"</Text>
+                        )}
+                      </Space>
                     }
                   />
                 </List.Item>
               )}
             />
           </Tabs.TabPane>
+
+          {/* Smoking Progress Tab - hiển thị nếu có dữ liệu */}
+          {smokingProgress && (
+            <Tabs.TabPane tab="Smoking Progress" key="progress">
+              <Row gutter={24}>
+                <Col span={8}>
+                  <Card className={styles.statCard}>
+                    <Statistic
+                      title="Cigarettes Per Day"
+                      value={smokingProgress.cigarettesPerDay}
+                      valueStyle={{ color: "#ff4d4f" }}
+                    />
+                  </Card>
+                </Col>
+                <Col span={8}>
+                  <Card className={styles.statCard}>
+                    <Statistic
+                      title="Cigarettes Avoided"
+                      value={smokingProgress.cigarettesAvoided}
+                      valueStyle={{ color: "#52c41a" }}
+                    />
+                  </Card>
+                </Col>
+                <Col span={8}>
+                  <Card className={styles.statCard}>
+                    <Statistic
+                      title="Days Since Start"
+                      value={smokingProgress.daysSinceStart}
+                      valueStyle={{ color: "#1890ff" }}
+                    />
+                  </Card>
+                </Col>
+              </Row>
+
+              {/* Recent Smoking History */}
+              {smokingProgress.smokingHistoryByDate && 
+               Object.keys(smokingProgress.smokingHistoryByDate).length > 0 && (
+                <Card 
+                  title="Recent Smoking History" 
+                  style={{ marginTop: 24 }}
+                  className={styles.smokingHistoryCard}
+                >
+                  {Object.entries(smokingProgress.smokingHistoryByDate)
+                    .slice(-7) // Hiển thị 7 ngày gần nhất
+                    .map(([date, events]) => (
+                      <div key={date} style={{ marginBottom: 16 }}>
+                        <Title level={5}>{date}</Title>
+                        <List
+                          size="small"
+                          dataSource={events}
+                          renderItem={(event) => (
+                            <List.Item>
+                              <List.Item.Meta
+                                title={
+                                  <Space>
+                                    <Text strong>{event.cigarettesSmoked} cigarettes</Text>
+                                    <Tag color={getCravingColor(event.cravingLevel)}>
+                                      Craving: {event.cravingLevel}/10
+                                    </Tag>
+                                  </Space>
+                                }
+                                description={
+                                  <Space direction="vertical" size="small">
+                                    <Text type="secondary">
+                                      {new Date(event.eventTime).toLocaleTimeString()}
+                                    </Text>
+                                    {event.notes && <Text italic>{event.notes}</Text>}
+                                  </Space>
+                                }
+                              />
+                            </List.Item>
+                          )}
+                        />
+                      </div>
+                    ))}
+                </Card>
+              )}
+            </Tabs.TabPane>
+          )}
         </Tabs>
       </Card>
 

@@ -184,7 +184,6 @@ function UserProfile() {
       if (response.status === 200 || response.status === 201) {
         message.success("Profile updated successfully");
 
-        // Cập nhật Redux store nếu profileName được update
         if (updatedData.profileName) {
           const updatedUser = {
             ...user,
@@ -193,7 +192,6 @@ function UserProfile() {
           dispatch(login(updatedUser));
         }
 
-        // Reset states sau khi update thành công
         setFieldStates({
           fullName: true,
           profileName: true,
@@ -203,7 +201,6 @@ function UserProfile() {
 
         setEditedFields(new Set());
 
-        // Cập nhật original values với giá trị mới
         setOriginalValues(form.getFieldsValue());
       }
     } catch (error) {

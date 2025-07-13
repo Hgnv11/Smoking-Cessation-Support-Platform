@@ -19,30 +19,38 @@ import {
 } from "antd";
 import { CalendarOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import api from "../../../config/axios";
+import { coachService } from "../../../services/coachService";
 
 const { Title, Text, Paragraph } = Typography;
 
 export const MentorOverview = () => {
   const navigate = useNavigate();
   const [scheduleData, setScheduleData] = useState([]);
+  const [overviewStats, setOverviewStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchConsultations = async () => {
+    const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await api.get("/consultations/mentor");
-        const consultations = res.data;
-        // Group by slotDate
+        // Sử dụng Promise.all để gọi các API song song
+        const [overviewRes, consultationsRes] = await Promise.all([
+          coachService.getDashboardOverview(),
+          api.get("/consultations/mentor"),
+        ]);
+
+        setOverviewStats(overviewRes);
+
+        // Xử lý dữ liệu lịch hẹn chi tiết (giữ nguyên logic cũ)
+        const consultations = consultationsRes.data;
         const grouped = {};
         consultations.forEach((c) => {
           const date = c.slot.slotDate;
           if (!grouped[date]) grouped[date] = [];
           grouped[date].push(c);
         });
-        // Convert to array of days
         const days = Object.entries(grouped).map(([date, consults]) => {
           const slots = [0, 1, 2, 3].map((slotIdx) => {
             const found = consults.find((c) => c.slot.slotNumber === slotIdx);
@@ -75,13 +83,17 @@ export const MentorOverview = () => {
         });
         days.sort((a, b) => new Date(a.date) - new Date(b.date));
         setScheduleData(days);
-      } catch {
-        setError("Failed to fetch overview data");
+      } catch (err) {
+        setError("Failed to fetch overview data. Please try again later.");
+        // Trong trường hợp lỗi, bạn có thể muốn đặt dữ liệu mock để UI không bị trống
+        // setScheduleData(mockScheduleData); 
+        // setOverviewStats({ todayBookedSlots: 2, totalAppointmentDays: 2, totalBookedSlots: 3, availableSlots: 5, uniqueClients: 3 });
       } finally {
         setLoading(false);
       }
     };
-    fetchConsultations();
+
+    fetchData();
   }, []);
 
   // Helper: slot number to time string
@@ -118,57 +130,37 @@ export const MentorOverview = () => {
 
   if (loading)
     return (
-      <Spin size="large" style={{ display: "block", margin: "40px auto" }} />
+      <Spin size="large" className={styles.loader} />
     );
   if (error)
     return (
-      <Alert type="error" message={error} showIcon style={{ margin: 24 }} />
+      <Alert type="error" message={error} showIcon className={styles.errorAlert} />
     );
 
   return (
     <>
       <Card
         className={styles.dashboardUpcomingAppointmentsCard}
-        style={{
-          background: "linear-gradient(135deg, #0d9488 0%, #0f766e 100%)",
-          border: "none",
-          marginBottom: 24,
-          borderRadius: 16,
-          cursor: "pointer",
-          transition: "all 0.3s ease",
-        }}
         onClick={() => navigate("/mentor/appointments")}
         hoverable
       >
-        <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
-          <CalendarOutlined
-            style={{ fontSize: 24, color: "#fff", marginRight: 12 }}
-          />
-          <Title level={2} style={{ color: "#fff", margin: 0 }}>
-            Today's Appointments
+        <div className={styles.cardHeader}>
+          <CalendarOutlined className={styles.cardIcon} />
+          <Title level={2} className={styles.cardTitle}>
+            Appointments Overview
           </Title>
         </div>
-        <div
-          style={{ display: "flex", alignItems: "baseline", margin: "16px 0" }}
-        >
-          <Title level={1} style={{ color: "#fff", fontSize: 48, margin: 0 }}>
-            {todaySlots.filter((s) => !s.isAvailable).length}
+        <div className={styles.statsContainer}>
+          <Title level={1} className={styles.mainStat}>
+            {overviewStats?.totalAppointmentDays ?? 0}
           </Title>
-          <Text
-            style={{
-              color: "rgba(255, 255, 255, 0.8)",
-              fontSize: 20,
-              marginLeft: 8,
-            }}
-          >
-            slots booked today
+          <Text className={styles.mainStatLabel}>
+            days with appointments
           </Text>
         </div>
-        <Paragraph
-          style={{ color: "rgba(255, 255, 255, 0.9)", fontSize: 18, margin: 0 }}
-        >
+        <Paragraph className={styles.cardDescription}>
           Click to manage appointments{" "}
-          <span style={{ marginLeft: 4, fontSize: 20 }}>→</span>
+          <span className={styles.cardActionArrow}>→</span>
         </Paragraph>
       </Card>
 
@@ -206,24 +198,24 @@ export const MentorOverview = () => {
           <Card>
             <Statistic
               title="Total Days with Appointments"
-              value={totalDays}
+              value={overviewStats?.totalAppointmentDays ?? 0}
               prefix={<CalendarOutlined />}
             />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="Total Booked Slots" value={totalBookedSlots} />
+            <Statistic title="Total Booked Slots" value={overviewStats?.totalBookedSlots ?? 0} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="Available Slots" value={totalAvailableSlots} />
+            <Statistic title="Available Slots" value={overviewStats?.availableSlots ?? 0} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="Unique Clients" value={totalClients} />
+            <Statistic title="Unique Clients" value={overviewStats?.uniqueClients ?? 0} />
           </Card>
         </Col>
       </Row>

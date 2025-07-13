@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-07-07T20:06:20+0700",
+    date = "2025-07-13T21:30:16+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.7 (Oracle Corporation)"
 )
 @Component
@@ -26,6 +26,7 @@ public class UserSmokingProfileMapperImpl implements UserSmokingProfileMapper {
         UserSmokingProfileRequest userSmokingProfileRequest = new UserSmokingProfileRequest();
 
         userSmokingProfileRequest.setUser( userMapper.toDto( entity.getUser() ) );
+        userSmokingProfileRequest.setProfileId( entity.getProfileId() );
         userSmokingProfileRequest.setCigarettesPerDay( entity.getCigarettesPerDay() );
         userSmokingProfileRequest.setCigarettesPerPack( entity.getCigarettesPerPack() );
         userSmokingProfileRequest.setCigarettePackCost( entity.getCigarettePackCost() );
@@ -45,6 +46,7 @@ public class UserSmokingProfileMapperImpl implements UserSmokingProfileMapper {
         UserSmokingProfile userSmokingProfile = new UserSmokingProfile();
 
         userSmokingProfile.setUser( userMapper.toEntity( dto.getUser() ) );
+        userSmokingProfile.setProfileId( dto.getProfileId() );
         userSmokingProfile.setCigarettesPerDay( dto.getCigarettesPerDay() );
         userSmokingProfile.setCigarettesPerPack( dto.getCigarettesPerPack() );
         userSmokingProfile.setCigarettePackCost( dto.getCigarettePackCost() );

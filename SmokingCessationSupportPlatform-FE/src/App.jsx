@@ -6,7 +6,9 @@ import {
 } from "react-router-dom";
 import "./App.css";
 import { useSelector } from "react-redux";
-import { message, notification } from "antd";
+import { message, notification, Spin } from "antd";
+import { useEffect, useState } from "react";
+import api from "./config/axios";
 import Home from "./pages/Home/home.jsx";
 import Login from "./pages/Authentication/Login/login.jsx";
 import Register from "./pages/Authentication/Register/register.jsx";
@@ -41,8 +43,10 @@ import MentorAppointment from "./pages/MentorPages/Appointments/Appointment.jsx"
 import MentorOverview from "./pages/MentorPages/Overview/Overview.jsx";
 import MentorReports from "./pages/MentorPages/Reports/Report.jsx";
 import MentorClients from "./pages/MentorPages/Clients/Client.jsx";
+import MentorClientDetails from "./pages/MentorPages/Clients/ClientDetails.jsx";
 import AboutUs from "./pages/AboutUs/aboutUs.jsx";
 import ScheduleManagement from "./pages/AdminPages/ScheduleManagenment/ScheduleManagement.jsx";
+import PaymentResult from "./pages/PaymentResult/paymentResult.jsx";
 
 const ProtectRouteAuth = ({ children }) => {
   const user = useSelector((store) => store.user);
@@ -141,6 +145,80 @@ const ProtectCoachRoute = ({ children }) => {
     });
     return <Navigate to="/" />;
   }
+  return children;
+};
+
+const ProtectPlanDetail = ({ children }) => {
+  const user = useSelector((store) => store.user);
+  const [hasProfile, setHasProfile] = useState(null);
+
+  useEffect(() => {
+    const checkUserProfile = async () => {
+      if (user == null) return;
+
+      try {
+        const response = await api.get("/user-smoking-profile/my");
+        setHasProfile(response.data && response.data.length > 0);
+      } catch (error) {
+        console.error("Error checking user profile:", error);
+        setHasProfile(false);
+      }
+    };
+
+    checkUserProfile();
+  }, [user]);
+
+  if (user == null) {
+    return <Navigate to="/" />;
+  }
+
+  if (hasProfile === false) {
+    message.error("Please create a quit plan first!");
+    return <Navigate to="/make-plan" />;
+  }
+
+  if (hasProfile === null) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  return children;
+};
+
+const ProtectMakePlan = ({ children }) => {
+  const user = useSelector((store) => store.user);
+  const [hasProfile, setHasProfile] = useState(null);
+
+  useEffect(() => {
+    const checkUserProfile = async () => {
+      if (user == null) return;
+
+      try {
+        const response = await api.get("/user-smoking-profile/my");
+        setHasProfile(response.data && response.data.length > 0);
+      } catch (error) {
+        console.error("Error checking user profile:", error);
+        setHasProfile(false);
+      }
+    };
+
+    checkUserProfile();
+  }, [user]);
+
+  if (hasProfile === true) {
+    message.error("You already have a quit plan!");
+    return <Navigate to="/plan-detail" />;
+  }
+
   return children;
 };
 
@@ -256,12 +334,24 @@ function App() {
           element: <OthersPosts />,
         },
         {
+          path: "payment-result",
+          element: <PaymentResult />,
+        },
+        {
           path: "make-plan",
-          element: <MakePlan />,
+          element: (
+            <ProtectMakePlan>
+              <MakePlan />
+            </ProtectMakePlan>
+          ),
         },
         {
           path: "plan-detail",
-          element: <PlanDetail />,
+          element: (
+            <ProtectPlanDetail>
+              <PlanDetail />
+            </ProtectPlanDetail>
+          ),
         },
         { path: "community", element: <Community /> },
         { path: "community/:postId", element: <PostDetail /> },
@@ -337,6 +427,7 @@ function App() {
             { path: "overview", element: <MentorOverview /> },
             { path: "appointments", element: <MentorAppointment /> },
             { path: "clients", element: <MentorClients /> },
+            { path: "clients/:clientId", element: <MentorClientDetails /> },
             { path: "reports", element: <MentorReports /> },
           ],
         },

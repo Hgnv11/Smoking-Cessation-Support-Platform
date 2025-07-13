@@ -1,33 +1,31 @@
 import api from "../config/axios";
 
 export const coachService = {
-  // Lấy danh sách huấn luyện viên
-  getCoaches: async () => {
-    const response = await api.get('/admin/mentors');
+  // Tổng quan dashboard huấn luyện viên
+  getDashboardOverview: async () => {
+    const response = await api.get("mentor-dashboard/overview");
+    return response.data;
+  },
+  // Lấy danh sách consultations của mentor
+  getMentorConsultations: async () => {
+    const response = await api.get("consultations/mentor");
     return response.data;
   },
 
-  // Lấy thông tin chi tiết một huấn luyện viên
-  getCoachById: async (id) => {
-    const response = await api.get(`/coaches/${id}`);
+  getAllMentorConsultations: async () => {
+    const response = await api.get("consultations/mentor/slots/all");
     return response.data;
   },
-
-  // Tạo huấn luyện viên mới
-  createCoach: async (coachData) => {
-    const response = await api.post('/coaches', coachData);
+  // Lấy tiến trình cai thuốc của user theo userId
+  getUserSmokingProgress: async (userId) => {
+    const response = await api.get(`mentor-dashboard/smoking-progress/user/${userId}`);
     return response.data;
   },
-
-  // Cập nhật thông tin huấn luyện viên
-  updateCoach: async (id, coachData) => {
-    const response = await api.put(`/coaches/${id}`, coachData);
+  // Thêm ghi chú cho consultation
+  addConsultationNote: async (consultationId, notes) => {
+    const response = await api.post(`mentor-dashboard/consultations/${consultationId}/add-note`, {
+      notes: notes
+    });
     return response.data;
-  },
-
-  // Xóa huấn luyện viên
-  deleteCoach: async (id) => {
-    const response = await api.delete(`/coaches/${id}`);
-    return response.data;
-  },
-}; 
+  }
+};

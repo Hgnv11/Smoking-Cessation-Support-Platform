@@ -1,7 +1,7 @@
 import AuthenTemplate from "../../../components/authen-template/authen-template";
 import { Button, Divider, Form, Input, message, notification } from "antd";
 import FormItem from "antd/es/form/FormItem";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../../../config/axios";
 import { useState } from "react";
 
@@ -180,9 +180,9 @@ function Register() {
           <div className="register-login__link">
             <p>
               Already have an account?
-              <a className="link" href="/login">
+              <Link to="/login" className="link">
                 Sign In
-              </a>
+              </Link>
             </p>
           </div>
         </Form>

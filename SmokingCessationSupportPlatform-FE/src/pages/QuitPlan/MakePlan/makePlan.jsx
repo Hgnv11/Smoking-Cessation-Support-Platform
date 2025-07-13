@@ -76,7 +76,6 @@ function MakePlan() {
 
       message.success("Quit plan created successfully!");
 
-      // Optional: Reset form or redirect to plan detail page
       form.resetFields();
       navigate("/plan-detail");
     } catch (errorInfo) {
@@ -88,7 +87,6 @@ function MakePlan() {
           message.error("Please fill in all required fields");
         }
       } else {
-        // API error
         console.error("API Error:", errorInfo);
         message.error("Failed to create plan. Please try again.");
       }

@@ -23,7 +23,9 @@ public class TriggerService {
         return categoryRepository.findAll();
     }
 
-    public TriggerCategory createCategory(TriggerCategory category) {
+    public TriggerCategory createCategory(String nameCategory) {
+        TriggerCategory category = new TriggerCategory();
+        category.setName(nameCategory);
         return categoryRepository.save(category);
     }
 

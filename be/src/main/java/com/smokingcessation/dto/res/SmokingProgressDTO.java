@@ -22,6 +22,7 @@ public class SmokingProgressDTO {
     private long daysSinceStart;
     private Integer targetDays;
     private String status;
+    private String planResult;
 
     private Integer cigarettesPerDay;
     private Integer cigarettesPerPack;
@@ -29,6 +30,7 @@ public class SmokingProgressDTO {
 
     private BigDecimal moneySaved;
     private Integer cigarettesAvoided;
+    private BigDecimal averageCravingLevel;
 
     private Map<LocalDate, List<SmokingEventDTO>> smokingHistoryByDate;
 }

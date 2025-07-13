@@ -10,7 +10,7 @@ import {
 import FormItem from "antd/es/form/FormItem";
 import AuthenTemplate from "../../../components/authen-template/authen-template";
 import api from "../../../config/axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "../../../store/redux/features/userSlice";
 import { useState } from "react";
@@ -98,7 +98,7 @@ function Login() {
             <Form.Item name="remember" valuePropName="checked" noStyle>
               <Checkbox>Remember me</Checkbox>
             </Form.Item>
-            <a href="/forgot-password">Forgot your password?</a>
+            <Link to="/forgot-password">Forgot your password?</Link>
           </div>
 
           <Button
@@ -134,9 +134,9 @@ function Login() {
           <div className="register-login__link">
             <p>
               Don't have an account?
-              <a className="link" href="/register">
+              <Link to="/register" className="link">
                 Sign Up
-              </a>
+              </Link>
             </p>
           </div>
         </Form>

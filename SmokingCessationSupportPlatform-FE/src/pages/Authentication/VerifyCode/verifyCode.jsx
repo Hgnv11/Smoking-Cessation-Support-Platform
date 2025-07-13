@@ -2,7 +2,7 @@ import { Form, Input, Button, message, notification } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import FormItem from "antd/es/form/FormItem";
 import AuthenTemplate from "../../../components/authen-template/authen-template";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import api from "../../../config/axios";
 
 function VerifyCode() {
@@ -77,7 +77,7 @@ function VerifyCode() {
           </div>
           <div className="register-login__link">
             <ArrowLeftOutlined />
-            <a href="/register"> Back to Sign Up</a>
+            <Link to="/register"> Back to Sign Up</Link>
           </div>
         </Form>
       </AuthenTemplate>

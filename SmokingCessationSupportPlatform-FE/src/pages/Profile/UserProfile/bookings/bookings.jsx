@@ -11,6 +11,8 @@ import {
   Space,
   Modal,
   Result,
+  Input,
+  Form,
 } from "antd";
 import "./bookings.css";
 import Header from "../../../../components/header/header";
@@ -23,7 +25,7 @@ import {
   MailTwoTone,
 } from "@ant-design/icons";
 import api from "../../../../config/axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -33,6 +35,11 @@ function UserBookings() {
   const [filteredBookings, setFilteredBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("scheduled");
+  const [feedbackModal, setFeedbackModal] = useState(false);
+  const [viewFeedbackModal, setViewFeedbackModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [feedbackForm] = Form.useForm();
+  const [bookingFeedbackStatus, setBookingFeedbackStatus] = useState({});
   const navigate = useNavigate();
   const { confirm } = Modal;
 
@@ -66,11 +73,28 @@ function UserBookings() {
     setFilteredBookings(filtered);
   };
 
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.get("/consultations/user");
       setBookings(response.data);
+
+      // Check feedback status for completed bookings
+      const feedbackStatus = {};
+      for (const booking of response.data) {
+        if (booking.status === "completed") {
+          const consultationDetails = await checkConsultationDetails(
+            booking.consultationId
+          );
+          const hasFeedback =
+            consultationDetails &&
+            consultationDetails.feedback &&
+            consultationDetails.rating;
+          feedbackStatus[booking.consultationId] = hasFeedback;
+        }
+      }
+      setBookingFeedbackStatus(feedbackStatus);
+
       // Default filter to scheduled
       const scheduledBookings = response.data.filter(
         (booking) => booking.status === "scheduled"
@@ -82,7 +106,7 @@ function UserBookings() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const handleCancelAppointment = async (consultationId) => {
     try {
@@ -114,13 +138,76 @@ function UserBookings() {
     navigate(`/user-coach/${profileName}`);
   };
 
+  const checkConsultationDetails = async (consultationId) => {
+    try {
+      const response = await api.get(`/consultations/user/${consultationId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching consultation details:", error);
+      return null;
+    }
+  };
+
+  const handleAddFeedback = (booking) => {
+    setSelectedBooking(booking);
+    setFeedbackModal(true);
+    feedbackForm.resetFields();
+  };
+
+  const handleViewFeedback = async (booking) => {
+    const consultationDetails = await checkConsultationDetails(
+      booking.consultationId
+    );
+    if (consultationDetails) {
+      setSelectedBooking({
+        ...booking,
+        feedback: consultationDetails.feedback,
+        rating: consultationDetails.rating,
+      });
+      setViewFeedbackModal(true);
+    }
+  };
+
+  const handleSubmitFeedback = async (values) => {
+    try {
+      const rating = Math.round(values.rating);
+
+      if (!rating || rating < 1 || rating > 5) {
+        message.error("Please provide a valid rating between 1 and 5");
+        return;
+      }
+
+      if (!values.feedback || values.feedback.trim() === "") {
+        message.error("Please provide feedback text");
+        return;
+      }
+
+      const params = new URLSearchParams();
+      params.append("rating", rating.toString());
+      params.append("feedback", values.feedback.trim());
+
+      await api.post(
+        `/consultations/${
+          selectedBooking.consultationId
+        }/feedback?${params.toString()}`
+      );
+      message.success("Feedback submitted successfully!");
+      setFeedbackModal(false);
+      feedbackForm.resetFields();
+      fetchBookings();
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      message.error("Failed to submit feedback. Please try again.");
+    }
+  };
+
   useEffect(() => {
     if (user.hasActive) {
       fetchBookings();
     } else {
       setLoading(false);
     }
-  }, [user.hasActive]);
+  }, [user.hasActive, fetchBookings]);
 
   return (
     <>
@@ -231,12 +318,6 @@ function UserBookings() {
                               </p>
                             </div>
                           </div>
-                          <div className="wrapper__profile-bookings-card-coach-info-rate">
-                            <Rate disabled allowHalf defaultValue={4.5} />
-                            <p className="wrapper__profile-bookings-card-coach-info-rate-number">
-                              Rating 4.5
-                            </p>
-                          </div>
                         </div>
                       </div>
                       <div className="wrapper__profile-bookings-card-btn">
@@ -244,17 +325,47 @@ function UserBookings() {
                           className="wrapper__profile-bookings-card-btn-detail"
                           wrap
                         >
-                          <Button
-                            color="default"
-                            variant="filled"
-                            className="cancel-book"
-                            onClick={() =>
-                              showCancelConfirm(booking.consultationId)
-                            }
-                            disabled={booking.status !== "scheduled"}
-                          >
-                            Cancel Appointment
-                          </Button>
+                          {booking.status === "scheduled" ? (
+                            <Button
+                              color="default"
+                              variant="filled"
+                              className="cancel-book"
+                              onClick={() =>
+                                showCancelConfirm(booking.consultationId)
+                              }
+                            >
+                              Cancel Appointment
+                            </Button>
+                          ) : booking.status === "completed" ? (
+                            bookingFeedbackStatus[booking.consultationId] ? (
+                              <Button
+                                color="primary"
+                                variant="filled"
+                                className="cancel-book"
+                                onClick={() => handleViewFeedback(booking)}
+                              >
+                                View My Feedback
+                              </Button>
+                            ) : (
+                              <Button
+                                color="default"
+                                variant="filled"
+                                className="cancel-book"
+                                onClick={() => handleAddFeedback(booking)}
+                              >
+                                Add Feedback
+                              </Button>
+                            )
+                          ) : (
+                            <Button
+                              color="default"
+                              variant="filled"
+                              className="cancel-book"
+                              disabled
+                            >
+                              Cancelled
+                            </Button>
+                          )}
                         </Space>
 
                         <Button
@@ -271,6 +382,95 @@ function UserBookings() {
                     </Card>
                   ))
                 )}
+                <Modal
+                  title="Add Feedback"
+                  open={feedbackModal}
+                  onCancel={() => setFeedbackModal(false)}
+                  footer={null}
+                >
+                  <Form
+                    form={feedbackForm}
+                    onFinish={handleSubmitFeedback}
+                    layout="vertical"
+                  >
+                    <Form.Item
+                      name="rating"
+                      label="Rating"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select a rating",
+                        },
+                        {
+                          validator: (_, value) => {
+                            if (value && value > 0) {
+                              return Promise.resolve();
+                            }
+                            return Promise.reject(
+                              new Error("Rating must be greater than 0")
+                            );
+                          },
+                        },
+                      ]}
+                    >
+                      <Rate allowHalf />
+                    </Form.Item>
+                    <Form.Item
+                      name="feedback"
+                      label="Feedback"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter your feedback",
+                        },
+                      ]}
+                    >
+                      <Input.TextArea rows={4} />
+                    </Form.Item>
+                    <Form.Item>
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        className="wrapper__profile-bookings-feedback-submit"
+                      >
+                        Submit Feedback
+                      </Button>
+                    </Form.Item>
+                  </Form>
+                </Modal>
+
+                <Modal
+                  title="My Feedback"
+                  open={viewFeedbackModal}
+                  onCancel={() => setViewFeedbackModal(false)}
+                  footer={null}
+                >
+                  {selectedBooking && (
+                    <div>
+                      <div style={{ marginBottom: 16 }}>
+                        <strong>Rating:</strong>
+                        <Rate
+                          disabled
+                          value={selectedBooking.rating}
+                          style={{ marginLeft: 8 }}
+                        />
+                      </div>
+                      <div>
+                        <strong>Feedback:</strong>
+                        <p
+                          style={{
+                            marginTop: 8,
+                            padding: 12,
+                            backgroundColor: "#f5f5f5",
+                            borderRadius: 6,
+                          }}
+                        >
+                          {selectedBooking.feedback}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </Modal>
               </>
             )}
           </div>
