@@ -53,6 +53,7 @@ public class SecurityConfig {
                                 "/api/profile/mentors",
                                 "/api/consultations/mentor/{mentorId}/slots",
                                 "/api/consultations/mentor/{mentorId}/ratings-feedback",
+                                "/api/profile/mentors/{profileNameMentor}",
                                 "/api/triggers/categories",
                                 "/api/strategies/categories",
                                 "/api/reasons"
