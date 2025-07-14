@@ -1,5 +1,6 @@
 package com.smokingcessation.service;
 
+import com.smokingcessation.dto.res.LoginDTO;
 import com.smokingcessation.model.Payment;
 import com.smokingcessation.model.Subscription;
 import com.smokingcessation.model.User;
@@ -130,6 +131,50 @@ public class SubscriptionService {
         paymentRepo.save(payment);
         subscriptionRepo.save(sub);
     }
+
+    public LoginDTO confirmPaymentAndReturnUser(String transactionId, String statusString, String token) {
+        String email = jwtUtil.extractUsername(token);
+
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found from token"));
+
+        Payment payment = paymentRepo.findByTransactionId(transactionId)
+                .orElseThrow(() -> new RuntimeException("Transaction not found"));
+
+        Subscription sub = payment.getSubscription();
+
+        Payment.PaymentStatus status;
+        try {
+            status = Payment.PaymentStatus.valueOf(statusString.toLowerCase());
+        } catch (IllegalArgumentException e) {
+            status = Payment.PaymentStatus.failed;
+        }
+
+        payment.setStatus(status);
+        sub.setPaymentStatus(status == Payment.PaymentStatus.completed
+                ? Subscription.PaymentStatus.paid
+                : Subscription.PaymentStatus.failed);
+
+        if (status == Payment.PaymentStatus.completed) {
+            user.setHasActive(true);
+            userRepo.save(user);
+        }
+
+        paymentRepo.save(payment);
+        subscriptionRepo.save(sub);
+
+        return new LoginDTO(
+                null,
+                user.getUserId(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getIsVerified(),
+                user.getProfileName(),
+                user.getHasActive(),
+                user.getAvatarUrl()
+        );
+    }
+
 
 
     private String buildVNPayUrl(Payment payment, String clientIp) {

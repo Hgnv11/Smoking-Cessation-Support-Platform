@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.RedirectView;
 
+import java.net.URI;
+
 @RestController
 @RequestMapping("/api/subscription")
 @RequiredArgsConstructor
@@ -22,7 +24,7 @@ public class SubscriptionController {
     }
 
     @GetMapping("/payment/return")
-    public ResponseEntity<Void> handlePaymentReturn(
+    public ResponseEntity<?> handlePaymentReturn(
             @RequestParam("transaction_id") String transactionId,
             @RequestParam("vnp_ResponseCode") String responseCode,
             @RequestHeader(value = "Authorization", required = false) String authHeader
@@ -33,13 +35,21 @@ public class SubscriptionController {
 
         String status = "00".equals(responseCode) ? "completed" : "failed";
 
+        if (token != null && "completed".equals(status)) {
+            return ResponseEntity.ok(
+                    subscriptionService.confirmPaymentAndReturnUser(transactionId, status, token)
+            );
+        }
+
         if (token != null) {
             subscriptionService.confirmPaymentWithToken(transactionId, status, token);
         } else {
             subscriptionService.confirmPayment(transactionId, status);
         }
 
-        return ResponseEntity.ok().build(); // FE tự xử lý hiển thị UI
+        return ResponseEntity.status(302).location(
+                URI.create("http://localhost:5173/payment-result?transaction_id="
+                        + transactionId + "&vnp_ResponseCode=" + responseCode)
+        ).build();
     }
-
 }
