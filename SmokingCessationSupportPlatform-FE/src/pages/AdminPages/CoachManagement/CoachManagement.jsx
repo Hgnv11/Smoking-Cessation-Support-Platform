@@ -46,21 +46,17 @@ const CoachManagement = () => {
                 slot.booked &&
                 dayjs(slot.slotDate).format("YYYY-MM-DD") === today
             ).length;
-          } catch (slotError) {
+          } catch (error) {
             console.error(
               `Error fetching slots for mentor ${mentor.userId}:`,
-              slotError
+              error
             );
             todayConsults = 0;
           }
 
           try {
             rating = await coachService.getMentorRating(mentor.userId);
-          } catch (ratingError) {
-            console.error(
-              `Error fetching rating for mentor ${mentor.userId}:`,
-              ratingError
-            );
+          } catch (error) {
             rating = 0;
           }
 
@@ -290,15 +286,15 @@ const CoachManagement = () => {
   }, [search, filterStatus, coaches]);
 
   // Show list expertise as badges
-  // const renderExpertise = (expertiseArray) => (
-  //   <>
-  //     {expertiseArray.map((exp, i) => (
-  //       <span key={i} className={styles["expertise-badge"]}>
-  //         {exp}
-  //       </span>
-  //     ))}
-  //   </>
-  // );
+  const renderExpertise = (expertiseArray) => (
+    <>
+      {expertiseArray.map((exp, i) => (
+        <span key={i} className={styles["expertise-badge"]}>
+          {exp}
+        </span>
+      ))}
+    </>
+  );
 
   // Render rating as stars
   const renderRating = (rating) => (

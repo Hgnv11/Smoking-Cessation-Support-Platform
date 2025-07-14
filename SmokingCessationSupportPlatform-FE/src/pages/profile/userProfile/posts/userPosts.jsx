@@ -62,7 +62,6 @@ function UserPosts() {
 
   const handleSubmitPost = async (values) => {
     try {
-      // Upload image to Firebase if exists
       if (fileList.length > 0 && fileList[0].originFileObj) {
         try {
           const uploadedImageUrl = await uploadFile(fileList[0].originFileObj);
@@ -79,7 +78,7 @@ function UserPosts() {
       if (response.status === 200 || response.status === 201) {
         message.success("Your post has been sent for approval!");
         handleCloseModal();
-        // Refresh posts list
+
         await fetchUserPost();
       }
     } catch (error) {
@@ -134,6 +133,7 @@ function UserPosts() {
             </Button>
 
             <Modal
+              className="wrapper__community-posts-modal"
               open={openModal}
               onCancel={handleCloseModal}
               footer={[

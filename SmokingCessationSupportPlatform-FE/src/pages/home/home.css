@@ -129,3 +129,15 @@
     height: 40px;
     font-size: 16px;
 }
+
+.wrapper__card-post-des {
+    color: #7D7987;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    margin-top: 10px;
+    white-space: pre-wrap; /* Preserve line breaks */
+    word-wrap: break-word;
+}

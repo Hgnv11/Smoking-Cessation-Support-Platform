@@ -15,7 +15,12 @@ import {
   Card,
   Space,
 } from "antd";
-import { EyeOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  EyeOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { userService } from "../../../services/userService.js";
@@ -76,8 +81,9 @@ const UserManagement = () => {
             name: u.fullName,
             email: u.email,
             profile: u.profileName,
+            avatarUrl: u.avatarUrl || "",
             role: u.role,
-            membership: membership, 
+            membership: membership,
             joinDate: u.createdAt,
             lastActivity: u.lastLogin,
             status: u.isBlock ? "locked" : "active",
@@ -329,13 +335,12 @@ const UserManagement = () => {
     {
       title: "Membership package",
       dataIndex: "membership",
-      render: (value) => (
+      render: (value) =>
         value === "Premium Plan" ? (
           <Tag color="gold">Premium Plan</Tag>
         ) : (
           <Tag color="blue">Free Plan</Tag>
-        )
-      ),
+        ),
     },
     {
       title: "Joining date",
@@ -444,10 +449,10 @@ const UserManagement = () => {
             icon={<PlusOutlined />}
             size="large"
             onClick={handleAddUser}
-            style={{ 
+            style={{
               marginLeft: 16,
-              borderRadius: '6px',
-              fontWeight: 500
+              borderRadius: "6px",
+              fontWeight: 500,
             }}
           >
             Add User

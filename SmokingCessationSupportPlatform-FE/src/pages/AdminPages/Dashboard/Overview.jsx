@@ -105,12 +105,12 @@ const CHART_CONFIG = [
     span: { xs: 24, lg: 12 },
     key: "overallMembers",
   },
-  {
-    title: "Success Rate Over The Months",
-    component: SuccessRate,
-    span: { xs: 24, lg: 12 },
-    key: "successRate",
-  },
+  // {
+  //   title: "Success Rate Over The Months",
+  //   component: SuccessRate,
+  //   span: { xs: 24, lg: 12 },
+  //   key: "successRate",
+  // },
 ];
 
 // Component: Dashboard Header
