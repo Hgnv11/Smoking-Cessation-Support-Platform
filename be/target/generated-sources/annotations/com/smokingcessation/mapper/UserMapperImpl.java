@@ -34,6 +34,7 @@ public class UserMapperImpl implements UserMapper {
             userDTO.gender( user.getGender().name() );
         }
         userDTO.note( user.getNote() );
+        userDTO.hasActive( user.getHasActive() );
 
         return userDTO.build();
     }
@@ -57,6 +58,7 @@ public class UserMapperImpl implements UserMapper {
         }
         user.note( userDTO.getNote() );
         user.isVerified( userDTO.getIsVerified() );
+        user.hasActive( userDTO.getHasActive() );
 
         return user.build();
     }
