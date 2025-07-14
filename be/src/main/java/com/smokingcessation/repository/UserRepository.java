@@ -14,18 +14,17 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByProfileName(String profileName);
+
     Optional<User> findByEmail(String email);
+
     boolean existsByEmail(String email);
+
     boolean existsByUserId(Integer userId);
+
     Optional<User> findByUserId(int userId);
+
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+
     @Query(value = "SELECT COUNT(*) FROM users WHERE DATE(created_at) = :date", nativeQuery = true)
     long countByCreatedAtDate(@Param("date") LocalDate date);
-
-
-
-
-
-
-
 }

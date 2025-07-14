@@ -175,8 +175,6 @@ public class SubscriptionService {
         );
     }
 
-
-
     private String buildVNPayUrl(Payment payment, String clientIp) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
