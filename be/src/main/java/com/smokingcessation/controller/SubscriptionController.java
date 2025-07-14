@@ -3,6 +3,7 @@ package com.smokingcessation.controller;
 import com.smokingcessation.service.SubscriptionService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.RedirectView;
 
@@ -20,13 +21,25 @@ public class SubscriptionController {
         return subscriptionService.createSubscriptionAndPayment(email, clientIp);
     }
 
-    @Operation(summary = "Callback sau khi thanh toán")
     @GetMapping("/payment/return")
-    public String handlePaymentReturn(@RequestParam("transaction_id") String transactionId,
-                                      @RequestParam("vnp_ResponseCode") String responseCode) {
-        // VNPay trả về "00" là thành công
+    public ResponseEntity<Void> handlePaymentReturn(
+            @RequestParam("transaction_id") String transactionId,
+            @RequestParam("vnp_ResponseCode") String responseCode,
+            @RequestHeader(value = "Authorization", required = false) String authHeader
+    ) {
+        String token = authHeader != null && authHeader.startsWith("Bearer ")
+                ? authHeader.substring(7)
+                : null;
+
         String status = "00".equals(responseCode) ? "completed" : "failed";
-        subscriptionService.confirmPayment(transactionId, status);
-        return "Thanh toán xử lý xong, trạng thái: " + status;
+
+        if (token != null) {
+            subscriptionService.confirmPaymentWithToken(transactionId, status, token);
+        } else {
+            subscriptionService.confirmPayment(transactionId, status);
+        }
+
+        return ResponseEntity.ok().build(); // FE tự xử lý hiển thị UI
     }
+
 }
