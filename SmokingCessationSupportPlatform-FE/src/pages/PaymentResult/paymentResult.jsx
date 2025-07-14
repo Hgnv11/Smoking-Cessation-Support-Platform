@@ -1,102 +1,101 @@
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
-import api from "../../configs/axios";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-  FaCheckCircle,
-  FaTimesCircle,
-  FaHome,
-  FaHistory,
-} from "react-icons/fa";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { login } from "../../store/redux/features/userSlice";
+import { FaCheckCircle, FaTimesCircle, FaHome } from "react-icons/fa";
+import "./paymentResult.css";
 
 const PaymentResult = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [paymentStatus, setPaymentStatus] = useState(""); // "success" | "fail"
-  const [showAction, setShowAction] = useState(false);
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
+  const [result, setResult] = useState(null); // "success" | "fail"
+
+  // Lấy profile mới nhất và cập nhật redux + localStorage
+  const fetchUserProfile = async () => {
+    try {
+      const res = await axios.get("/api/profile/my");
+      localStorage.setItem("user", JSON.stringify(res.data));
+      dispatch(login(res.data)); // Update redux store!
+    } catch (error) {
+      console.error("Lỗi lấy profile mới:", error);
+    }
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const paymentId = params.get("paymentId");
-    const planId = params.get("planId");
-    const responseCode = params.get("vnp_ResponseCode"); // "00" là thành công
-
-    if (!paymentId || !planId || !responseCode) {
-      toast.error("Thiếu thông tin xác nhận đơn hàng!");
-      setPaymentStatus("fail");
-      setShowAction(true);
+    const transactionId = params.get("transaction_id");
+    const responseCode = params.get("vnp_ResponseCode");
+    if (!transactionId || !responseCode) {
+      setResult("fail");
+      setLoading(false);
       return;
     }
-
-    // Chuyển code từ VNPay thành SUCCESS/FAILED cho BE
-    const statusForApi = responseCode === "00" ? "SUCCESS" : "FAILED";
-    setPaymentStatus(statusForApi === "SUCCESS" ? "success" : "fail");
-
-    // Gửi xác nhận lên BE (chỉ gọi một lần khi mount)
-    api
-      .post("/payment/confirm", {
-        paymentId,
-        planId,
-        paymentStatus: statusForApi,
+    axios
+      .get("/api/subscription/payment/return", {
+        params: {
+          transaction_id: transactionId,
+          vnp_ResponseCode: responseCode,
+        },
       })
-      .then(() => {
-        if (statusForApi === "SUCCESS") toast.success("Thanh toán thành công!");
-        else toast.error("Thanh toán thất bại!");
+      .then(async () => {
+        if (responseCode === "00") {
+          setResult("success");
+          setLoading(true);
+          await fetchUserProfile();
+          setLoading(false);
+        } else {
+          setResult("fail");
+        }
       })
-      .catch(() => {
-        toast.error("Không xác nhận được trạng thái đơn hàng!");
-      })
-      .finally(() => setShowAction(true));
+      .catch(() => setResult("fail"))
+      .finally(() => {
+        if (responseCode !== "00") setLoading(false);
+      });
   }, [location]);
 
-  // ... UI hiển thị kết quả giống đoạn bạn đã gửi!
+  if (loading) {
+    return (
+      <div className="payment-result-background">
+        <div className="payment-result-loading">
+          Đang xác nhận thanh toán, vui lòng chờ...
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-        <div
-          className={`p-8 ${
-            paymentStatus === "success" ? "bg-green-50" : "bg-red-50"
-          }`}
-        >
-          {paymentStatus === "success" ? (
-            <div className="text-center">
-              <FaCheckCircle className="mx-auto h-16 w-16 text-green-500 animate-bounce" />
-              <h2 className="mt-4 text-3xl font-bold text-green-800">
-                Thanh toán thành công!
-              </h2>
-              <p className="mt-4 text-lg text-gray-800">
-                Cảm ơn bạn đã thanh toán. Bạn có thể về trang chủ hoặc xem các
-                gói của mình.
-              </p>
+    <div className="payment-result-background">
+      <div className="payment-result-card">
+        {result === "success" ? (
+          <>
+            <div className="icon-success">
+              <FaCheckCircle size={48} />
             </div>
-          ) : (
-            <div className="text-center">
-              <FaTimesCircle className="mx-auto h-16 w-16 text-red-500 animate-bounce" />
-              <h2 className="mt-4 text-3xl font-bold text-red-800">
-                Thanh toán thất bại!
-              </h2>
-              <div className="mt-6 text-gray-600">
-                Vui lòng thử lại hoặc liên hệ hỗ trợ.
-              </div>
-            </div>
-          )}
-        </div>
-        {showAction && (
-          <div className="p-6 bg-gray-50 space-y-4">
-            <button
-              className="w-full flex justify-center items-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-              onClick={() => navigate("/")}
-            >
+            <h2 className="result-title success">Thanh toán thành công!</h2>
+            <p className="result-message">
+              Cảm ơn bạn đã thanh toán. Quyền Premium đã được kích hoạt, bạn có
+              thể về trang chủ.
+            </p>
+            <button className="btn-home" onClick={() => navigate("/")}>
               <FaHome className="mr-2" /> Về trang chủ
             </button>
-            <button
-              className="w-full flex justify-center items-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-              onClick={() => navigate("/user-package")}
-            >
-              <FaHistory className="mr-2" /> Xem các gói đã mua
+          </>
+        ) : (
+          <>
+            <div className="icon-fail">
+              <FaTimesCircle size={48} />
+            </div>
+            <h2 className="result-title fail">Thanh toán thất bại!</h2>
+            <p className="result-message">
+              Vui lòng thử lại hoặc liên hệ hỗ trợ.
+            </p>
+            <button className="btn-home" onClick={() => navigate("/")}>
+              <FaHome className="mr-2" /> Về trang chủ
             </button>
-          </div>
+          </>
         )}
       </div>
     </div>

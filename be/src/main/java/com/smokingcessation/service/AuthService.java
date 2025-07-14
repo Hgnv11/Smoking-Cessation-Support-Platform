@@ -8,13 +8,10 @@ import com.smokingcessation.repository.UserRepository;
 import com.smokingcessation.util.JwtUtil;
 import jakarta.mail.MessagingException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Random;
-import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -156,52 +153,5 @@ public class AuthService {
         String otpCode = generateOtp();
         saveOtp(user, otpCode, purpose);
         emailService.sendOtpEmail(email, otpCode, purpose == OtpToken.Purpose.register ? "Registration Verification" : "Password Reset");
-    }
-
-    public LoginDTO handleGoogleLogin(OAuth2User principal) {
-        String email = principal.getAttribute("email");
-        String fullName = principal.getAttribute("name");
-        String avatarUrl = principal.getAttribute("picture");
-
-        if (email == null || fullName == null) {
-            throw new IllegalArgumentException("Email or full name is missing from Google response");
-        }
-
-        User existingUser = userRepository.findByEmail(email).orElse(null);
-        User user;
-
-        if (existingUser == null) {
-            User newUser = new User();
-            newUser.setEmail(email);
-            newUser.setFullName(fullName);
-            newUser.setAvatarUrl(avatarUrl);
-            newUser.setProfileName("user" + UUID.randomUUID().toString().substring(0, 6));
-            newUser.setPasswordHash(UUID.randomUUID().toString());
-            newUser.setRole(User.Role.user);
-            newUser.setIsVerified(true);
-            newUser.setHasActive(false);
-            newUser.setTypeLogin("GOOGLE");
-            newUser.setCreatedAt(LocalDateTime.now());
-            newUser.setUpdatedAt(LocalDateTime.now());
-            user = userRepository.save(newUser);
-        } else {
-            user = existingUser;
-            user.setUpdatedAt(LocalDateTime.now());
-            user.setLastLogin(LocalDateTime.now());
-            userRepository.save(user);
-        }
-
-        String token = jwtUtil.generateToken(email, user.getRole().name());
-
-        return new LoginDTO(
-                token,
-                user.getUserId(),
-                user.getEmail(),
-                user.getRole().name(),
-                user.getIsVerified(),
-                user.getProfileName(),
-                user.getHasActive(),
-                user.getAvatarUrl()
-        );
     }
 }

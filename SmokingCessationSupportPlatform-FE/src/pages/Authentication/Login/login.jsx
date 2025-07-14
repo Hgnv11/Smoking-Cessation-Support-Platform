@@ -111,11 +111,11 @@ function Login() {
             Sign in
           </Button>
 
-          <Divider plain style={{ borderColor: "#ccc" }} className="divider">
+          {/* <Divider plain style={{ borderColor: "#ccc" }} className="divider">
             or
-          </Divider>
+          </Divider> */}
 
-          <Button
+          {/* <Button
             htmlType="submit"
             className="google-login_btn"
             color="default"
@@ -129,7 +129,7 @@ function Login() {
             <p>
               Continue with <span className="gg">Google</span>
             </p>
-          </Button>
+          </Button> */}
 
           <div className="register-login__link">
             <p>

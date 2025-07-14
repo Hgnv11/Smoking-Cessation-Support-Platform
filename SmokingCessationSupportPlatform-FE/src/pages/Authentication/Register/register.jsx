@@ -163,11 +163,11 @@ function Register() {
             Sign Up
           </Button>
 
-          <Divider plain style={{ borderColor: "#ccc" }} className="divider">
+          {/* <Divider plain style={{ borderColor: "#ccc" }} className="divider">
             or
-          </Divider>
+          </Divider> */}
 
-          <Button className="google-login_btn" color="default" variant="filled">
+          {/* <Button className="google-login_btn" color="default" variant="filled">
             <img
               className="google-logo"
               src="/images/google-logo.png"
@@ -176,7 +176,8 @@ function Register() {
             <p>
               Continue with <span className="gg">Google</span>
             </p>
-          </Button>
+          </Button> */}
+
           <div className="register-login__link">
             <p>
               Already have an account?
