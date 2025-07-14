@@ -35,11 +35,9 @@ public class DashboardService {
             LocalDate thisDay = thisWeekStart.plusDays(i);
             LocalDate lastDay = lastWeekStart.plusDays(i);
 
-            long thisCount = userRepository.countByCreatedAtBetween(
-                    toDateTime(thisDay), toDateTime(thisDay.plusDays(1)));
+            long thisCount = userRepository.countByCreatedAtDate(thisDay);
+            long lastCount = userRepository.countByCreatedAtDate(lastDay);
 
-            long lastCount = userRepository.countByCreatedAtBetween(
-                    toDateTime(lastDay), toDateTime(lastDay.plusDays(1)));
 
             result.add(new UserGrowthDTO(
                     formatDate(thisDay),
