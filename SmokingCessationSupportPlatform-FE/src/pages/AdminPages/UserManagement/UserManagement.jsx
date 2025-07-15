@@ -15,7 +15,7 @@ import {
   Card,
   Space,
 } from "antd";
-import { EyeOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { EyeOutlined, EditOutlined, DeleteOutlined, PlusOutlined, CheckCircleOutlined, LockOutlined, CrownOutlined, UserOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { userService } from "../../../services/userService.js";
@@ -299,7 +299,7 @@ const UserManagement = () => {
   };
 
   const columns = [
-    { title: "User ID", dataIndex: "id" },
+    // { title: "User ID", dataIndex: "id" }, 
     { title: "Name", dataIndex: "name" },
     { title: "Email", dataIndex: "email" },
     { title: "Profile name", dataIndex: "profile" },
@@ -321,21 +321,28 @@ const UserManagement = () => {
       dataIndex: "status",
       render: (value) =>
         value === "active" ? (
-          <Tag color="green">Active</Tag>
+          <Tag icon={<CheckCircleOutlined />} color="success">
+            Active
+          </Tag>
         ) : (
-          <Tag color="red">Locked</Tag>
+          <Tag icon={<LockOutlined />} color="error">
+            Locked
+          </Tag>
         ),
     },
     {
       title: "Membership package",
       dataIndex: "membership",
-      render: (value) => (
+      render: (value) =>
         value === "Premium Plan" ? (
-          <Tag color="gold">Premium Plan</Tag>
+          <Tag icon={<CrownOutlined />} color="gold">
+            Premium Plan
+          </Tag>
         ) : (
-          <Tag color="blue">Free Plan</Tag>
-        )
-      ),
+          <Tag icon={<UserOutlined />} color="processing">
+            Free Plan
+          </Tag>
+        ),
     },
     {
       title: "Joining date",

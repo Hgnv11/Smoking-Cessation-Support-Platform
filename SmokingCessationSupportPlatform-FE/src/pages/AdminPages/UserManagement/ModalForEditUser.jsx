@@ -178,20 +178,22 @@ const ModalForEditUser = ({ open, onClose, userId, onUserUpdated }) => {
     }
   }, [open, fetchUserData]);
 
+  // Thêm debug vào function submit/update
   const handleSubmit = async (values) => {
-    setSubmitting(true);
     try {
+      console.log('Original user data:', originalUserData); // Debug data gốc
+      console.log('Form values to submit:', values); // Debug data sẽ gửi
+      
+      // Đảm bảo gửi đầy đủ thông tin, bao gồm role
       const updateData = {
-        fullName: values.fullName,
-        profileName: values.profileName,
-        email: values.email,
-        phone: values.phone || null,
-        birthDate: values.birthDate ? values.birthDate.format('YYYY-MM-DD') : null,
-        gender: values.gender,
-        isBlock: !values.isActive, // Convert back for the API
-        isVerified: values.isVerified
+        ...values,
+        role: values.role || originalUserData?.role || "user", // Đảm bảo có role
       };
+      
+      console.log('Final update data:', updateData); // Debug data cuối cùng
+      
       await userService.updateUser(userId, updateData);
+      
       message.success("User updated successfully!");
       if (onUserUpdated) onUserUpdated();
       handleClose();

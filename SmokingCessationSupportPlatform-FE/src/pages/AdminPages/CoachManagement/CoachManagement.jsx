@@ -50,7 +50,9 @@ const CoachManagement = () => {
           }
 
           try {
-            rating = await coachService.getMentorRating(mentor.userId);
+            // Tạm thời comment để tránh lỗi 500
+            // rating = await coachService.getMentorRating(mentor.userId);
+            rating = 0; // Set mặc định là 0
           } catch (error) {
             rating = 0;
           }
@@ -130,7 +132,26 @@ const CoachManagement = () => {
   // Handle activating/deactivating a coach
   const handleActivateCoach = async (id) => {
     try {
-      await api.patch(`/admin/mentors/${id}/activate`);
+      // Tìm coach hiện tại để lấy thông tin đầy đủ
+      const currentCoach = coaches.find(coach => coach.id == id);
+      if (!currentCoach) {
+        throw new Error('Coach not found');
+      }
+
+      console.log('Current coach data:', currentCoach); // Debug
+
+      // GỬI TOÀN BỘ THÔNG TIN để đảm bảo role không bị thay đổi
+      const updateData = {
+        email: currentCoach.email,
+        profileName: currentCoach.name, 
+        fullName: currentCoach.name,
+        role: "mentor", // ĐẢM BẢO ROLE VẪN LÀ MENTOR
+        hasActive: true, // Chỉ thay đổi field này
+      };
+
+      console.log('Sending update data:', updateData); // Debug
+      
+      await coachService.updateUser(id, updateData);
       fetchCoaches(); // Refresh data after update
     } catch (err) {
       console.error("Error activating coach:", err);
@@ -140,7 +161,26 @@ const CoachManagement = () => {
 
   const handleDeactivateCoach = async (id) => {
     try {
-      await api.patch(`/admin/mentors/${id}/deactivate`);
+      // Tìm coach hiện tại để lấy thông tin đầy đủ
+      const currentCoach = coaches.find(coach => coach.id == id);
+      if (!currentCoach) {
+        throw new Error('Coach not found');
+      }
+
+      console.log('Current coach data:', currentCoach); // Debug
+
+      // GỬI TOÀN BỘ THÔNG TIN để đảm bảo role không bị thay đổi
+      const updateData = {
+        email: currentCoach.email,
+        profileName: currentCoach.name,
+        fullName: currentCoach.name,
+        role: "mentor", // ĐẢM BẢO ROLE VẪN LÀ MENTOR
+        hasActive: false, // Chỉ thay đổi field này
+      };
+
+      console.log('Sending update data:', updateData); // Debug
+      
+      await coachService.updateUser(id, updateData);
       fetchCoaches(); // Refresh data after update
     } catch (err) {
       console.error("Error deactivating coach:", err);
@@ -382,17 +422,14 @@ const CoachManagement = () => {
             <div className={styles["summary-label"]}>Active Coaches</div>
             <div className={styles["summary-value"]}>
               <span className={styles["summary-icon"]}>👥</span>
-              {
-                filteredCoaches.filter((coach) => coach.status === "ACTIVE")
-                  .length
-              }
+              {filteredCoaches.filter((coach) => coach.status === "ACTIVE").length}
             </div>
           </div>
           <div className={styles["summary-card"]}>
             <div className={styles["summary-label"]}>Today's Consultations</div>
             <div className={styles["summary-value"]}>
               <span className={styles["summary-icon"]}>🗓️</span>
-              {statistics.todayConsultations}
+              {filteredCoaches.reduce((sum, coach) => sum + coach.todayConsults, 0)}
             </div>
           </div>
           <div className={styles["summary-card"]}>
@@ -400,7 +437,21 @@ const CoachManagement = () => {
             <div
               className={`${styles["summary-value"]} ${styles["rating-value"]}`}
             >
-              {renderRating(statistics.avgRating)} {statistics.avgRating} / 5
+              {renderRating(
+                filteredCoaches.length
+                  ? (
+                      filteredCoaches.reduce((sum, coach) => sum + coach.rating, 0) /
+                      filteredCoaches.length
+                    ).toFixed(1)
+                  : 0
+              )}{" "}
+              {filteredCoaches.length
+                ? (
+                    filteredCoaches.reduce((sum, coach) => sum + coach.rating, 0) /
+                    filteredCoaches.length
+                  ).toFixed(1)
+                : 0}{" "}
+              / 5
             </div>
           </div>
         </div>

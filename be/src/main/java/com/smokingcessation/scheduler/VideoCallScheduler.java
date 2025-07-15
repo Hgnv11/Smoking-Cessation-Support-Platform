@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -53,13 +54,16 @@ public class VideoCallScheduler {
             }
 
             // Xóa link sau 15 phút kể từ khi kết thúc
+            // Xóa link sau 15 phút kể từ khi kết thúc (chỉ gọi Daily.co, không xóa trong DB)
             if (consultation.getMeetingLink() != null &&
                     now.isAfter(endTime.plusMinutes(15))) {
-
-                dailyVideoService.deleteRoomByUrl(consultation.getMeetingLink());
-                consultationRepository.save(consultation);
-                log.info("Deleted Daily.co meeting for consultation ID {}", consultation.getConsultationId());
+                try {
+                    dailyVideoService.deleteRoomByUrl(consultation.getMeetingLink());
+                } catch (WebClientResponseException.NotFound e) {
+                } catch (Exception e) {
+                }
             }
+
         }
     }
 }

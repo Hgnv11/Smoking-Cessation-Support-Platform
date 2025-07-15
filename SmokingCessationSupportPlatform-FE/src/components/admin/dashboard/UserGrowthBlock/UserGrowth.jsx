@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AreaChart,
   Area,
@@ -9,8 +9,9 @@ import {
   Legend,
   ResponsiveContainer
 } from "recharts";
-import { USER_GROWTH_DATA, USER_GROWTH_7_DAYS, USER_GROWTH_30_DAYS } from "../../../data/mockData";
+import { USER_GROWTH_DATA } from "../../../data/mockData";
 import { Typography, Select, Row, Col } from "antd";
+import { dashboardService } from "../../../../services/dashboardService"; // Thêm dòng này
 
 // Default colors (will be overridden by props if provided)
 const DEFAULT_COLORS = {
@@ -84,62 +85,66 @@ const UserGrowth = ({ colors, theme }) => {
     positive: theme?.success || DEFAULT_COLORS.positive
   };
   const [timePeriod, setTimePeriod] = useState("7Days");
-  const [data, setData] = useState(USER_GROWTH_7_DAYS);
+  const [data, setData] = useState([]);
   const [userDifference, setUserDifference] = useState("");
-  
-  // Calculate total users and difference
+  const [loading, setLoading] = useState(false);
+
+  // Tính toán sự khác biệt người dùng
   const calculateUserDifference = (currentData, periodType) => {
-    const sumLastPeriod = currentData.reduce(
-      (sum, item) => sum + item[periodType === "Monthly" ? "last_month" : "last_period"], 
-      0
-    );
-    
-    const sumThisPeriod = currentData.reduce(
-      (sum, item) => sum + item[periodType === "Monthly" ? "this_month" : "this_period"], 
-      0
-    );
-    
+    const lastKey = periodType === "Monthly" ? "last_month" : "last_period";
+    const thisKey = periodType === "Monthly" ? "this_month" : "this_period";
+    const sumLastPeriod = currentData.reduce((sum, item) => sum + (item[lastKey] || 0), 0);
+    const sumThisPeriod = currentData.reduce((sum, item) => sum + (item[thisKey] || 0), 0);
     const difference = sumThisPeriod - sumLastPeriod;
-    const percentChange = sumLastPeriod !== 0 
-      ? ((difference / sumLastPeriod) * 100).toFixed(1) 
-      : 0;
-    
-    const prefix = difference >= 0 ? "↑" : "↓";
-    const diffText = `${prefix} ${Math.abs(difference)} new users (${difference >= 0 ? '+' : ''}${percentChange}%)`;
-    
-    return diffText;
+
+    if (sumLastPeriod === 0 && sumThisPeriod === 0) {
+      return "No change";
+    }
+    if (sumLastPeriod === 0 && sumThisPeriod > 0) {
+      return `↑ ${sumThisPeriod} new users (new)`;
+    }
+    if (sumLastPeriod > 0) {
+      const percentChange = ((difference / sumLastPeriod) * 10).toFixed(1);
+      const prefix = difference >= 0 ? "↑" : "↓";
+      return `${prefix} ${Math.abs(difference)} new users (${difference >= 0 ? '+' : ''}${percentChange}%)`;
+    }
+    return "No change";
   };
-  
-  // Handle time period change
-  const handlePeriodChange = (value) => {
-    setTimePeriod(value);
-    let newData;
-    
-    if (value === "7Days") {
-      newData = USER_GROWTH_7_DAYS;
-    } else if (value === "30Days") {
-      newData = USER_GROWTH_30_DAYS;
+
+  // Hàm fetch data theo period
+  const fetchData = async (period) => {
+    setLoading(true);
+    let newData = [];
+    if (period === "7Days") {
+      newData = await dashboardService.getUserGrowth7Days();
+    } else if (period === "30Days") {
+      newData = await dashboardService.getUserGrowth30Days();
     } else {
-      newData = USER_GROWTH_DATA; // Monthly data
+      newData = USER_GROWTH_DATA; // Monthly dùng mock data
     }
     
+    console.log(`Data for ${period}:`, newData); // Debug line
+    
     setData(newData);
-    setUserDifference(calculateUserDifference(newData, value === "Monthly" ? "Monthly" : "Period"));
+    setUserDifference(calculateUserDifference(newData, period === "Monthly" ? "Monthly" : "Period"));
+    setLoading(false);
   };
-  
-  // Initialize user difference on component mount
-  React.useEffect(() => {
-    setUserDifference(calculateUserDifference(data, timePeriod === "Monthly" ? "Monthly" : "Period"));
-  }, [data, timePeriod]);
-  
+
+  // Khi đổi period
+  const handlePeriodChange = (value) => {
+    setTimePeriod(value);
+    fetchData(value);
+  };
+
+  // Lấy dữ liệu khi mount và khi đổi period
+  useEffect(() => {
+    fetchData(timePeriod);
+    // eslint-disable-next-line
+  }, [timePeriod]);
+
   return (
     <div style={{ background: CHART_COLORS.background, borderRadius: 12, padding: 24 }}>
       <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
-        <Col>
-          <Typography.Title level={4} style={TEXT_STYLES.title}>
-            User Growth
-          </Typography.Title>
-        </Col>
         <Col>
           <Row align="middle" gutter={8}>
             <Col>
@@ -195,7 +200,12 @@ const UserGrowth = ({ colors, theme }) => {
             dataKey={timePeriod === "Monthly" ? "month" : "period"} 
             tick={{ fill: '#666666' }}
           />
-          <YAxis tick={{ fill: '#666666' }} />
+          <YAxis 
+            tick={{ fill: '#666666' }}
+            domain={[0, (dataMax) => Math.max(dataMax + 2, 5)]}
+            allowDataOverflow={false}
+            tickCount={6}
+          />
           <Tooltip 
             contentStyle={{ 
               backgroundColor: '#fff', 
@@ -228,9 +238,13 @@ const UserGrowth = ({ colors, theme }) => {
           />
         </AreaChart>
       </ResponsiveContainer>
+      {loading && (
+        <div style={{ position: "absolute", top: 80, left: 0, right: 0, textAlign: "center" }}>
+          <Typography.Text>Loading...</Typography.Text>
+        </div>
+      )}
     </div>
   );
 };
 
 export default UserGrowth;
-  

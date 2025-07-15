@@ -109,15 +109,18 @@ export const userService = {
   },
 
   // Cập nhật thông tin user
-  updateUser: async (id, userData) => {
+  updateUser: async (userId, userData) => {
     try {
-      const response = await api.put(`admin/users/${id}`, userData);
+      console.log('UserService - Sending data to update user:', userData); // Debug input
+      const response = await api.put(`/admin/users/${userId}`, userData);
+      console.log('UserService - Update user response:', response.data); // Debug output
       return response.data;
     } catch (error) {
-      console.error('Error updating user:', error);
+      console.error(`Error updating user ${userId}:`, error);
       throw error;
     }
   },
+
   // Tạo user mới bằng admin
   createUserByAdmin: async (userData) => {
     try {

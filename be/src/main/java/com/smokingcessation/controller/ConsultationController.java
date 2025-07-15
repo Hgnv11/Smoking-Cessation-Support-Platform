@@ -83,6 +83,18 @@ public class ConsultationController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Cập nhật đánh giá và feedback")
+    @PutMapping("/{consultationId}/feedback")
+    public ResponseEntity<Void> updateFeedback(
+            Principal principal,
+            @PathVariable Integer consultationId,
+            @RequestParam Integer rating,
+            @RequestParam String feedback) {
+        String userEmail = principal.getName();
+        consultationService.updateFeedback(userEmail, consultationId, rating, feedback);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "Mentor cập nhật trạng thái và ghi chú")
     @PreAuthorize("hasRole('MENTOR')")
     @PatchMapping("/{consultationId}/status-note")

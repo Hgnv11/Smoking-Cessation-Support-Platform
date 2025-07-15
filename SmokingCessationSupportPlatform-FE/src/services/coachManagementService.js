@@ -19,10 +19,17 @@ export const coachService = {
     return response.data;
   },
 
-  // Cập nhật thông tin huấn luyện viên
-  updateCoach: async (id, coachData) => {
-    const response = await api.put(`/coaches/${id}`, coachData);
-    return response.data;
+  // Cập nhật thông tin huấn luyện viên - THÊM DEBUG
+  updateUser: async (userId, userData) => {
+    try {
+      console.log('Sending data to update user:', userData); // Debug input
+      const response = await api.put(`/admin/users/${userId}`, userData);
+      console.log('Update user response:', response.data); // Debug output
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating user ${userId}:`, error);
+      throw error;
+    }
   },
 
   // Xóa huấn luyện viên

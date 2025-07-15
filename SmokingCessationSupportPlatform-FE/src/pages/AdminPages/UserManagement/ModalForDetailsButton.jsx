@@ -3,67 +3,29 @@ import { Modal, Tag, Row, Col, Card, Spin } from "antd";
 import dayjs from "dayjs";
 import styles from "./ModalForDetailsButton.module.css";
 
-// Cải thiện function tính tuổi cho Customer
-function getAgeFromBirthDate(smokingHistoryByDate) {
-  if (!smokingHistoryByDate || typeof smokingHistoryByDate !== 'object') return "N/A";
-  
-  // Lấy key đầu tiên từ smokingHistoryByDate
-  const firstKey = Object.keys(smokingHistoryByDate)[0];
-  const user = smokingHistoryByDate[firstKey]?.[0]?.user;
-  
-  if (!user?.birthDate) return "N/A";
-  
-  try {
-    const birth = new Date(user.birthDate);
-    const now = new Date();
-    let age = now.getFullYear() - birth.getFullYear();
-    if (
-      now.getMonth() < birth.getMonth() ||
-      (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate())
-    ) {
-      age--;
-    }
-    return age;
-  } catch (error) {
-    console.error("Error calculating age:", error);
-    return "N/A";
-  }
-}
+// Hàm tính tuổi chung, kiểm tra nhiều nguồn birthDate
+function getAge(userDetail, selectedUser, isCustomer) {
+  // Ưu tiên lấy birthDate từ selectedUser nếu có
+  let birthDate = selectedUser?.birthDate || userDetail?.birthDate;
 
-// Function tính tuổi cho Admin/Coach từ userDetail
-function getAgeFromUserDetail(userDetail) {
-  if (!userDetail?.birthDate) return "N/A";
-  
-  try {
-    const birth = new Date(userDetail.birthDate);
-    const now = new Date();
-    let age = now.getFullYear() - birth.getFullYear();
-    if (
-      now.getMonth() < birth.getMonth() ||
-      (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate())
-    ) {
-      age--;
+  // Nếu là customer và chưa có birthDate, thử lấy từ smokingHistoryByDate
+  if (isCustomer && !birthDate && userDetail?.smokingHistoryByDate) {
+    try {
+      const firstKey = Object.keys(userDetail.smokingHistoryByDate)[0];
+      birthDate = userDetail.smokingHistoryByDate[firstKey]?.[0]?.user?.birthDate;
+    } catch (e) {
+      // ignore
     }
-    return age;
-  } catch (error) {
-    console.error("Error calculating age:", error);
-    return "N/A";
   }
-}
 
-// Function để tính số năm hút thuốc (reserved for future use)
-// function getYearsSmoked(userDetail) {
-//   if (!userDetail?.startDate) return "N/A";
-//   
-//   try {
-//     const startDate = new Date(userDetail.startDate);
-//     const now = new Date();
-//     const years = now.getFullYear() - startDate.getFullYear();
-//     return years > 0 ? years : "Less than 1";
-//   } catch {
-//     return "N/A";
-//   }
-// }
+  console.log("Final birthDate used:", birthDate);
+
+  if (!birthDate) return "N/A";
+  const birthDayjs = dayjs(birthDate, ["YYYY-MM-DD", "DD/MM/YYYY", "MM/DD/YYYY"]);
+  if (!birthDayjs.isValid()) return "N/A";
+  const age = dayjs().diff(birthDayjs, 'year');
+  return age >= 0 ? age : "N/A";
+}
 
 const ModalForDetailsButton = ({ open, onClose, selectedUser, userDetail, loadingDetail }) => {
   const isCustomer = selectedUser?.role === "Customer" || selectedUser?.role === "user";
@@ -165,16 +127,13 @@ const ModalForDetailsButton = ({ open, onClose, selectedUser, userDetail, loadin
                 </Col>
                 <Col span={12}>
                   <div>
-                    <span className={styles.label}>Age:</span> 
+                    <span className={styles.label}>Age:</span>
                     <b>
-                      {isCustomer 
-                        ? `${getAgeFromBirthDate(userDetail?.smokingHistoryByDate)} years old`
-                        : `${getAgeFromUserDetail(userDetail)} years old`
-                      }
+                      {`${getAge(userDetail, selectedUser, isCustomer)} years old`}
                     </b>
                   </div>
                   <div>
-                    <span className={styles.label}>Gender:</span> 
+                    <span className={styles.label}>Gender:</span>
                     <b>{isAdminOrCoach ? userDetail?.gender || "N/A" : "N/A"}</b>
                   </div>
                 </Col>

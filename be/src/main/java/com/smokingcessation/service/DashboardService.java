@@ -1,9 +1,11 @@
 package com.smokingcessation.service;
 
 import com.smokingcessation.dto.res.PlanResultStatsDTO;
+import com.smokingcessation.dto.res.RevenueDTO;
 import com.smokingcessation.dto.res.UserGrowthDTO;
 import com.smokingcessation.model.User;
 import com.smokingcessation.model.UserSmokingProfile;
+import com.smokingcessation.repository.PaymentRepository;
 import com.smokingcessation.repository.UserRepository;
 import com.smokingcessation.repository.UserSmokingProfileRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class DashboardService {
     private final UserRepository userRepository;
     private final UserSmokingProfileService userSmokingProfileService;
     private final UserSmokingProfileRepository userSmokingProfileRepository;
+    private final PaymentRepository paymentRepository;
 
     public List<UserGrowthDTO> getUserGrowth7DayCompare() {
         List<UserGrowthDTO> result = new ArrayList<>();
@@ -35,11 +38,9 @@ public class DashboardService {
             LocalDate thisDay = thisWeekStart.plusDays(i);
             LocalDate lastDay = lastWeekStart.plusDays(i);
 
-            long thisCount = userRepository.countByCreatedAtBetween(
-                    toDateTime(thisDay), toDateTime(thisDay.plusDays(1)));
+            long thisCount = userRepository.countByCreatedAtDate(thisDay);
+            long lastCount = userRepository.countByCreatedAtDate(lastDay);
 
-            long lastCount = userRepository.countByCreatedAtBetween(
-                    toDateTime(lastDay), toDateTime(lastDay.plusDays(1)));
 
             result.add(new UserGrowthDTO(
                     formatDate(thisDay),
@@ -125,5 +126,29 @@ public class DashboardService {
 
         return result;
     }
+
+    public List<RevenueDTO> getWeeklyRevenue() {
+        List<RevenueDTO> result = new ArrayList<>();
+        LocalDate now = LocalDate.now();
+        LocalDate firstDayOfMonth = now.withDayOfMonth(1);
+
+        for (int i = 0; i < 4; i++) {
+            LocalDate weekStart = firstDayOfMonth.plusDays(i * 7);
+            LocalDate weekEnd = weekStart.plusDays(7);
+            String label = String.format("Week %d", i + 1);
+
+            Double total = paymentRepository.sumRevenueByDateRange(
+                    weekStart.atStartOfDay(), weekEnd.atStartOfDay());
+
+            result.add(new RevenueDTO(label, total == null ? 0 : total.intValue()));
+        }
+
+        return result;
+    }
+
+    public long getTotalRevenue() {
+        return paymentRepository.sumCompletedPayments();
+    }
+
 
 }

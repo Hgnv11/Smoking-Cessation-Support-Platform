@@ -53,6 +53,7 @@ public class SecurityConfig {
                                 "/api/profile/mentors",
                                 "/api/consultations/mentor/{mentorId}/slots",
                                 "/api/consultations/mentor/{mentorId}/ratings-feedback",
+                                "/api/profile/mentors/{profileNameMentor}",
                                 "/api/triggers/categories",
                                 "/api/strategies/categories",
                                 "/api/reasons"
@@ -65,11 +66,6 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                )
-                .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/oauth2/authorization/google")
-                        .defaultSuccessUrl("/api/auth/google/success", true)
-                        .failureUrl("/api/auth/failure")
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));

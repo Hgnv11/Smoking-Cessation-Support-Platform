@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Tooltip, Cell, ResponsiveContainer } from "recharts";
 import { Row, Col, Typography } from "antd";
 import { 
@@ -6,6 +6,7 @@ import {
   PREMIUM_MEMBERS_DISTRIBUTION,
   MEMBERS_STATS 
 } from "../../../data/mockData";
+import { dashboardService } from "../../../../services/dashboardService";
 
 const { Text } = Typography;
 
@@ -83,13 +84,21 @@ const QuitRate = ({ colors: propColors, theme }) => {
   const FREE_MEMBERS_COLORS = [chartColors.success, chartColors.failed]; // Success, Failed
   const PREMIUM_MEMBERS_COLORS = [chartColors.success, chartColors.failed]; // Success, Failed
 
-  // Add colors to data
-  const freeWithColors = FREE_MEMBERS_DISTRIBUTION.map((item, index) => ({
+  const [stats, setStats] = useState(null);
+
+  useEffect(() => {
+    dashboardService.getPlanStats().then(setStats);
+  }, []);
+
+  if (!stats) return null; // hoặc loading indicator
+
+  // Chuẩn hóa dữ liệu cho chart
+  const freeWithColors = (stats.free?.distribution || []).map((item, index) => ({
     ...item,
     fill: FREE_MEMBERS_COLORS[index]
   }));
 
-  const premiumWithColors = PREMIUM_MEMBERS_DISTRIBUTION.map((item, index) => ({
+  const premiumWithColors = (stats.premium?.distribution || []).map((item, index) => ({
     ...item,
     fill: PREMIUM_MEMBERS_COLORS[index]
   }));
@@ -103,19 +112,19 @@ const QuitRate = ({ colors: propColors, theme }) => {
           <DoughnutChart
             data={freeWithColors}
             title="Free Members"
-            centerText={MEMBERS_STATS.free.total}
-            centerSubText={`${MEMBERS_STATS.free.successRate}% Success`}
+            centerText={stats.free?.total ?? 0}
+            centerSubText={`${stats.free?.successRate ?? 0}% Success`}
             colors={chartColors}
           />
-          <div style={{ 
-            display: "flex", 
-            flexDirection: "column", 
-            alignItems: "center", 
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
             gap: 8,
             marginTop: 12
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ 
+              <span style={{
                 backgroundColor: chartColors.success,
                 width: 12,
                 height: 12,
@@ -123,11 +132,11 @@ const QuitRate = ({ colors: propColors, theme }) => {
                 display: "inline-block"
               }}></span>
               <Text style={{ fontWeight: "500" }}>
-                {MEMBERS_STATS.free.success} Success
+                {stats.free?.success ?? 0} Success
               </Text>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ 
+              <span style={{
                 backgroundColor: chartColors.failed,
                 width: 12,
                 height: 12,
@@ -135,7 +144,7 @@ const QuitRate = ({ colors: propColors, theme }) => {
                 display: "inline-block"
               }}></span>
               <Text style={{ fontWeight: "500" }}>
-                {MEMBERS_STATS.free.failed} Failed
+                {stats.free?.failed ?? 0} Failed
               </Text>
             </div>
           </div>
@@ -147,19 +156,19 @@ const QuitRate = ({ colors: propColors, theme }) => {
           <DoughnutChart
             data={premiumWithColors}
             title="Premium Members"
-            centerText={MEMBERS_STATS.premium.total}
-            centerSubText={`${MEMBERS_STATS.premium.successRate}% Success`}
+            centerText={stats.premium?.total ?? 0}
+            centerSubText={`${stats.premium?.successRate ?? 0}% Success`}
             colors={chartColors}
           />
-          <div style={{ 
-            display: "flex", 
-            flexDirection: "column", 
-            alignItems: "center", 
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
             gap: 8,
             marginTop: 12
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ 
+              <span style={{
                 backgroundColor: chartColors.success,
                 width: 12,
                 height: 12,
@@ -167,11 +176,11 @@ const QuitRate = ({ colors: propColors, theme }) => {
                 display: "inline-block"
               }}></span>
               <Text style={{ fontWeight: "500" }}>
-                {MEMBERS_STATS.premium.success} Success
+                {stats.premium?.success ?? 0} Success
               </Text>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ 
+              <span style={{
                 backgroundColor: chartColors.failed,
                 width: 12,
                 height: 12,
@@ -179,7 +188,7 @@ const QuitRate = ({ colors: propColors, theme }) => {
                 display: "inline-block"
               }}></span>
               <Text style={{ fontWeight: "500" }}>
-                {MEMBERS_STATS.premium.failed} Failed
+                {stats.premium?.failed ?? 0} Failed
               </Text>
             </div>
           </div>
