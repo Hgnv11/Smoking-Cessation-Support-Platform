@@ -32,7 +32,6 @@ public class AchievementService {
 
     @Transactional
     public void checkAndAwardMilestones(String email) {
-        log.info("Checking milestones for email: {}", email);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -63,11 +62,52 @@ public class AchievementService {
         log.info("Days since quit for email {}: {}", email, daysSinceQuit);
 
         if (daysSinceQuit >= 0) {
+            checkAndRestoreMissingBadges(user, daysSinceQuit);
             awardMilestoneIfEligible(user, daysSinceQuit);
         } else {
             log.warn("Days since quit is negative for email: {}", email);
         }
     }
+
+    private void checkAndRestoreMissingBadges(User user, long daysSinceQuit) {
+        Map<Long, ProgressMilestone.MilestoneType> milestoneMap = Map.of(
+                1L, ProgressMilestone.MilestoneType.TWENTY_FOUR_HOURS,
+                7L, ProgressMilestone.MilestoneType.ONE_WEEK,
+                30L, ProgressMilestone.MilestoneType.ONE_MONTH,
+                90L, ProgressMilestone.MilestoneType.THREE_MONTHS,
+                180L, ProgressMilestone.MilestoneType.SIX_MONTHS,
+                365L, ProgressMilestone.MilestoneType.ONE_YEAR
+        );
+
+        milestoneMap.forEach((days, milestoneType) -> {
+            if (daysSinceQuit >= days) {
+                String expectedBadgeType = getBadgeTypeForMilestone(milestoneType);
+
+                // Kiểm tra xem milestone đã đạt chưa
+                boolean milestoneAchieved = milestoneRepository.findByUserAndMilestoneType(user, milestoneType).isPresent();
+
+                // Kiểm tra xem badge tương ứng đã được trao chưa
+                boolean badgeAwarded = userBadgeRepository.findByUserAndBadgeType(user, expectedBadgeType).isPresent();
+
+                if (milestoneAchieved && !badgeAwarded) {
+                    log.warn("Detected missing badge {} for user {}, restoring...", expectedBadgeType, user.getEmail());
+                    awardBadge(user, milestoneType);
+                }
+            }
+        });
+    }
+
+    private String getBadgeTypeForMilestone(ProgressMilestone.MilestoneType milestoneType) {
+        return switch (milestoneType) {
+            case TWENTY_FOUR_HOURS -> "24H_NOSMOKE";
+            case ONE_WEEK -> "1WEEK_NOSMOKE";
+            case ONE_MONTH -> "1MONTH_NOSMOKE";
+            case THREE_MONTHS -> "3MONTHS_NOSMOKE";
+            case SIX_MONTHS -> "6MONTHS_NOSMOKE";
+            case ONE_YEAR -> "1YEAR_NOSMOKE";
+        };
+    }
+
 
     private void awardMilestoneIfEligible(User user, long daysSinceQuit) {
         Map<Long, ProgressMilestone.MilestoneType> milestoneMap = Map.of(
