@@ -56,5 +56,10 @@ public class NotificationUserService {
         if (!noti.getUserId().equals(userId)) throw new RuntimeException("Not allowed");
         notificationRepository.delete(noti);
     }
+    public void notifyReceiveBadge(Integer userId, String badgeName) {
+        String content = "Congratulations! You have just received a badge:" + badgeName;
+        create(userId, content);
+    }
+
 
 }
