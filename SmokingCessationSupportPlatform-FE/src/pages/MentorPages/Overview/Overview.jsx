@@ -2,24 +2,15 @@ import styles from "./Overview.module.css";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Card,
-  Avatar,
-  Badge,
-  Button,
-  Typography,
-  Space,
-  Row,
-  Col,
-  Statistic,
-  List,
-  Tag,
-  Empty,
-  Spin,
-  Alert,
-} from "antd";
-import { CalendarOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+  CalendarOutlined,
+  TeamOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+} from "@ant-design/icons";
+import { Card, Typography, Row, Col, Statistic, Button, List, Tag, Empty, Spin, Alert } from "antd";
 import api from "../../../config/axios";
 import { coachService } from "../../../services/coachService";
+import AppointmentSVG from "./AppointmentSVG"; // SVG minh họa custom
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -85,7 +76,6 @@ export const MentorOverview = () => {
         setScheduleData(days);
       } catch (err) {
         setError("Failed to fetch overview data. Please try again later.");
-        // Trong trường hợp lỗi, bạn có thể muốn đặt dữ liệu mock để UI không bị trống
         // setScheduleData(mockScheduleData); 
         // setOverviewStats({ todayBookedSlots: 2, totalAppointmentDays: 2, totalBookedSlots: 3, availableSlots: 5, uniqueClients: 3 });
       } finally {
@@ -138,88 +128,104 @@ export const MentorOverview = () => {
     );
 
   return (
-    <>
-      <Card
-        className={styles.dashboardUpcomingAppointmentsCard}
-        onClick={() => navigate("/mentor/appointments")}
-        hoverable
-      >
-        <div className={styles.cardHeader}>
-          <CalendarOutlined className={styles.cardIcon} />
-          <Title level={2} className={styles.cardTitle}>
-            Appointments Overview
-          </Title>
-        </div>
-        <div className={styles.statsContainer}>
-          <Title level={1} className={styles.mainStat}>
-            {overviewStats?.totalAppointmentDays ?? 0}
-          </Title>
-          <Text className={styles.mainStatLabel}>
-            days with appointments
-          </Text>
-        </div>
-        <Paragraph className={styles.cardDescription}>
-          Click to manage appointments{" "}
-          <span className={styles.cardActionArrow}>→</span>
-        </Paragraph>
-      </Card>
+    <div className={styles.overviewPage}>
+      <Title level={1} className={styles.pageTitle}>Overview</Title>
 
-      <Card title="Today's Appointment Details" style={{ marginBottom: 24 }}>
+      {/* Stat Cards */}
+      <Row gutter={24} className={styles.statCardsRow}>
+        <Col xs={24} sm={12} md={6}>
+          <Card className={styles.statCard}>
+            <div className={styles.statCardIconBg}>
+              <CalendarOutlined className={styles.statCardIcon} />
+            </div>
+            <div>
+              <div className={styles.statCardLabel}>Days with Appointments</div>
+              <div className={styles.statCardValueTeal}>
+                {overviewStats?.totalAppointmentDays ?? 0}
+              </div>
+            </div>
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card className={styles.statCard}>
+            <div className={styles.statCardIconBg}>
+              <CheckCircleOutlined className={styles.statCardIcon} />
+            </div>
+            <div>
+              <div className={styles.statCardLabel}>Booked Slots</div>
+              <div className={styles.statCardValueBlue}>
+                {overviewStats?.totalBookedSlots ?? 0}
+              </div>
+            </div>
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card className={styles.statCard}>
+            <div className={styles.statCardIconBg}>
+              <ClockCircleOutlined className={styles.statCardIcon} />
+            </div>
+            <div>
+              <div className={styles.statCardLabel}>Available Slots</div>
+              <div className={styles.statCardValueGray}>
+                {overviewStats?.availableSlots ?? 0}
+              </div>
+            </div>
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card className={styles.statCard}>
+            <div className={styles.statCardIconBg}>
+              <TeamOutlined className={styles.statCardIcon} />
+            </div>
+            <div>
+              <div className={styles.statCardLabel}>Unique Clients</div>
+              <div className={styles.statCardValueTeal}>
+                {overviewStats?.uniqueClients ?? 0}
+              </div>
+            </div>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Today's Appointments */}
+      <Card className={styles.todayCard}>
+        <div className={styles.todayHeader}>
+          <Title level={3} className={styles.todayTitle}>Today's Appointments</Title>
+        </div>
         {todaySlots.length === 0 ? (
-          <Empty
-            description={<span>No appointments scheduled for today</span>}
-          />
+          <div className={styles.emptyState}>
+            <AppointmentSVG className={styles.emptySVG} />
+            <Text className={styles.emptyText}>No appointments scheduled for today</Text>
+            <Button
+              type="primary"
+              className={styles.ctaButton}
+              onClick={() => navigate("/mentor/appointments")}
+            >
+              Schedule Appointment
+            </Button>
+          </div>
         ) : (
           <List
             dataSource={todaySlots}
             renderItem={(slot) => (
               <List.Item>
-                <Space>
-                  <Tag color={slot.isAvailable ? "#d9d9d9" : "#0d9488"}>
-                    {slot.time}
-                  </Tag>
+                <Text strong className={styles.slotTime}>{slot.time}</Text>
+                <Text className={styles.slotClient}>
                   {slot.isAvailable ? (
-                    <Text type="secondary">Available</Text>
+                    <span className={styles.slotAvailable}>Available</span>
                   ) : (
                     <>
-                      <Text strong>{slot.clientName}</Text>
-                      <Text type="secondary">({slot.status})</Text>
+                      {slot.clientName}
+                      <span className={styles.slotStatus}> ({slot.status})</span>
                     </>
                   )}
-                </Space>
+                </Text>
               </List.Item>
             )}
           />
         )}
       </Card>
-
-      <Row gutter={24} style={{ marginBottom: 24 }}>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="Total Days with Appointments"
-              value={overviewStats?.totalAppointmentDays ?? 0}
-              prefix={<CalendarOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title="Total Booked Slots" value={overviewStats?.totalBookedSlots ?? 0} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title="Available Slots" value={overviewStats?.availableSlots ?? 0} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title="Unique Clients" value={overviewStats?.uniqueClients ?? 0} />
-          </Card>
-        </Col>
-      </Row>
-    </>
+    </div>
   );
 };
 export default MentorOverview;

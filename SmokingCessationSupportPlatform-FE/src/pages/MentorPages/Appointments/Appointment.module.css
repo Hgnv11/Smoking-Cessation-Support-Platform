@@ -220,3 +220,202 @@
   height: 28px !important; /* Adjust height for smaller button */
   line-height: 26px !important; /* Adjust line-height */
 }
+
+/* Consultation Modal Styles */
+.consultModal .ant-modal-content {
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 6px 32px 0 rgba(16, 30, 54, 0.08);
+  padding: 0;
+}
+
+.consultModalWrapper {
+  display: flex;
+  min-height: 520px;
+}
+
+.consultModalSidebar {
+  width: 270px;
+  background: #f1f5f9;
+  border-radius: 20px 0 0 20px;
+  padding: 36px 18px 24px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 1px 0 0 #e5e7eb;
+}
+
+.consultModalAvatar {
+  margin-bottom: 14px;
+}
+
+.consultModalName {
+  font-weight: 700;
+  font-size: 20px;
+  color: #1e293b;
+  margin-bottom: 2px;
+  text-align: center;
+}
+
+.consultModalEmail {
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.statCardsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.statCard {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px 0 rgba(16, 30, 54, 0.04);
+  padding: 18px 0 10px 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statCardIconTeal {
+  color: #0d9488;
+  font-size: 22px;
+  margin-bottom: 2px;
+}
+.statCardIconRed {
+  color: #dc2626;
+  font-size: 22px;
+  margin-bottom: 2px;
+}
+.statCardIconGreen {
+  color: #16a34a;
+  font-size: 22px;
+  margin-bottom: 2px;
+}
+.statCardIconYellow {
+  color: #d97706;
+  font-size: 22px;
+  margin-bottom: 2px;
+}
+
+.statCardValue {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 2px;
+}
+
+.statCardLabel {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.consultModalMain {
+  flex: 1;
+  padding: 36px 36px 24px 36px;
+  background: #fff;
+  border-radius: 0 20px 20px 0;
+  min-width: 0;
+}
+
+.consultTabs .ant-tabs-nav {
+  margin-bottom: 18px;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  font-size: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.infoLabel {
+  color: #64748b;
+  font-weight: 500;
+  min-width: 120px;
+}
+
+.timelineTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 18px;
+}
+
+.verticalTimeline {
+  position: relative;
+  margin-left: 18px;
+  padding-left: 18px;
+  border-left: 2px solid #e5e7eb;
+}
+
+.timelineItem {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 22px;
+  position: relative;
+}
+
+.timelineDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #0d9488;
+  position: absolute;
+  left: -25px;
+  top: 6px;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px #0d9488;
+}
+
+.timelineContent {
+  margin-left: 10px;
+  flex: 1;
+}
+
+.timelineDate {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 2px;
+}
+
+.timelineDetails {
+  font-size: 15px;
+  color: #222;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.timelineCigarettes {
+  font-weight: 600;
+  color: #dc2626;
+}
+
+.timelineCravingTag {
+  font-size: 14px;
+  font-weight: 600;
+  margin-left: 2px;
+}
+
+.timelineNote {
+  color: #64748b;
+  font-size: 14px;
+  margin-left: 4px;
+}
+
+.timelineEmpty {
+  color: #64748b;
+  font-size: 15px;
+  margin-top: 12px;
+  text-align: center;
+}
