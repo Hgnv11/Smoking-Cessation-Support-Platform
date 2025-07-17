@@ -1,75 +1,83 @@
-import React from "react";
-import { REVENUE_DATA } from "../../../data/mockData";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import React, { useEffect, useState } from "react";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Label
+} from "recharts";
+import { dashboardService } from "../../../../services/dashboardService";
 
-// Default colors (will be overridden by props if provided)
 const DEFAULT_COLORS = {
-  premium: "#1814F3",  // Primary blue for Premium
-  free: "#FFD600",     // Yellow for Free
-  text: "#5572AF",     // Secondary text blue
-  grid: "#f8f8f9"      // Light grid color
+  premium: "#1814F3",
+  text: "#181818",
+  grid: "#e0e6ed"
 };
 
-const formatTooltipValue = (value) => `${value}M VND`;
-const formatYAxisLabel = (value) => `${value}M`;
-const formatLegendValue = (value) => value === "premium" ? "Premium Plan" : "Free Plan";
+const formatMoney = (value) =>
+  value?.toLocaleString("vi-VN", { maximumFractionDigits: 0 }) + " VNĐ";
 
 const Revenue = ({ colors, theme }) => {
-  // Use passed colors or default colors
+  const [data, setData] = useState([]);
+
   const chartColors = {
     premium: colors?.primary || theme?.primary || DEFAULT_COLORS.premium,
-    free: colors?.secondary || theme?.warning || DEFAULT_COLORS.free,
     text: theme?.secondary || DEFAULT_COLORS.text,
     grid: colors?.grid || DEFAULT_COLORS.grid
   };
-  
+
+  useEffect(() => {
+    dashboardService.getRevenue().then((res) => {
+      setData(Array.isArray(res) ? res : []);
+    });
+  }, []);
+
   return (
-  <div style={{ width: "100%", height: 250, marginTop: 30 }}>
-    <ResponsiveContainer width="100%" height="100%">
-      <BarChart
-        data={REVENUE_DATA}
-        margin={{ top: 5, right: 5, left: -20, bottom: 5 }}
-      >
-        <CartesianGrid stroke={chartColors.grid} horizontal vertical={false} strokeDasharray="3 0" />
-        <XAxis
-          dataKey="month"
-          tickSize={0}
-          axisLine={false}
-          tick={{ fill: chartColors.text, fontSize: 14 }}
-        />
-        <YAxis
-          tickFormatter={formatYAxisLabel}
-          tickCount={6}
-          axisLine={false}
-          tickSize={0}
-          tick={{ fill: chartColors.text, fontSize: 14 }}
-          interval={0}
-          ticks={[0, 50, 100, 150, 200]}
-        />
-        <Tooltip cursor={{ fill: "transparent" }} formatter={formatTooltipValue} />
-        <Legend
-          iconType="circle"
-          iconSize={10}
-          formatter={formatLegendValue}
-          style={{ paddingTop: "10px" }}
-        />
-        <Bar
-          dataKey="premium"
-          fill={chartColors.premium}
-          radius={[4, 4, 4, 4]}
-          barSize={18}
-          name="Premium Plan"
-        />
-        <Bar
-          dataKey="free"
-          fill={chartColors.free}
-          radius={[4, 4, 4, 4]}
-          barSize={18}
-          name="Free Plan"
-        />
-      </BarChart>
-    </ResponsiveContainer>
-  </div>
+    <div style={{ width: "100%", height: 320, marginTop: 16 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={data}
+          margin={{ top: 20, right: 30, left: 30, bottom: 30 }} // tăng left margin
+        >
+          <CartesianGrid stroke={chartColors.grid} horizontal vertical={false} />
+          <XAxis
+            dataKey="week"
+            tick={{ fill: chartColors.text, fontSize: 16, fontWeight: 600 }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <YAxis
+            tickFormatter={formatMoney}
+            tick={{ fill: chartColors.text, fontSize: 15, fontWeight: 500 }}
+            axisLine={false}
+            tickLine={false}
+            width={90}
+          >
+            <Label
+              value="Revenue (VNĐ)"
+              angle={-90}
+              position="insideLeft"
+              style={{ textAnchor: "middle", fill: chartColors.text, fontSize: 14, fontWeight: 600 }}
+            />
+          </YAxis>
+          <Tooltip
+            formatter={(value) => formatMoney(value)}
+            labelStyle={{ fontWeight: 600, color: chartColors.text }}
+            contentStyle={{ borderRadius: 8, fontSize: 15 }}
+          />
+          <Bar
+            dataKey="premium"
+            fill={chartColors.premium}
+            radius={[6, 6, 0, 0]}
+            barSize={32}
+            name="Premium Plan"
+            label={{
+              position: "top",
+              fill: chartColors.premium,
+              fontWeight: 600,
+              fontSize: 14,
+              formatter: formatMoney
+            }}
+          />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
 

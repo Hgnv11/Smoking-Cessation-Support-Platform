@@ -56,7 +56,6 @@ public class SecurityConfig {
                                 "/api/profile/mentors/{profileNameMentor}",
                                 "/api/triggers/categories",
                                 "/api/strategies/categories",
-                                "/api/subscription/payment/return",
                                 "/api/reasons"
 
                         ).permitAll()

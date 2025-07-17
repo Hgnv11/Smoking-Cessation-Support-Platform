@@ -17,9 +17,10 @@ public class UserDTO {
     private String profileName;
     private String email;
     private Boolean isVerified;
+    private Boolean hasActive;
     private LocalDate birthDate;
     private String avatarUrl;
     private String gender;
     private String note;
-    private Boolean hasActive;
+
 }

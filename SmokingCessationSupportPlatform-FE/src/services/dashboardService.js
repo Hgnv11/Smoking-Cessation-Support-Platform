@@ -59,4 +59,24 @@ export const dashboardService = {
       return {};
     }
   },
-}
+  // API: /api/dashboard/total-revenue
+  getTotalRevenue: async () => {
+    try {
+      const response = await api.get('/dashboard/dashboard/total-revenue');
+      return response.data; 
+    } catch (error) {
+      console.error('Failed to fetch total revenue data:', error);
+      return 0;
+    }
+  },
+  // API: /api/dashboard/revenue
+  getRevenue: async () => {
+    try {
+      const response = await api.get('/dashboard/dashboard/revenue');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch revenue data:', error);
+      return [];
+    }
+  },
+};

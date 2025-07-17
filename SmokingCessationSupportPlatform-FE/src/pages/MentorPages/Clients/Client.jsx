@@ -44,12 +44,17 @@ export default function ClientsPage() {
    * Ánh xạ trạng thái consultation sang trạng thái client
    */
   const mapConsultationStatusToClientStatus = (consultationStatus) => {
-    switch(consultationStatus) {
-      case "completed": return "completed";
-      case "scheduled": return "active";
-      case "missed": return "at-risk";
-      case "cancelled": return "inactive";
-      default: return "active";
+    switch (consultationStatus) {
+      case "completed":
+        return "completed";
+      case "scheduled":
+        return "active";
+      case "missed":
+        return "at-risk";
+      case "cancelled":
+        return "inactive";
+      default:
+        return "active";
     }
   };
 
@@ -60,11 +65,11 @@ export default function ClientsPage() {
      */
     const extractClientsFromConsultations = (consultations) => {
       const clientMap = {};
-      
-      consultations.forEach(consultation => {
+
+      consultations.forEach((consultation) => {
         const { user, createdAt, status, slot } = consultation;
         const userId = user.userId;
-        
+
         // Nếu client chưa tồn tại trong map, thêm client mới
         if (!clientMap[userId]) {
           clientMap[userId] = {
@@ -78,11 +83,11 @@ export default function ClientsPage() {
             gender: user.gender || "N/A",
             consultations: [],
             currentProgress: {
-              nextSession: null
-            }
+              nextSession: null,
+            },
           };
         }
-        
+
         // Thêm consultation vào danh sách consultations của client
         clientMap[userId].consultations.push({
           consultationId: consultation.consultationId,
@@ -90,19 +95,22 @@ export default function ClientsPage() {
           time: slotNumberToTime(slot.slotNumber),
           status: status,
           rating: consultation.rating,
-          feedback: consultation.feedback
+          feedback: consultation.feedback,
         });
-        
+
         // Cập nhật nextSession nếu đây là phiên sắp tới
         const sessionDate = new Date(slot.slotDate);
         const today = new Date();
-        if (sessionDate >= today && 
-            (!clientMap[userId].currentProgress.nextSession || 
-             sessionDate < new Date(clientMap[userId].currentProgress.nextSession))) {
+        if (
+          sessionDate >= today &&
+          (!clientMap[userId].currentProgress.nextSession ||
+            sessionDate <
+              new Date(clientMap[userId].currentProgress.nextSession))
+        ) {
           clientMap[userId].currentProgress.nextSession = slot.slotDate;
         }
       });
-      
+
       // Chuyển object map thành array clients
       return Object.values(clientMap);
     };
@@ -121,7 +129,7 @@ export default function ClientsPage() {
         setLoading(false);
       }
     };
-    
+
     fetchClients();
   }, []);
 
@@ -134,13 +142,10 @@ export default function ClientsPage() {
     return (
       // Tìm kiếm theo tên (không phân biệt hoa thường)
       client.name.toLowerCase().includes(searchLower) ||
-
       // Tìm kiếm theo email (không phân biệt hoa thường)
       client.email.toLowerCase().includes(searchLower) ||
-
       // Tìm kiếm theo số điện thoại
       client.phone.includes(searchTerm) ||
-
       // Tìm kiếm theo trạng thái (active, at-risk, completed, inactive)
       client.status.toLowerCase().includes(searchLower)
     );
@@ -184,12 +189,7 @@ export default function ClientsPage() {
   if (error) {
     return (
       <div style={{ textAlign: "center", padding: "100px 0" }}>
-        <Alert
-          message="Error"
-          description={error}
-          type="error"
-          showIcon
-        />
+        <Alert message="Error" description={error} type="error" showIcon />
       </div>
     );
   }
@@ -211,7 +211,8 @@ export default function ClientsPage() {
             {searchTerm && (
               <div style={{ marginTop: 8 }}>
                 <Text type="secondary" style={{ fontSize: 14 }}>
-                  Found {filteredClients.length} client(s) matching "{searchTerm}"
+                  Found {filteredClients.length} client(s) matching "
+                  {searchTerm}"
                   {filteredClients.length === 0 && (
                     <Button
                       type="link"
@@ -257,22 +258,29 @@ export default function ClientsPage() {
                   <div className={styles.clientHeader}>
                     <div className={styles.clientInfo}>
                       <Avatar
-                        size={48}
+                        size={64}
                         src={client.avatar}
                         className={styles.clientAvatar}
                       >
-                        {client.name.split(" ").map((n) => n[0]).join("")}
+                        {client.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
                       </Avatar>
                       <div className={styles.clientNameSection}>
                         <Title level={4} className={styles.clientName}>
                           {client.name}
                         </Title>
                         <Text className={styles.joinDate}>
-                          Joined {new Date(client.joinDate).toLocaleDateString("en-US", {
-                            month: "numeric",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
+                          Joined{" "}
+                          {new Date(client.joinDate).toLocaleDateString(
+                            "en-GB",
+                            {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "2-digit",
+                            }
+                          )}
                         </Text>
                       </div>
                       <Tag
@@ -304,24 +312,21 @@ export default function ClientsPage() {
                   <div className={styles.nextSession}>
                     <CalendarOutlined className={styles.sessionIcon} />
                     <Text className={styles.sessionText}>
-                      Next Session: {
-                        client.currentProgress.nextSession 
-                          ? new Date(client.currentProgress.nextSession).toLocaleDateString("en-US", {
-                              month: "numeric",
-                              day: "numeric",
-                              year: "numeric",
-                            })
-                          : "No upcoming sessions"
-                      }
+                      Next Session:{" "}
+                      {client.currentProgress.nextSession
+                        ? new Date(
+                            client.currentProgress.nextSession
+                          ).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "2-digit",
+                          })
+                        : "No upcoming sessions"}
                     </Text>
                   </div>
 
                   {/* Action Buttons */}
                   <div className={styles.actionButtons}>
-                    <Button className={styles.actionButton}>
-                      <PhoneOutlined />
-                      Call
-                    </Button>
                     <Button className={styles.actionButton}>
                       <CalendarOutlined />
                       Schedule
@@ -343,7 +348,9 @@ export default function ClientsPage() {
           // Nếu không có kết quả tìm kiếm, hiển thị thông báo
           <Col span={24}>
             <div style={{ textAlign: "center", padding: "48px 0" }}>
-              <SearchOutlined style={{ fontSize: 48, color: "#d9d9d9", marginBottom: 16 }} />
+              <SearchOutlined
+                style={{ fontSize: 48, color: "#d9d9d9", marginBottom: 16 }}
+              />
               <Title level={4} style={{ color: "#999" }}>
                 No clients found
               </Title>

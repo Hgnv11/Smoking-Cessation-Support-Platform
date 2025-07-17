@@ -8,6 +8,7 @@ import {
   CreditCardOutlined,
   CalendarOutlined,
   BookOutlined,
+  TrophyOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
 import "./Sidebar.css";
@@ -72,7 +73,7 @@ const Sidebar = () => {
                 Blog Management
               </NavLink>
             </li>
-            <li>
+            {/* <li>
               <NavLink
                 to="/admin/coach-management"
                 className={({ isActive }) =>
@@ -84,7 +85,7 @@ const Sidebar = () => {
                 <TeamOutlined className="sidebar__icon" />
                 Coach Management
               </NavLink>
-            </li>
+            </li> */}
             <li>
               <NavLink
                 to="/admin/plan-management"
@@ -96,6 +97,19 @@ const Sidebar = () => {
               >
                 <BookOutlined className="sidebar__icon" />
                 Plan Management
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/admin/badge-management"
+                className={({ isActive }) =>
+                  isActive
+                    ? "sidebar__menu-item sidebar__menu-item--active"
+                    : "sidebar__menu-item"
+                }
+              >
+                <TrophyOutlined className="sidebar__icon" />
+                Badge Management
               </NavLink>
             </li>
             <li>

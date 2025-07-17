@@ -45,7 +45,6 @@ function UserBookings() {
   const navigate = useNavigate();
   const { confirm } = Modal;
 
-  // Function to get time range based on slot number
   const getSlotTimeRange = (slotNumber) => {
     const timeRanges = {
       1: "7:00 AM - 9:30 AM",

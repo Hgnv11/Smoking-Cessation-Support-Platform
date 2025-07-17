@@ -337,7 +337,7 @@ function PlanDetail() {
                     <span className="wrapper__content-detail-progress-item-number">
                       {savingData?.actualSaving || 0}
                     </span>
-                    dollars saved
+                    money saved
                   </p>
                 </div>
               </div>

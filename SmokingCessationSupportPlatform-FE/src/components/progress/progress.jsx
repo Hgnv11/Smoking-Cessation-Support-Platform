@@ -82,7 +82,7 @@ function UserProgress() {
                     {savingData?.actualSaving || 0}
                   </span>
                   <span className="progress__content-card-item-text">
-                    dollars saved
+                    money saved
                   </span>
                 </div>
               </div>

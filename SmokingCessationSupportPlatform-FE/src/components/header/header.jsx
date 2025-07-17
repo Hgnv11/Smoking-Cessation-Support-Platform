@@ -56,7 +56,7 @@ function Header() {
             </nav>
           </div>
           <div className="header__login-register">
-            <SearchOutlined className="search" />
+            {/* <SearchOutlined className="search" /> */}
             <BellOutlined className="noti" />
             {user ? (
               <div className="user-info">

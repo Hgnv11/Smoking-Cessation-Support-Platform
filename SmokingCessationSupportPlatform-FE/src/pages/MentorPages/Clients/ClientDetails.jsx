@@ -26,7 +26,7 @@ import {
   VideoCameraOutlined,
   EditOutlined,
   EyeOutlined,
-  CalendarOutlined, 
+  CalendarOutlined,
 } from "@ant-design/icons";
 import { coachService } from "../../../services/coachService";
 import styles from "./ClientDetails.module.css";
@@ -43,6 +43,9 @@ export const MentorClientDetails = () => {
   const [coachNotes, setCoachNotes] = useState("");
   const [clientData, setClientData] = useState(null);
   const [smokingProgress, setSmokingProgress] = useState(null);
+  const [userReasons, setUserReasons] = useState([]);
+  const [userTriggers, setUserTriggers] = useState([]);
+  const [userStrategies, setUserStrategies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [savingNotes, setSavingNotes] = useState(false);
@@ -60,12 +63,17 @@ export const MentorClientDetails = () => {
    * Ánh xạ trạng thái consultation sang trạng thái client
    */
   const mapConsultationStatusToClientStatus = (consultationStatus) => {
-    switch(consultationStatus) {
-      case "completed": return "completed";
-      case "scheduled": return "active";
-      case "missed": return "at-risk";
-      case "cancelled": return "inactive";
-      default: return "active";
+    switch (consultationStatus) {
+      case "completed":
+        return "completed";
+      case "scheduled":
+        return "active";
+      case "missed":
+        return "at-risk";
+      case "cancelled":
+        return "inactive";
+      default:
+        return "active";
     }
   };
 
@@ -76,7 +84,7 @@ export const MentorClientDetails = () => {
     const buildClientData = (consultations, progressData) => {
       // Tìm consultations của client hiện tại
       const clientConsultations = consultations.filter(
-        consultation => consultation.user.userId.toString() === clientId
+        (consultation) => consultation.user.userId.toString() === clientId
       );
 
       if (clientConsultations.length === 0) {
@@ -88,26 +96,29 @@ export const MentorClientDetails = () => {
       const user = firstConsultation.user;
 
       // Xây dựng consultation history
-      const consultationHistory = clientConsultations.map(consultation => ({
+      const consultationHistory = clientConsultations.map((consultation) => ({
         id: consultation.consultationId,
         type: "Video Consultation",
         date: consultation.slot.slotDate,
         time: slotNumberToTime(consultation.slot.slotNumber),
         status: consultation.status,
-        notes: consultation.notes || "No notes available for this consultation.",
+        notes:
+          consultation.notes || "No notes available for this consultation.",
         rating: consultation.rating,
-        feedback: consultation.feedback
-      }));        // Xác định trạng thái client
-        const latestStatus = clientConsultations
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0]?.status;
+        feedback: consultation.feedback,
+      })); // Xác định trạng thái client
+      const latestStatus = clientConsultations.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      )[0]?.status;
 
-        // Lấy consultation mới nhất để lưu notes
-        const latestConsultation = clientConsultations
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+      // Lấy consultation mới nhất để lưu notes
+      const latestConsultation = clientConsultations.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      )[0];
 
-        // Sử dụng dữ liệu từ smoking progress nếu có
-        const progress = progressData || {};
-      
+      // Sử dụng dữ liệu từ smoking progress nếu có
+      const progress = progressData || {};
+
       return {
         id: user.userId,
         name: user.fullName || user.profileName || "Unknown Client",
@@ -118,20 +129,22 @@ export const MentorClientDetails = () => {
         currentProgress: {
           daysSmokeFreee: progress.daysSinceStart || 0,
           cravingLevel: progress.averageCravingLevel || 5,
-          nextSession: null // Có thể tính toán từ scheduled consultations
+          nextSession: null, // Có thể tính toán từ scheduled consultations
         },
         detailedInfo: {
           totalSavings: progress.moneySaved || 0,
-          consultationsAttended: clientConsultations.filter(c => c.status === "completed").length,
+          consultationsAttended: clientConsultations.filter(
+            (c) => c.status === "completed"
+          ).length,
           motivations: ["Improve health", "Save money", "Family"], // Default values
           goals: ["30 days smoke-free", "Reduce daily cigarettes"], // Default values
           notes: latestConsultation?.notes || "", // Lấy notes từ consultation mới nhất
           consultationHistory: consultationHistory,
           cigarettesPerDay: progress.cigarettesPerDay || 0,
           cigarettesAvoided: progress.cigarettesAvoided || 0,
-          smokingHistoryByDate: progress.smokingHistoryByDate || {}
+          smokingHistoryByDate: progress.smokingHistoryByDate || {},
         },
-        latestConsultationId: latestConsultation?.consultationId || null
+        latestConsultationId: latestConsultation?.consultationId || null,
       };
     };
 
@@ -139,15 +152,19 @@ export const MentorClientDetails = () => {
       setLoading(true);
       setError(null);
       try {
-        // Gọi API để lấy consultations và smoking progress
-        const [consultations, progressData] = await Promise.all([
-          coachService.getMentorConsultations(),
-          coachService.getUserSmokingProgress(clientId).catch(() => null) // Không bắt buộc có progress data
-        ]);
+        // Gọi API để lấy consultations, smoking progress, reasons, triggers, và strategies
+        const [consultations, progressData, reasons, triggers, strategies] =
+          await Promise.all([
+            coachService.getMentorConsultations(),
+            coachService.getUserSmokingProgress(clientId).catch(() => null), // Không bắt buộc có progress data
+            coachService.getUserReasons(clientId).catch(() => []), // Lấy reasons của user
+            coachService.getUserTriggers(clientId).catch(() => []), // Lấy triggers của user
+            coachService.getUserStrategies(clientId).catch(() => []), // Lấy strategies của user
+          ]);
 
         // Xây dựng dữ liệu client
         const clientInfo = buildClientData(consultations, progressData?.[0]);
-        
+
         if (!clientInfo) {
           setError("Client not found");
           return;
@@ -155,8 +172,11 @@ export const MentorClientDetails = () => {
 
         setClientData(clientInfo);
         setSmokingProgress(progressData?.[0]);
+        setUserReasons(reasons || []);
+        setUserTriggers(triggers || []);
+        setUserStrategies(strategies || []);
         setLatestConsultationId(clientInfo.latestConsultationId);
-        
+
         if (clientInfo?.detailedInfo?.notes) {
           setCoachNotes(clientInfo.detailedInfo.notes);
         }
@@ -187,14 +207,9 @@ export const MentorClientDetails = () => {
   if (error) {
     return (
       <div style={{ textAlign: "center", padding: "100px 0" }}>
-        <Alert
-          message="Error"
-          description={error}
-          type="error"
-          showIcon
-        />
-        <Button 
-          type="primary" 
+        <Alert message="Error" description={error} type="error" showIcon />
+        <Button
+          type="primary"
           onClick={() => navigate("/mentor/clients")}
           style={{ marginTop: 16 }}
         >
@@ -252,8 +267,9 @@ export const MentorClientDetails = () => {
   const saveCoachNotes = async () => {
     if (!latestConsultationId || !coachNotes.trim()) {
       Modal.warning({
-        title: 'Cannot Save Notes',
-        content: 'No consultation found or notes are empty. Please ensure there is at least one consultation for this client.',
+        title: "Cannot Save Notes",
+        content:
+          "No consultation found or notes are empty. Please ensure there is at least one consultation for this client.",
       });
       return;
     }
@@ -261,25 +277,25 @@ export const MentorClientDetails = () => {
     setSavingNotes(true);
     try {
       await coachService.addConsultationNote(latestConsultationId, coachNotes);
-      
+
       // Cập nhật local state
-      setClientData(prev => ({
+      setClientData((prev) => ({
         ...prev,
         detailedInfo: {
           ...prev.detailedInfo,
-          notes: coachNotes
-        }
+          notes: coachNotes,
+        },
       }));
 
       Modal.success({
-        title: 'Notes Saved',
-        content: 'Your notes have been saved successfully.',
+        title: "Notes Saved",
+        content: "Your notes have been saved successfully.",
       });
     } catch (error) {
       console.error("Failed to save notes:", error);
       Modal.error({
-        title: 'Save Failed',
-        content: 'Failed to save notes. Please try again.',
+        title: "Save Failed",
+        content: "Failed to save notes. Please try again.",
       });
     } finally {
       setSavingNotes(false);
@@ -392,11 +408,15 @@ export const MentorClientDetails = () => {
                       <Progress
                         type="circle"
                         size={80}
-                        percent={(clientData.currentProgress.cravingLevel / 10) * 100}
+                        percent={
+                          (clientData.currentProgress.cravingLevel / 10) * 100
+                        }
                         strokeColor={getCravingColor(
                           clientData.currentProgress.cravingLevel
                         )}
-                        format={() => `${clientData.currentProgress.cravingLevel}/10`}
+                        format={() =>
+                          `${clientData.currentProgress.cravingLevel}/10`
+                        }
                       />
                     </div>
                   </div>
@@ -421,30 +441,111 @@ export const MentorClientDetails = () => {
 
           <Tabs.TabPane tab="Plan & Notes" key="plan">
             <Row gutter={24}>
-              <Col span={12}>
+              <Col span={24}>
+                {/* Reasons Section */}
                 <Card
-                  title="Motivation & Goals"
+                  title="Quit Smoking Reasons"
                   className={styles.motivationCard}
+                  style={{ marginBottom: 16 }}
                 >
-                  <div className={styles.motivationSection}>
-                    <Title level={5} className={styles.sectionTitle}>
-                      Initial Motivation
-                    </Title>
-                    <Paragraph className={styles.motivationText}>
-                      {clientData.detailedInfo.motivations.join(", ")}
-                    </Paragraph>
-                  </div>
-                  <div className={styles.goalsSection}>
-                    <Title level={5} className={styles.sectionTitle}>
-                      Goals
-                    </Title>
-                    <Paragraph className={styles.goalsText}>
-                      {clientData.detailedInfo.goals.join(", ")}
-                    </Paragraph>
+                  <div className={styles.reasonsSection}>
+                    {userReasons.length > 0 ? (
+                      <ul className={styles.reasonsList}>
+                        {userReasons.map((reason, index) => (
+                          <li key={index} className={styles.reasonItem}>
+                            {reason.reasonText}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <Text type="secondary">No reasons provided yet.</Text>
+                    )}
                   </div>
                 </Card>
               </Col>
+
               <Col span={12}>
+                {/* Triggers Section */}
+                <Card
+                  title="Smoking Triggers"
+                  className={styles.motivationCard}
+                  style={{ marginBottom: 16 }}
+                >
+                  <div className={styles.triggersSection}>
+                    {userTriggers.length > 0 &&
+                    userTriggers[0]?.triggerCategories ? (
+                      userTriggers[0].triggerCategories.map((category) => (
+                        <div
+                          key={category.categoryId}
+                          style={{ marginBottom: 16 }}
+                        >
+                          <Title
+                            level={5}
+                            style={{ color: "#ff4d4f", marginBottom: 8 }}
+                          >
+                            {category.name}
+                          </Title>
+                          <ul className={styles.triggersList}>
+                            {category.triggers.map((trigger) => (
+                              <li
+                                key={trigger.triggerId}
+                                className={styles.triggerItem}
+                              >
+                                {trigger.name}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))
+                    ) : (
+                      <Text type="secondary">No triggers identified yet.</Text>
+                    )}
+                  </div>
+                </Card>
+              </Col>
+
+              <Col span={12}>
+                {/* Strategies Section */}
+                <Card
+                  title="Strategies"
+                  className={styles.motivationCard}
+                  style={{ marginBottom: 16 }}
+                >
+                  <div className={styles.strategiesSection}>
+                    {userStrategies.length > 0 &&
+                    userStrategies[0]?.strategyCategories ? (
+                      userStrategies[0].strategyCategories.map((category) => (
+                        <div
+                          key={category.categoryId}
+                          style={{ marginBottom: 16 }}
+                        >
+                          <Title
+                            level={5}
+                            style={{ color: "#52c41a", marginBottom: 8 }}
+                          >
+                            {category.name}
+                          </Title>
+                          <ul className={styles.strategiesList}>
+                            {category.strategies.map((strategy) => (
+                              <li
+                                key={strategy.strategyId}
+                                className={styles.strategyItem}
+                              >
+                                {strategy.name}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))
+                    ) : (
+                      <Text type="secondary">No strategies planned yet.</Text>
+                    )}
+                  </div>
+                </Card>
+              </Col>
+
+              <Col span={24}>
+                {/* Coach Notes */}
                 <Card
                   title="Coach's Private Notes"
                   className={styles.notesCard}
@@ -463,7 +564,7 @@ export const MentorClientDetails = () => {
                   }
                 >
                   <TextArea
-                    rows={8}
+                    rows={6}
                     value={coachNotes}
                     onChange={(e) => setCoachNotes(e.target.value)}
                     placeholder="Add your private notes about this client..."
@@ -505,14 +606,17 @@ export const MentorClientDetails = () => {
                         <Text strong>{consultation.type}</Text>
                         <Badge status="success" />
                         {consultation.rating > 0 && (
-                          <Text type="secondary">({consultation.rating}/5 stars)</Text>
+                          <Text type="secondary">
+                            ({consultation.rating}/5 stars)
+                          </Text>
                         )}
                       </Space>
                     }
                     description={
                       <Space direction="vertical" size="small">
                         <Text type="secondary">
-                          {new Date(consultation.date).toLocaleDateString()} at {consultation.time}
+                          {new Date(consultation.date).toLocaleDateString()} at{" "}
+                          {consultation.time}
                         </Text>
                         {consultation.feedback && (
                           <Text italic>"{consultation.feedback}"</Text>
@@ -559,48 +663,59 @@ export const MentorClientDetails = () => {
               </Row>
 
               {/* Recent Smoking History */}
-              {smokingProgress.smokingHistoryByDate && 
-               Object.keys(smokingProgress.smokingHistoryByDate).length > 0 && (
-                <Card 
-                  title="Recent Smoking History" 
-                  style={{ marginTop: 24 }}
-                  className={styles.smokingHistoryCard}
-                >
-                  {Object.entries(smokingProgress.smokingHistoryByDate)
-                    .slice(-7) // Hiển thị 7 ngày gần nhất
-                    .map(([date, events]) => (
-                      <div key={date} style={{ marginBottom: 16 }}>
-                        <Title level={5}>{date}</Title>
-                        <List
-                          size="small"
-                          dataSource={events}
-                          renderItem={(event) => (
-                            <List.Item>
-                              <List.Item.Meta
-                                title={
-                                  <Space>
-                                    <Text strong>{event.cigarettesSmoked} cigarettes</Text>
-                                    <Tag color={getCravingColor(event.cravingLevel)}>
-                                      Craving: {event.cravingLevel}/10
-                                    </Tag>
-                                  </Space>
-                                }
-                                description={
-                                  <Space direction="vertical" size="small">
-                                    <Text type="secondary">
-                                      {new Date(event.eventTime).toLocaleTimeString()}
-                                    </Text>
-                                    {event.notes && <Text italic>{event.notes}</Text>}
-                                  </Space>
-                                }
-                              />
-                            </List.Item>
-                          )}
-                        />
-                      </div>
-                    ))}
-                </Card>
-              )}
+              {smokingProgress.smokingHistoryByDate &&
+                Object.keys(smokingProgress.smokingHistoryByDate).length >
+                  0 && (
+                  <Card
+                    title="Recent Smoking History"
+                    style={{ marginTop: 24 }}
+                    className={styles.smokingHistoryCard}
+                  >
+                    {Object.entries(smokingProgress.smokingHistoryByDate)
+                      .slice(-7) // Hiển thị 7 ngày gần nhất
+                      .map(([date, events]) => (
+                        <div key={date} style={{ marginBottom: 16 }}>
+                          <Title level={5}>{date}</Title>
+                          <List
+                            size="small"
+                            dataSource={events}
+                            renderItem={(event) => (
+                              <List.Item>
+                                <List.Item.Meta
+                                  title={
+                                    <Space>
+                                      <Text strong>
+                                        {event.cigarettesSmoked} cigarettes
+                                      </Text>
+                                      <Tag
+                                        color={getCravingColor(
+                                          event.cravingLevel
+                                        )}
+                                      >
+                                        Craving: {event.cravingLevel}/10
+                                      </Tag>
+                                    </Space>
+                                  }
+                                  description={
+                                    <Space direction="vertical" size="small">
+                                      <Text type="secondary">
+                                        {new Date(
+                                          event.eventTime
+                                        ).toLocaleTimeString()}
+                                      </Text>
+                                      {event.notes && (
+                                        <Text italic>{event.notes}</Text>
+                                      )}
+                                    </Space>
+                                  }
+                                />
+                              </List.Item>
+                            )}
+                          />
+                        </div>
+                      ))}
+                  </Card>
+                )}
             </Tabs.TabPane>
           )}
         </Tabs>

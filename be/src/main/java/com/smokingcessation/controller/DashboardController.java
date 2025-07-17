@@ -1,9 +1,11 @@
 package com.smokingcessation.controller;
 
 import com.smokingcessation.dto.res.PlanResultStatsDTO;
+import com.smokingcessation.dto.res.RevenueDTO;
 import com.smokingcessation.dto.res.UserGrowthDTO;
 import com.smokingcessation.service.DashboardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -30,6 +32,16 @@ public class DashboardController {
     @GetMapping("/plan-stats")
     public Map<String, PlanResultStatsDTO> getPlanStats() {
         return dashboardService.getPlanResultStats();
+    }
+
+    @GetMapping("/dashboard/revenue")
+    public ResponseEntity<List<RevenueDTO>> getRevenue() {
+        return ResponseEntity.ok(dashboardService.getWeeklyRevenue());
+    }
+
+    @GetMapping("/dashboard/total-revenue")
+    public ResponseEntity<Long> getTotalRevenue() {
+        return ResponseEntity.ok(dashboardService.getTotalRevenue());
     }
 
 }

@@ -12,6 +12,7 @@ import UserGrowth from "../../../components/admin/dashboard/UserGrowthBlock/User
 import QuitRate from "../../../components/admin/dashboard/QuitRateBlock/QuitRate";
 import OverallMembers from "../../../components/admin/dashboard/OverallMembersBlock/OverallMembers";
 import SuccessRate from "../../../components/admin/dashboard/SuccessRateBlock/SuccessRate";
+import { dashboardService } from "../../../services/dashboardService.js";
 
 const { Title, Text } = Typography;
 
@@ -90,7 +91,7 @@ const CHART_CONFIG = [
   {
     title: "Total Revenue",
     component: Revenue,
-    span: { xs: 24, lg: 12 },
+    span: { xs: 24 },
     key: "revenue",
   },
   {
@@ -130,24 +131,6 @@ const DashboardHeader = () => (
       <Text type="secondary" style={{ fontSize: 14 }}>
         Comprehensive analytics for your smoking cessation program
       </Text>
-    </Col>
-    <Col>
-      <Space>
-        <Button
-          type="primary"
-          icon={<DownloadOutlined />}
-          style={{
-            background: THEME_COLORS.primary,
-            borderColor: THEME_COLORS.primary,
-            borderRadius: 8,
-          }}
-        >
-          Export All
-        </Button>
-        <Text type="secondary" style={{ fontSize: 12 }}>
-          Last updated: 8:50:06 PM
-        </Text>
-      </Space>
     </Col>
   </Row>
 );
@@ -306,22 +289,34 @@ const Overview = () => {
   const [stats, setStats] = useState(INITIAL_STATS);
 
   useEffect(() => {
-    // Function to fetch user data and calculate statistics
     const fetchUserStats = async () => {
       try {
         // Fetch users from API
-        const data = await userService.fetchAdminUsers();
+        const userData = await userService.fetchAdminUsers();
 
-        if (data && Array.isArray(data)) {
+        // Fetch revenue data
+        const revenueValue = await dashboardService.getTotalRevenue();
+
+        if (userData && Array.isArray(userData)) {
           // Calculate total users
-          const totalUsers = data.length;
+          const totalUsers = userData.length;
 
           // Calculate active users (users who are not blocked)
-          const activeUsers = data.filter((user) => !user.block).length;
+          const activeUsers = userData.filter((user) => !user.block).length;
 
           // Calculate percentages
           const activePercentage =
             totalUsers > 0 ? Math.round((activeUsers / totalUsers) * 100) : 0;
+
+          // Format revenue value
+          const formatRevenue = (value) => {
+            if (value >= 1000000) {
+              return `${(value / 1000000).toFixed(1)}M VND`;
+            } else if (value >= 1000) {
+              return `${(value / 1000).toFixed(1)}K VND`;
+            }
+            return `${value} VND`;
+          };
 
           // Update stats with real data
           setStats([
@@ -341,8 +336,8 @@ const Overview = () => {
             },
             {
               title: "Total Revenue",
-              value: "119.6M VND", // Keeping this static as we don't have revenue data
-              change: "+15%",
+              value: formatRevenue(revenueValue || 0), // revenueValue = 198
+              change: "+0",
               icon: DollarOutlined,
               colorKey: "totalRevenue",
             },

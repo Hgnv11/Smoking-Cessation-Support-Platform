@@ -12,6 +12,11 @@ export const coachService = {
     return response.data;
   },
 
+  getClientConsultations: async () => {
+    const response = await api.get("mentor-dashboard/consultations/users");
+    return response.data;
+  },
+
   getAllMentorConsultations: async () => {
     const response = await api.get("consultations/mentor/slots/all");
     return response.data;
@@ -26,6 +31,24 @@ export const coachService = {
     const response = await api.post(`mentor-dashboard/consultations/${consultationId}/add-note`, {
       notes: notes
     });
+    return response.data;
+  },
+  
+  // Lấy reasons của user
+  getUserReasons: async (userId) => {
+    const response = await api.get(`reasons/user/${userId}`);
+    return response.data;
+  },
+  
+  // Lấy triggers của user
+  getUserTriggers: async (userId) => {
+    const response = await api.get(`user-triggers/by-user/${userId}`);
+    return response.data;
+  },
+  
+  // Lấy strategies của user
+  getUserStrategies: async (userId) => {
+    const response = await api.get(`user-strategies/by-user/${userId}`);
     return response.data;
   }
 };

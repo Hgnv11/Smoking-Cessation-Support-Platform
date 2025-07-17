@@ -47,6 +47,7 @@ import MentorClientDetails from "./pages/MentorPages/Clients/ClientDetails.jsx";
 import AboutUs from "./pages/AboutUs/aboutUs.jsx";
 import ScheduleManagement from "./pages/AdminPages/ScheduleManagenment/ScheduleManagement.jsx";
 import PaymentResult from "./pages/PaymentResult/paymentResult.jsx";
+import BadgeManagement from "./pages/AdminPages/BadgeManagement/BadgeManagement.jsx";
 
 const ProtectRouteAuth = ({ children }) => {
   const user = useSelector((store) => store.user);
@@ -412,6 +413,14 @@ function App() {
           element: (
             <ProtectAdminRoute>
               <PlanManagement />
+            </ProtectAdminRoute>
+          ),
+        },
+        {
+          path: "admin/badge-management",
+          element: (
+            <ProtectAdminRoute>
+              <BadgeManagement />
             </ProtectAdminRoute>
           ),
         },
