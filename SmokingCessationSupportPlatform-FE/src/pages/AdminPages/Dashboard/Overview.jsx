@@ -133,7 +133,7 @@ const DashboardHeader = () => (
       </Text>
     </Col>
     <Col>
-      <Space>
+      {/* <Space>
         <Button
           type="primary"
           icon={<DownloadOutlined />}
@@ -148,7 +148,7 @@ const DashboardHeader = () => (
         <Text type="secondary" style={{ fontSize: 12 }}>
           Last updated: 8:50:06 PM
         </Text>
-      </Space>
+      </Space> */}
     </Col>
   </Row>
 );
