@@ -79,8 +79,9 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5173",
                 "http://localhost:3000",
-                "http://localhost:8080"
-//                "https://smokingcessationsupport.space"
+                "http://localhost:8080",
+                "https://smoking-cessation-deploy-e2pi.vercel.app"
+
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT","PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));

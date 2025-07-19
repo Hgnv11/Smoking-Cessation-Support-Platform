@@ -18,7 +18,11 @@ import java.util.List;
 @Validated
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {
+        "http://localhost:5173",
+        "https://smoking-cessation-deploy-e2pi.vercel.app",
+        "https://smokingcessationsupport.space"
+})
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
