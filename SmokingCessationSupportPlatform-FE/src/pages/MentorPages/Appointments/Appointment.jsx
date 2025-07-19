@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   Button,
@@ -33,6 +34,7 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 export const Appointment = () => {
+  const navigate = useNavigate();
   const [scheduleData, setScheduleData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -50,6 +52,10 @@ export const Appointment = () => {
   const [consultationNotes, setConsultationNotes] = useState("");
   const [creatingRoom, setCreatingRoom] = useState(false);
   const [updatingConsultation, setUpdatingConsultation] = useState(false);
+
+  // State for feedback modal
+  const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
+  const [selectedFeedback, setSelectedFeedback] = useState(null);
 
   useEffect(() => {
     const fetchConsultations = async () => {
@@ -147,11 +153,6 @@ export const Appointment = () => {
   }, []);
 
   // Helper functions
-  function slotTimeFromNumber(slotNumber) {
-    const slotTimes = ["09:00", "10:00", "11:00", "14:00"];
-    return slotTimes[slotNumber] || "";
-  }
-
   const getSlotTimeRange = (slotNumber) => {
     const timeRanges = {
       1: "7:00 AM - 9:30 AM",
@@ -194,19 +195,42 @@ export const Appointment = () => {
   };
 
   // New function to handle starting consultation
-  const handleStartConsultation = (slot) => {
+  const handleStartConsultation = async (slot) => {
     setSelectedSlot(slot);
     setConsultationStatus(slot.status || "scheduled");
     setConsultationNotes("");
     setMeetingLink("");
     setConsultationModalVisible(true);
+
+    // Fetch consultation details if consultationId exists
+    if (slot.consultationId) {
+      try {
+        const consultationDetails = await coachService.getConsultationDetails(
+          slot.consultationId
+        );
+        setMeetingLink(consultationDetails.meetingLink || "");
+        setConsultationStatus(consultationDetails.status || "scheduled");
+      } catch (error) {
+        console.error("Failed to fetch consultation details:", error);
+      }
+    }
   };
 
   // Function to create Google Meet room
   const createMeetingRoom = async () => {
+    if (!selectedSlot?.consultationId) {
+      Modal.error({
+        title: "Error",
+        content: "No consultation selected or consultation ID missing.",
+      });
+      return;
+    }
+
     setCreatingRoom(true);
     try {
-      const response = await api.post("test-daily/create-room");
+      const response = await api.post(
+        `test-daily/create-room/${selectedSlot.consultationId}`
+      );
       console.log("Meeting room response:", response.data);
 
       // Handle different possible response formats
@@ -338,6 +362,37 @@ export const Appointment = () => {
     }
   };
 
+  // Function to view user feedback
+  const handleViewUserFeedback = async (slot) => {
+    try {
+      const consultationDetails = await coachService.getConsultationDetails(
+        slot.consultationId
+      );
+      if (consultationDetails.feedback && consultationDetails.rating) {
+        setSelectedFeedback({
+          consultationId: slot.consultationId,
+          clientName: slot.clientName,
+          rating: consultationDetails.rating,
+          feedback: consultationDetails.feedback,
+          date: slot.time,
+        });
+        setFeedbackModalVisible(true);
+      } else {
+        Modal.info({
+          title: "No Feedback",
+          content:
+            "The user hasn't provided feedback for this consultation yet.",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to fetch consultation feedback:", error);
+      Modal.error({
+        title: "Error",
+        content: "Failed to fetch feedback. Please try again.",
+      });
+    }
+  };
+
   const renderTimeSlotCard = (slot) => {
     const isAvailable = slot.isAvailable;
 
@@ -381,25 +436,36 @@ export const Appointment = () => {
 
               {/* Show different content based on consultation status */}
               {slot.status === "completed" ? (
-                <div
-                  style={{
-                    marginTop: "8px",
-                    padding: "6px 12px",
-                    backgroundColor: "#f6ffed",
-                    border: "1px solid #d9f7be",
-                    borderRadius: "4px",
-                    textAlign: "center",
-                  }}
-                >
-                  <Text
+                <div style={{ marginTop: "8px" }}>
+                  <div
                     style={{
-                      color: "#52c41a",
-                      fontWeight: "500",
-                      fontSize: "12px",
+                      padding: "6px 12px",
+                      backgroundColor: "#f6ffed",
+                      border: "1px solid #d9f7be",
+                      borderRadius: "4px",
+                      textAlign: "center",
+                      marginBottom: "8px",
                     }}
                   >
-                    ✓ Completed
-                  </Text>
+                    <Text
+                      style={{
+                        color: "#52c41a",
+                        fontWeight: "500",
+                        fontSize: "12px",
+                      }}
+                    >
+                      ✓ Completed
+                    </Text>
+                  </div>
+                  <Button
+                    type="default"
+                    size="small"
+                    icon={<StarOutlined />}
+                    onClick={() => handleViewUserFeedback(slot)}
+                    style={{ width: "100%" }}
+                  >
+                    View User Feedback
+                  </Button>
                 </div>
               ) : (
                 <Button
@@ -444,33 +510,105 @@ export const Appointment = () => {
         </Text>
       </div>
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        {scheduleData.map((daySchedule, index) => (
-          <div key={index} className={styles.dayScheduleContainer}>
-            <div className={styles.dayHeader}>
-              <Title level={4} className={styles.dayDate}>
-                {new Date(daySchedule.date).toLocaleDateString("en-GB")}
-              </Title>
-              <Text className={styles.daySlotCount}>
-                {daySchedule.bookedSlots}/{daySchedule.totalSlots} slots booked
-              </Text>
-            </div>
-
-            <Row gutter={[16, 16]} className={styles.timeSlotsRow}>
-              {daySchedule.timeSlots.map((slot, slotIndex) => (
-                <Col
-                  xs={24}
-                  sm={12}
-                  md={12}
-                  lg={6}
-                  key={slotIndex}
-                  className={styles.timeSlotCol}
+        {/* Today's Appointments */}
+        {scheduleData.filter((daySchedule) => {
+          const today = new Date();
+          const scheduleDate = new Date(daySchedule.date);
+          return scheduleDate.toDateString() === today.toDateString();
+        }).length > 0 && (
+          <div>
+            <Title level={3} style={{ marginBottom: 16, color: "#0A52B5" }}>
+              Today's Appointments
+            </Title>
+            {scheduleData
+              .filter((daySchedule) => {
+                const today = new Date();
+                const scheduleDate = new Date(daySchedule.date);
+                return scheduleDate.toDateString() === today.toDateString();
+              })
+              .map((daySchedule, index) => (
+                <div
+                  key={`today-${index}`}
+                  className={styles.dayScheduleContainer}
                 >
-                  {renderTimeSlotCard(slot)}
-                </Col>
+                  <div className={styles.dayHeader}>
+                    <Title level={4} className={styles.dayDate}>
+                      {new Date(daySchedule.date).toLocaleDateString("en-GB")}
+                    </Title>
+                    <Text className={styles.daySlotCount}>
+                      {daySchedule.bookedSlots}/{daySchedule.totalSlots} slots
+                      booked
+                    </Text>
+                  </div>
+
+                  <Row gutter={[16, 16]} className={styles.timeSlotsRow}>
+                    {daySchedule.timeSlots.map((slot, slotIndex) => (
+                      <Col
+                        xs={24}
+                        sm={12}
+                        md={12}
+                        lg={6}
+                        key={slotIndex}
+                        className={styles.timeSlotCol}
+                      >
+                        {renderTimeSlotCard(slot)}
+                      </Col>
+                    ))}
+                  </Row>
+                </div>
               ))}
-            </Row>
           </div>
-        ))}
+        )}
+
+        {/* Upcoming Appointments */}
+        {scheduleData.filter((daySchedule) => {
+          const today = new Date();
+          const scheduleDate = new Date(daySchedule.date);
+          return scheduleDate > today;
+        }).length > 0 && (
+          <div>
+            <Title level={3} style={{ marginBottom: 16, color: "#52c41a" }}>
+              Upcoming Appointments
+            </Title>
+            {scheduleData
+              .filter((daySchedule) => {
+                const today = new Date();
+                const scheduleDate = new Date(daySchedule.date);
+                return scheduleDate > today;
+              })
+              .map((daySchedule, index) => (
+                <div
+                  key={`upcoming-${index}`}
+                  className={styles.dayScheduleContainer}
+                >
+                  <div className={styles.dayHeader}>
+                    <Title level={4} className={styles.dayDate}>
+                      {new Date(daySchedule.date).toLocaleDateString("en-GB")}
+                    </Title>
+                    <Text className={styles.daySlotCount}>
+                      {daySchedule.bookedSlots}/{daySchedule.totalSlots} slots
+                      booked
+                    </Text>
+                  </div>
+
+                  <Row gutter={[16, 16]} className={styles.timeSlotsRow}>
+                    {daySchedule.timeSlots.map((slot, slotIndex) => (
+                      <Col
+                        xs={24}
+                        sm={12}
+                        md={12}
+                        lg={6}
+                        key={slotIndex}
+                        className={styles.timeSlotCol}
+                      >
+                        {renderTimeSlotCard(slot)}
+                      </Col>
+                    ))}
+                  </Row>
+                </div>
+              ))}
+          </div>
+        )}
       </Space>
 
       {/* Consultation Management Modal */}
@@ -554,7 +692,9 @@ export const Appointment = () => {
                     onClick={createMeetingRoom}
                     type="primary"
                   >
-                    Create Meeting Room
+                    {meetingLink
+                      ? "Recreate Meeting Room"
+                      : "Create Meeting Room"}
                   </Button>
                 </Space>
 
@@ -659,16 +799,16 @@ export const Appointment = () => {
           <Button key="close" onClick={() => setModalVisible(false)}>
             Close
           </Button>,
-          selectedConsultation?.meetingLink && (
+          selectedConsultation?.user?.userId && (
             <Button
-              key="start"
+              key="profile"
               type="primary"
               onClick={() => {
-                window.open(selectedConsultation.meetingLink, "_blank");
+                navigate(`/mentor/clients/${selectedConsultation.user.userId}`);
                 setModalVisible(false);
               }}
             >
-              Start Consultation
+              View Client Profile
             </Button>
           ),
         ]}
@@ -793,9 +933,7 @@ export const Appointment = () => {
                       TIME
                     </Text>
                     <Text strong>
-                      {slotTimeFromNumber(
-                        selectedConsultation.slot?.slotNumber - 1
-                      )}
+                      {getSlotTimeRange(selectedConsultation.slot?.slotNumber)}
                     </Text>
                   </div>
                 </Col>
@@ -1141,6 +1279,71 @@ export const Appointment = () => {
                 </Row>
               </Card>
             )}
+          </div>
+        )}
+      </Modal>
+
+      {/* User Feedback Modal */}
+      <Modal
+        title={
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <StarOutlined style={{ marginRight: 8, color: "#faad14" }} />
+            <Text strong style={{ fontSize: "16px" }}>
+              User Feedback
+            </Text>
+          </div>
+        }
+        open={feedbackModalVisible}
+        onCancel={() => setFeedbackModalVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setFeedbackModalVisible(false)}>
+            Close
+          </Button>,
+        ]}
+        width={500}
+      >
+        {selectedFeedback && (
+          <div style={{ padding: "20px 0" }}>
+            <div style={{ marginBottom: 20 }}>
+              <Text strong style={{ display: "block", marginBottom: 8 }}>
+                Client: {selectedFeedback.clientName}
+              </Text>
+              <Text style={{ color: "#8c8c8c" }}>
+                Consultation Time: {selectedFeedback.date}
+              </Text>
+            </div>
+
+            <div style={{ marginBottom: 20 }}>
+              <Text strong style={{ display: "block", marginBottom: 8 }}>
+                Rating:
+              </Text>
+              <Rate
+                disabled
+                value={selectedFeedback.rating}
+                style={{ fontSize: 20 }}
+              />
+              <Text
+                style={{ marginLeft: 8, color: "#faad14", fontWeight: "500" }}
+              >
+                ({selectedFeedback.rating}/5)
+              </Text>
+            </div>
+
+            <div>
+              <Text strong style={{ display: "block", marginBottom: 8 }}>
+                Feedback:
+              </Text>
+              <div
+                style={{
+                  padding: "12px",
+                  backgroundColor: "#f5f5f5",
+                  borderRadius: "6px",
+                  border: "1px solid #e8e8e8",
+                }}
+              >
+                <Text>{selectedFeedback.feedback}</Text>
+              </div>
+            </div>
           </div>
         )}
       </Modal>

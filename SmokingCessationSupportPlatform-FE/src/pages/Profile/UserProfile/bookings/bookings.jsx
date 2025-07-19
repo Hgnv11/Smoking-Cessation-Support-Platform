@@ -23,6 +23,7 @@ import {
   ClockCircleTwoTone,
   ExclamationCircleFilled,
   MailTwoTone,
+  LinkOutlined,
 } from "@ant-design/icons";
 import api from "../../../../config/axios";
 import { useEffect, useState, useCallback } from "react";
@@ -78,11 +79,24 @@ function UserBookings() {
     try {
       setLoading(true);
       const response = await api.get("/consultations/user");
-      setBookings(response.data);
+
+      // Fetch detailed consultation info for all bookings to get meeting links
+      const bookingsWithDetails = [];
+      for (const booking of response.data) {
+        const consultationDetails = await checkConsultationDetails(
+          booking.consultationId
+        );
+        bookingsWithDetails.push({
+          ...booking,
+          meetingLink: consultationDetails?.meetingLink || null,
+        });
+      }
+
+      setBookings(bookingsWithDetails);
 
       // Check feedback status for completed bookings
       const feedbackStatus = {};
-      for (const booking of response.data) {
+      for (const booking of bookingsWithDetails) {
         if (booking.status === "completed") {
           const consultationDetails = await checkConsultationDetails(
             booking.consultationId
@@ -97,7 +111,7 @@ function UserBookings() {
       setBookingFeedbackStatus(feedbackStatus);
 
       // Default filter to scheduled
-      const scheduledBookings = response.data.filter(
+      const scheduledBookings = bookingsWithDetails.filter(
         (booking) => booking.status === "scheduled"
       );
       setFilteredBookings(scheduledBookings);
@@ -352,6 +366,25 @@ function UserBookings() {
                           {getSlotTimeRange(booking.slot.slotNumber)}
                         </p>
                       </div>
+
+                      {/* Show meeting link for scheduled bookings only if available */}
+                      {booking.status === "scheduled" &&
+                        booking.meetingLink && (
+                          <div className="wrapper__profile-bookings-card-meeting">
+                            <p className="wrapper__profile-bookings-card-meeting-link">
+                              <LinkOutlined className="wrapper__profile-bookings-card-date-details-icon" />{" "}
+                              <a
+                                href={booking.meetingLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="wrapper__profile-bookings-card-meeting-link-text"
+                              >
+                                Join Meeting
+                              </a>
+                            </p>
+                          </div>
+                        )}
+
                       <div className="wrapper__profile-bookings-card-coach">
                         <div className="wrapper__profile-bookings-card-coach-info">
                           <div className="wrapper__profile-bookings-card-coach-info-des">

@@ -14,10 +14,11 @@ import {
 } from "antd";
 import {
   CalendarOutlined,
-  PhoneOutlined,
+  UserOutlined,
   MailOutlined,
   SearchOutlined,
   EyeOutlined,
+  UserAddOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { coachService } from "../../../services/coachService";
@@ -32,25 +33,17 @@ export default function ClientsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  /**
-   * Chuyển số slot thành chuỗi thời gian
-   */
   const slotNumberToTime = (slotNumber) => {
     const times = ["09:00", "10:00", "11:00", "14:00"];
     return times[slotNumber] || "00:00";
   };
 
-  /**
-   * Ánh xạ trạng thái consultation sang trạng thái client
-   */
   const mapConsultationStatusToClientStatus = (consultationStatus) => {
     switch (consultationStatus) {
       case "completed":
         return "completed";
       case "scheduled":
         return "active";
-      case "missed":
-        return "at-risk";
       case "cancelled":
         return "inactive";
       default:
@@ -58,11 +51,7 @@ export default function ClientsPage() {
     }
   };
 
-  // Fetch data từ API
   useEffect(() => {
-    /**
-     * Chuyển đổi dữ liệu consultation thành dữ liệu client
-     */
     const extractClientsFromConsultations = (consultations) => {
       const clientMap = {};
 
@@ -75,12 +64,11 @@ export default function ClientsPage() {
           clientMap[userId] = {
             id: userId,
             name: user.fullName || user.profileName || "Unknown Client",
+            profileName: user.profileName || null,
             avatar: user.avatarUrl || "",
             joinDate: new Date(createdAt).toISOString(),
             status: mapConsultationStatusToClientStatus(status),
             email: user.email || "N/A",
-            phone: user.phoneNumber || "N/A",
-            gender: user.gender || "N/A",
             consultations: [],
             currentProgress: {
               nextSession: null,
@@ -88,7 +76,6 @@ export default function ClientsPage() {
           };
         }
 
-        // Thêm consultation vào danh sách consultations của client
         clientMap[userId].consultations.push({
           consultationId: consultation.consultationId,
           date: slot.slotDate,
@@ -133,30 +120,22 @@ export default function ClientsPage() {
     fetchClients();
   }, []);
 
-  // ✅ Lấy dữ liệu clients từ mock data
-
-  // Hàm filter clients dựa trên từ khóa tìm kiếm
   const filteredClients = clients.filter((client) => {
-    const searchLower = searchTerm.toLowerCase(); // Chuyển từ khóa về chữ thường
+    const searchLower = searchTerm.toLowerCase();
 
     return (
-      // Tìm kiếm theo tên (không phân biệt hoa thường)
       client.name.toLowerCase().includes(searchLower) ||
-      // Tìm kiếm theo email (không phân biệt hoa thường)
       client.email.toLowerCase().includes(searchLower) ||
-      // Tìm kiếm theo số điện thoại
-      client.phone.includes(searchTerm) ||
-      // Tìm kiếm theo trạng thái (active, at-risk, completed, inactive)
+      (client.profileName &&
+        client.profileName.toLowerCase().includes(searchLower)) ||
       client.status.toLowerCase().includes(searchLower)
     );
   });
 
-  // Hàm xử lý thay đổi giá trị trong ô tìm kiếm
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value); // Cập nhật state searchTerm
+    setSearchTerm(e.target.value);
   };
 
-  // Hàm clear tìm kiếm (nếu cần)
   const handleClearSearch = () => {
     setSearchTerm(""); // Reset về rỗng
   };
@@ -172,10 +151,9 @@ export default function ClientsPage() {
   };
 
   const handleViewDetails = (clientId) => {
-    navigate(`/mentor/clients/${clientId}`); // Route to ClientDetails page instead of showing modal
+    navigate(`/mentor/clients/${clientId}`);
   };
 
-  // Loading state
   if (loading) {
     return (
       <div style={{ textAlign: "center", padding: "100px 0" }}>
@@ -185,7 +163,6 @@ export default function ClientsPage() {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div style={{ textAlign: "center", padding: "100px 0" }}>
@@ -234,7 +211,7 @@ export default function ClientsPage() {
       <Card className={styles.searchCard}>
         <Input
           prefix={<SearchOutlined className={styles.searchIcon} />}
-          placeholder="Search by name, email, phone, or status..." // Cập nhật placeholder
+          placeholder="Search by name, profile, email, or status..."
           value={searchTerm}
           onChange={handleSearchChange} // Gọi hàm xử lý khi có thay đổi
           className={styles.searchInput}
@@ -255,23 +232,73 @@ export default function ClientsPage() {
               <Col key={client.id} xs={24} sm={12} lg={8}>
                 <Card className={styles.clientCard}>
                   {/* Client Header */}
-                  <div className={styles.clientHeader}>
-                    <div className={styles.clientInfo}>
-                      <Avatar
-                        size={64}
-                        src={client.avatar}
-                        className={styles.clientAvatar}
+                  <div
+                    className={styles.clientHeader}
+                    style={{ marginBottom: "12px" }}
+                  >
+                    <div
+                      className={styles.clientInfo}
+                      style={{
+                        display: "flex",
+                        alignItems: "stretch",
+                        minHeight: "80px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginRight: "12px",
+                        }}
                       >
-                        {client.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </Avatar>
-                      <div className={styles.clientNameSection}>
-                        <Title level={4} className={styles.clientName}>
+                        <Avatar
+                          size={80}
+                          src={client.avatar}
+                          className={styles.clientAvatar}
+                        >
+                          {client.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </Avatar>
+                      </div>
+
+                      <div
+                        className={styles.clientNameSection}
+                        style={{
+                          flex: 1,
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          minHeight: "80px",
+                        }}
+                      >
+                        <Title
+                          level={3}
+                          className={styles.clientName}
+                          style={{ marginBottom: "4px" }}
+                        >
                           {client.name}
                         </Title>
-                        <Text className={styles.joinDate}>
+                        {client.profileName && (
+                          <Text
+                            style={{
+                              fontSize: "13px",
+                              color: "#8c8c8c",
+                              fontStyle: "italic",
+                              marginBottom: "4px",
+                            }}
+                          >
+                            @{client.profileName}
+                          </Text>
+                        )}
+                        <Text
+                          className={styles.joinDate}
+                          style={{ fontSize: "14px" }}
+                        >
+                          <UserAddOutlined
+                            style={{ marginRight: 6, color: "#1890ff" }}
+                          />
                           Joined{" "}
                           {new Date(client.joinDate).toLocaleDateString(
                             "en-GB",
@@ -283,16 +310,25 @@ export default function ClientsPage() {
                           )}
                         </Text>
                       </div>
-                      <Tag
-                        className={styles.statusTag}
+
+                      <div
                         style={{
-                          backgroundColor: statusConfig.bg,
-                          color: statusConfig.color,
-                          border: "none",
+                          display: "flex",
+                          alignItems: "flex-start",
+                          paddingTop: "4px",
                         }}
                       >
-                        {statusConfig.text}
-                      </Tag>
+                        <Tag
+                          className={styles.statusTag}
+                          style={{
+                            backgroundColor: statusConfig.bg,
+                            color: statusConfig.color,
+                            border: "none",
+                          }}
+                        >
+                          {statusConfig.text}
+                        </Tag>
+                      </div>
                     </div>
                   </div>
 
@@ -301,10 +337,6 @@ export default function ClientsPage() {
                     <div className={styles.contactItem}>
                       <MailOutlined className={styles.contactIcon} />
                       <Text className={styles.contactText}>{client.email}</Text>
-                    </div>
-                    <div className={styles.contactItem}>
-                      <PhoneOutlined className={styles.contactIcon} />
-                      <Text className={styles.contactText}>{client.phone}</Text>
                     </div>
                   </div>
 
@@ -327,14 +359,11 @@ export default function ClientsPage() {
 
                   {/* Action Buttons */}
                   <div className={styles.actionButtons}>
-                    <Button className={styles.actionButton}>
-                      <CalendarOutlined />
-                      Schedule
-                    </Button>
                     <Button
                       type="primary"
                       className={styles.viewDetailsButton}
                       onClick={() => handleViewDetails(client.id)} // Pass client.id for routing
+                      style={{ width: "100%" }}
                     >
                       <EyeOutlined />
                       View Details

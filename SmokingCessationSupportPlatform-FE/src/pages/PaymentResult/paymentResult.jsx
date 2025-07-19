@@ -36,13 +36,9 @@ const PaymentResult = () => {
           setResult("success");
 
           try {
-            console.log("🔄 Fetching updated user profile...");
             const userRes = await api.get("/profile/my");
-            console.log("Updated profile:", userRes.data);
-
             dispatch(login(userRes.data));
             localStorage.setItem("user", JSON.stringify(userRes.data));
-            console.log("Redux and localStorage updated");
           } catch (profileError) {
             console.error("Error fetching profile:", profileError);
             if (res.data) {
@@ -67,7 +63,6 @@ const PaymentResult = () => {
     if (userData) {
       try {
         const user = JSON.parse(userData);
-        console.log("🔄 Force refreshing Redux before going home:", user);
         dispatch(login(user));
       } catch (error) {
         console.error("Error parsing user data:", error);

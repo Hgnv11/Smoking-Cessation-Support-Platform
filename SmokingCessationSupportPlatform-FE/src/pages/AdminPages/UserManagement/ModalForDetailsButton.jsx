@@ -1,57 +1,37 @@
-import React from "react";
-import { Modal, Tag, Row, Col, Card, Spin, Avatar } from "antd";
-import { UserOutlined } from "@ant-design/icons";
+import React, { useState, useEffect } from "react";
+import { Modal, Tag, Row, Col, Card, Spin, Avatar, Empty } from "antd";
+import { MailTwoTone, UserOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import api from "../../../config/axios";
 import styles from "./ModalForDetailsButton.module.css";
 
-// Cải thiện function tính tuổi cho Customer
-function getAgeFromBirthDate(smokingHistoryByDate) {
+// Utility functions
+const calculateAge = (birthDate) => {
+  if (!birthDate) return "N/A";
+  try {
+    const birth = new Date(birthDate);
+    const now = new Date();
+    let age = now.getFullYear() - birth.getFullYear();
+    if (
+      now.getMonth() < birth.getMonth() ||
+      (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate())
+    ) {
+      age--;
+    }
+    return age;
+  } catch (error) {
+    console.error("Error calculating age:", error);
+    return "N/A";
+  }
+};
+
+const getCustomerAge = (smokingHistoryByDate) => {
   if (!smokingHistoryByDate || typeof smokingHistoryByDate !== "object")
     return "N/A";
-
-  // Lấy key đầu tiên từ smokingHistoryByDate
   const firstKey = Object.keys(smokingHistoryByDate)[0];
-  const user = smokingHistoryByDate[firstKey]?.[0]?.user;
-
-  if (!user?.birthDate) return "N/A";
-
-  try {
-    const birth = new Date(user.birthDate);
-    const now = new Date();
-    let age = now.getFullYear() - birth.getFullYear();
-    if (
-      now.getMonth() < birth.getMonth() ||
-      (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate())
-    ) {
-      age--;
-    }
-    return age;
-  } catch (error) {
-    console.error("Error calculating age:", error);
-    return "N/A";
-  }
-}
-
-// Function tính tuổi cho Admin/Coach từ userDetail
-function getAgeFromUserDetail(userDetail) {
-  if (!userDetail?.birthDate) return "N/A";
-
-  try {
-    const birth = new Date(userDetail.birthDate);
-    const now = new Date();
-    let age = now.getFullYear() - birth.getFullYear();
-    if (
-      now.getMonth() < birth.getMonth() ||
-      (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate())
-    ) {
-      age--;
-    }
-    return age;
-  } catch (error) {
-    console.error("Error calculating age:", error);
-    return "N/A";
-  }
-}
+  const birthDate = smokingHistoryByDate[firstKey]?.[0]?.user?.birthDate;
+  return calculateAge(birthDate);
+};
 
 const ModalForDetailsButton = ({
   open,
@@ -60,10 +40,60 @@ const ModalForDetailsButton = ({
   userDetail,
   loadingDetail,
 }) => {
+  const [badges, setBadges] = useState([]);
+  const [loadingBadges, setLoadingBadges] = useState(false);
+
   const isCustomer =
     selectedUser?.role === "Customer" || selectedUser?.role === "user";
   const isAdminOrCoach =
     selectedUser?.role === "Admin" || selectedUser?.role === "Coach";
+
+  useEffect(() => {
+    const fetchUserBadges = async () => {
+      if (!open || !selectedUser?.id) return;
+      try {
+        setLoadingBadges(true);
+        const response = await api.get(
+          `/achievements/badges/${selectedUser.id}`
+        );
+        setBadges(response.data);
+      } catch (error) {
+        console.error("Error fetching user badges:", error);
+        setBadges([]);
+      } finally {
+        setLoadingBadges(false);
+      }
+    };
+    fetchUserBadges();
+  }, [open, selectedUser?.id]);
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const getUserAge = () => {
+    if (isCustomer) {
+      return `${getCustomerAge(userDetail?.smokingHistoryByDate)} years old`;
+    }
+    return `${calculateAge(userDetail?.birthDate)} years old`;
+  };
+
+  const getRoleColor = (role) => {
+    if (role === "Customer" || role === "user") return "green";
+    if (role === "Coach") return "blue";
+    return "purple";
+  };
+
+  const InfoRow = ({ label, value, isTag = false, tagColor = "default" }) => (
+    <div>
+      <span className={styles.label}>{label}:</span>
+      {isTag ? <Tag color={tagColor}>{value}</Tag> : <b>{value}</b>}
+    </div>
+  );
 
   return (
     <Modal
@@ -71,7 +101,7 @@ const ModalForDetailsButton = ({
       open={open}
       onCancel={onClose}
       footer={null}
-      width={600}
+      width={800}
       className={styles.modalCustom}
     >
       <div className={styles.modalContent}>
@@ -100,20 +130,11 @@ const ModalForDetailsButton = ({
                   {selectedUser?.name || "N/A"}
                 </div>
                 <div className={styles.userEmail}>
-                  {selectedUser?.email || "N/A"}
+                  <MailTwoTone /> {selectedUser?.email || "N/A"}
                 </div>
                 <div className={styles.userTags}>
                   <Tag color="blue">{selectedUser?.membership || "Free"}</Tag>
-                  <Tag
-                    color={
-                      selectedUser?.role === "Customer" ||
-                      selectedUser?.role === "user"
-                        ? "green"
-                        : selectedUser?.role === "Coach"
-                        ? "blue"
-                        : "purple"
-                    }
-                  >
+                  <Tag color={getRoleColor(selectedUser?.role)}>
                     {selectedUser?.role || "Customer"}
                   </Tag>
                   <Tag
@@ -137,43 +158,34 @@ const ModalForDetailsButton = ({
             <div className={styles.infoBox}>
               <Row gutter={16}>
                 <Col span={12}>
-                  <div>
-                    <span className={styles.label}>User ID:</span>
-                    <b>#{selectedUser?.id || "N/A"}</b>
-                  </div>
-                  <div>
-                    <span className={styles.label}>Joined Date:</span>
-                    <b>
-                      {selectedUser?.joinDate
+                  <InfoRow
+                    label="User ID"
+                    value={`#${selectedUser?.id || "N/A"}`}
+                  />
+                  <InfoRow
+                    label="Joined Date"
+                    value={
+                      selectedUser?.joinDate
                         ? dayjs(selectedUser.joinDate).format("DD/MM/YYYY")
-                        : "N/A"}
-                    </b>
-                  </div>
+                        : "N/A"
+                    }
+                  />
                 </Col>
                 <Col span={12}>
-                  <div>
-                    <span className={styles.label}>Last Active:</span>
-                    <b>
-                      {selectedUser?.lastActivity
+                  <InfoRow
+                    label="Last Active"
+                    value={
+                      selectedUser?.lastActivity
                         ? dayjs(selectedUser.lastActivity).format("DD/MM/YYYY")
-                        : "N/A"}
-                    </b>
-                  </div>
-                  <div>
-                    <span className={styles.label}>Role:</span>
-                    <Tag
-                      color={
-                        selectedUser?.role === "Customer" ||
-                        selectedUser?.role === "user"
-                          ? "green"
-                          : selectedUser?.role === "Coach"
-                          ? "blue"
-                          : "purple"
-                      }
-                    >
-                      {selectedUser?.role || "Customer"}
-                    </Tag>
-                  </div>
+                        : "N/A"
+                    }
+                  />
+                  <InfoRow
+                    label="Role"
+                    value={selectedUser?.role || "Customer"}
+                    isTag={true}
+                    tagColor={getRoleColor(selectedUser?.role)}
+                  />
                 </Col>
               </Row>
             </div>
@@ -183,43 +195,73 @@ const ModalForDetailsButton = ({
             <div className={styles.infoBox}>
               <Row gutter={16}>
                 <Col span={12}>
-                  <div>
-                    <span className={styles.label}>Full Name:</span>
-                    <b>
-                      {isAdminOrCoach
+                  <InfoRow
+                    label="Full Name"
+                    value={
+                      isAdminOrCoach
                         ? userDetail?.fullName
-                        : selectedUser?.name || "N/A"}
-                    </b>
-                  </div>
-                  <div>
-                    <span className={styles.label}>Profile Name:</span>
-                    <b>
-                      {isAdminOrCoach
+                        : selectedUser?.name || "N/A"
+                    }
+                  />
+                  <InfoRow
+                    label="Profile Name"
+                    value={
+                      isAdminOrCoach
                         ? userDetail?.profileName
-                        : selectedUser?.profile || "N/A"}
-                    </b>
-                  </div>
+                        : selectedUser?.profile || "N/A"
+                    }
+                  />
                 </Col>
                 <Col span={12}>
-                  <div>
-                    <span className={styles.label}>Age:</span>
-                    <b>
-                      {isCustomer
-                        ? `${getAgeFromBirthDate(
-                            userDetail?.smokingHistoryByDate
-                          )} years old`
-                        : `${getAgeFromUserDetail(userDetail)} years old`}
-                    </b>
-                  </div>
-                  <div>
-                    <span className={styles.label}>Gender:</span>
-                    <b>
-                      {isAdminOrCoach ? userDetail?.gender || "N/A" : "N/A"}
-                    </b>
-                  </div>
+                  <InfoRow label="Age" value={getUserAge()} />
+                  <InfoRow
+                    label="Gender"
+                    value={isAdminOrCoach ? userDetail?.gender || "N/A" : "N/A"}
+                  />
                 </Col>
               </Row>
             </div>
+
+            {/* Badges Section */}
+            <div className={styles.sectionTitle}>
+              <span
+                className="anticon anticon-trophy"
+                style={{ marginRight: 6 }}
+              />
+              Badges Earned
+            </div>
+            {loadingBadges ? (
+              <div className={styles.badgesLoading}>
+                <Spin size="small" />
+                <div className={styles.badgesLoadingText}>
+                  Loading badges...
+                </div>
+              </div>
+            ) : badges.length > 0 ? (
+              <div className={styles.badgesContainer}>
+                {badges.map((badge) => (
+                  <div key={badge.badgeId} className={styles.badgeItem}>
+                    <img
+                      src={badge.badgeImageUrl}
+                      alt={badge.badgeName}
+                      className={styles.badgeImage}
+                    />
+                    <div className={styles.badgeName}>{badge.badgeName}</div>
+                    <div className={styles.badgeDate}>
+                      {formatDate(badge.earnedDate)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.badgesEmpty}>
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  description="No badges earned yet"
+                  style={{ margin: 0 }}
+                />
+              </div>
+            )}
 
             {/* Contact Information - For Admin/Coach */}
             {isAdminOrCoach && (

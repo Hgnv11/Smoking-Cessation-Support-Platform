@@ -1,35 +1,42 @@
-import "./badges.css";
 import { Affix, Card, Spin, message, Empty } from "antd";
-import Header from "../../../../components/header/header";
-import Footer from "../../../../components/footer/footer";
-import MyAccountNav from "../../../../components/myAccount-nav/myAccount-nav";
-import { useSelector } from "react-redux";
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import api from "../../../../config/axios";
+import "./otherBadges.css";
+import Header from "../../../../components/header/header";
+import OthersAccountNav from "../../../../components/othersAccount-nav/othersAccount-nav";
+import Footer from "../../../../components/footer/footer";
 
-function UserBadges() {
-  const user = useSelector((store) => store.user);
+function OtherBadges() {
+  const { profileName } = useParams();
+  const [user, setUser] = useState(null);
   const [badges, setBadges] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserBadges = async () => {
+    const fetchUserData = async () => {
       try {
         setLoading(true);
-        const response = await api.get(`/achievements/badges/${user.userId}`);
-        setBadges(response.data);
+        const response = await api.get(`/profile/by-name/${profileName}`);
+        setUser(response.data);
+
+        // Fetch user badges
+        const badgesResponse = await api.get(
+          `/achievements/badges/${response.data.userId}`
+        );
+        setBadges(badgesResponse.data);
       } catch (error) {
-        console.error("Error fetching badges:", error);
-        message.error("Failed to load badges");
+        console.error("Error fetching user data:", error);
+        message.error("Failed to fetch user profile. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
 
-    if (user?.userId) {
-      fetchUserBadges();
+    if (profileName) {
+      fetchUserData();
     }
-  }, [user?.userId]);
+  }, [profileName]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -46,14 +53,14 @@ function UserBadges() {
       </Affix>
       <div className="wrapper">
         <div className="wrapper__title1">
-          <p>My Account</p>
+          <p>{user?.profileName || profileName}'s Account</p>
         </div>
         <div className="wrapper__profile">
-          <MyAccountNav />
+          <OthersAccountNav />
           <div className="wrapper__profile-badges">
             <h1 className="wrapper__profile-details-title">Badges</h1>
             <h3 className="wrapper__profile-badges-description">
-              Earn badges as you overcome cravings and build a healthier life.
+              {user?.profileName || profileName}'s earned badges.
             </h3>
             <div className="wrapper__profile-badges-list">
               {loading ? (
@@ -90,7 +97,11 @@ function UserBadges() {
                 </div>
               ) : (
                 <div className="wrapper__profile-badges-empty">
-                  <Empty description="No badges earned yet. Keep going to earn your first badge!" />
+                  <Empty
+                    description={`${
+                      user?.profileName || profileName
+                    } hasn't earned any badges yet.`}
+                  />
                 </div>
               )}
             </div>
@@ -102,4 +113,4 @@ function UserBadges() {
   );
 }
 
-export default UserBadges;
+export default OtherBadges;

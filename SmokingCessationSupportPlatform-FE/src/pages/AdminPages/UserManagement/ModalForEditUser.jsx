@@ -50,11 +50,11 @@ const UserInfoHeader = ({ userData }) => (
         <Text type="secondary">User ID: #{userData.userId}</Text>
         <span
           className={`${styles.statusBadge} ${
-            !userData.isBlock ? styles.statusActive : styles.statusBlocked
+            userData.hasActive ? styles.statusActive : styles.statusBlocked
           }`}
         >
-          {!userData.isBlock ? <CheckCircleOutlined /> : <StopOutlined />}
-          {!userData.isBlock ? "Active" : "Blocked"}
+          {userData.hasActive ? <CheckCircleOutlined /> : <StopOutlined />}
+          {userData.hasActive ? "Pro Member" : "Free Member"}
         </span>
       </div>
     </div>
@@ -100,8 +100,8 @@ const BasicInfoForm = () => (
         </Form.Item>
       </Col>
       <Col span={12}>
-        <Form.Item label="Phone Number" name="phone">
-          <Input placeholder="Enter phone number" />
+        <Form.Item label="Avatar URL" name="avatarUrl">
+          <Input placeholder="Enter avatar URL" />
         </Form.Item>
       </Col>
     </Row>
@@ -127,6 +127,19 @@ const BasicInfoForm = () => (
         </Form.Item>
       </Col>
     </Row>
+    <Row gutter={16}>
+      <Col span={12}>
+        <Form.Item label="Role" name="role">
+          <Select placeholder="Select user role">
+            {roleOptions.map((option) => (
+              <Select.Option key={option.value} value={option.value}>
+                {option.label}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+      </Col>
+    </Row>
   </>
 );
 const genderOptions = [
@@ -135,23 +148,30 @@ const genderOptions = [
   { value: "other", label: "Other" },
 ];
 
-const AccountStatusForm = () => (
+const roleOptions = [
+  { value: "guest", label: "Guest" },
+  { value: "member", label: "Member" },
+  { value: "admin", label: "Admin" },
+  { value: "coach", label: "Coach" },
+];
+
+const AccountStatusForm = ({ userData }) => (
   <>
     <Title level={5} className={styles.sectionTitle}>
       Account Status
     </Title>
     <div className={styles.statusSection}>
       <Form.Item
-        name="isActive"
+        name="hasActive"
         valuePropName="checked"
         className={styles.switchItem}
       >
         <div className={styles.switchWrapper}>
           <div className={styles.switchInfo}>
-            <Text strong>Active Account</Text>
-            <Text type="secondary">Controls user's ability to log in.</Text>
+            <Text strong>Pro Account</Text>
+            <Text type="secondary">Enable Pro features for this user.</Text>
           </div>
-          <Switch />
+          <Switch checked={userData?.hasActive} />
         </div>
       </Form.Item>
       <Form.Item
@@ -166,7 +186,7 @@ const AccountStatusForm = () => (
               Indicates if the user's email is verified.
             </Text>
           </div>
-          <Switch />
+          <Switch checked={userData?.isVerified} />
         </div>
       </Form.Item>
     </div>
@@ -250,17 +270,43 @@ const ModalForEditUser = ({ open, onClose, userId, onUserUpdated }) => {
     try {
       const data = await userService.getUserById(userId);
       setUserData(data);
-      // This logic ensures the switch and badge are in sync
-      form.setFieldsValue({
-        fullName: data.fullName,
-        profileName: data.profileName,
-        email: data.email,
-        phone: data.phone || "",
-        birthDate: data.birthDate ? dayjs(data.birthDate) : null,
-        gender: data.gender || undefined,
-        isActive: !data.isBlock, // `isActive` is the opposite of `isBlock`
-        isVerified: data.isVerified,
-      });
+      // Debug logging
+      console.log("User data fetched:", data);
+      console.log(
+        "hasActive value:",
+        data.hasActive,
+        "type:",
+        typeof data.hasActive
+      );
+      console.log(
+        "isVerified value:",
+        data.isVerified,
+        "type:",
+        typeof data.isVerified
+      );
+
+      // Set form values with setTimeout to ensure proper timing
+      setTimeout(() => {
+        form.setFieldsValue({
+          fullName: data.fullName || "",
+          profileName: data.profileName || "",
+          email: data.email || "",
+          avatarUrl: data.avatarUrl || "",
+          birthDate: data.birthDate ? dayjs(data.birthDate) : null,
+          gender: data.gender || undefined,
+          role: data.role || "guest",
+          hasActive: data.hasActive === true,
+          isVerified: data.isVerified === true,
+        });
+
+        console.log("Form values set:", {
+          hasActive: data.hasActive === true,
+          isVerified: data.isVerified === true,
+        });
+
+        // Force re-render to ensure switches update
+        setUserData({ ...data });
+      }, 100);
     } catch (error) {
       message.error(error.message || "Failed to load user data.");
       handleClose();
@@ -279,16 +325,17 @@ const ModalForEditUser = ({ open, onClose, userId, onUserUpdated }) => {
     setSubmitting(true);
     try {
       const updateData = {
-        fullName: values.fullName,
-        profileName: values.profileName,
         email: values.email,
-        phone: values.phone || null,
+        profileName: values.profileName,
+        fullName: values.fullName,
+        avatarUrl: values.avatarUrl || null,
         birthDate: values.birthDate
           ? values.birthDate.format("YYYY-MM-DD")
           : null,
-        gender: values.gender,
-        isBlock: !values.isActive, // Convert back for the API
-        isVerified: values.isVerified,
+        gender: values.gender || "male",
+        role: values.role || "guest",
+        hasActive: values.hasActive || false,
+        isVerified: values.isVerified || false,
       };
       await userService.updateUser(userId, updateData);
       message.success("User updated successfully!");
@@ -328,7 +375,7 @@ const ModalForEditUser = ({ open, onClose, userId, onUserUpdated }) => {
           >
             <BasicInfoForm />
             <Divider />
-            <AccountStatusForm />
+            <AccountStatusForm userData={userData} />
             <Divider />
             <SystemInfo userData={userData} />
             <ModalFooter onCancel={handleClose} submitting={submitting} />

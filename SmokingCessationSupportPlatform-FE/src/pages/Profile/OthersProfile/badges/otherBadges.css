@@ -4,6 +4,7 @@
 
 .wrapper__profile-badges-list {
   margin-top: 30px;
+  margin-bottom: 50px;
 }
 
 .wrapper__profile-badges-grid {
@@ -11,7 +12,6 @@
   flex-wrap: wrap;
   gap: 20px;
 }
-
 
 .wrapper__profile-badges-list .ant-card-meta-title {
   font-size: 18px;
@@ -46,4 +46,4 @@
   width: 180px;
   height: 180px;
   object-fit: contain;
-} 
+}
