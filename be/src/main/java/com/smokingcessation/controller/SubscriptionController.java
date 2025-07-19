@@ -48,8 +48,9 @@ public class SubscriptionController {
         }
 
         return ResponseEntity.status(302).location(
-                URI.create("http://localhost:5173/payment-result?transaction_id="
-                        + transactionId + "&vnp_ResponseCode=" + responseCode)
+                URI.create(("https://smoking-cessation-deploy-e2pi.vercel.app/payment-result?transaction_id="
+                        + transactionId + "&vnp_ResponseCode=" + responseCode).trim())
         ).build();
+
     }
 }

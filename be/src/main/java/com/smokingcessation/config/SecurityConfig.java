@@ -56,7 +56,8 @@ public class SecurityConfig {
                                 "/api/profile/mentors/{profileNameMentor}",
                                 "/api/triggers/categories",
                                 "/api/strategies/categories",
-                                "/api/reasons"
+                                "/api/reasons",
+                                "/api/subscription/payment/return"
 
                         ).permitAll()
                         .requestMatchers("/api/profile").hasRole("ADMIN")
@@ -80,7 +81,8 @@ public class SecurityConfig {
                 "http://localhost:5173",
                 "http://localhost:3000",
                 "http://localhost:8080",
-                "https://smoking-cessation-deploy-e2pi.vercel.app"
+                "https://smoking-cessation-deploy-e2pi.vercel.app",
+                "https://smokingcessationsupport.space"
 
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT","PATCH", "DELETE", "OPTIONS"));
