@@ -16,17 +16,15 @@ function Membership() {
     try {
       setUpgradeLoading(true);
 
-      // Get user's IP address (using localhost for development)
-      const clientIp = "localhost";
+      const ipResponse = await fetch("https://api64.ipify.org?format=json");
+      const { ip: clientIp } = await ipResponse.json();
 
-      // Call payment API with user email, client IP, and return URL
       const response = await api.post(
         `/subscription/payment?clientIp=${clientIp}&email=${encodeURIComponent(
           user.email
         )}`
       );
 
-      // If successful, redirect to the payment URL
       if (response.data) {
         window.location.href = response.data;
       }
