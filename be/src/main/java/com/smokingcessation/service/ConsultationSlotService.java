@@ -80,9 +80,15 @@ public class ConsultationSlotService {
                 slots.add(slot);
             }
         }
-        return slotRepository.saveAll(slots).stream()
-                .map(slotMapper::toDto)
-                .collect(Collectors.toList());
+        List<ConsultationSlotDTO> result = new ArrayList<>();
+
+        for (ConsultationSlot slot : slots) {
+            ConsultationSlot savedSlot = slotRepository.save(slot);
+            ConsultationSlotDTO dto = slotMapper.toDto(savedSlot);
+            result.add(dto);
+        }
+
+        return result;
     }
 
     public ConsultationSlotDTO updateSlot(Integer slotId, Integer slotNumber, LocalDate slotDate, String mentorEmail) {
@@ -128,10 +134,14 @@ public class ConsultationSlotService {
         LocalDate startDate = LocalDate.now().plusDays(1);
         LocalDate endDate = LocalDate.now().plusDays(30);
 
-        return slotRepository.findByMentorAndSlotDateBetweenAndIsBookedFalse(mentor, startDate, endDate)
-                .stream()
-                .map(slotMapper::toDto)
-                .collect(Collectors.toList());
+        List<ConsultationSlot> slots = slotRepository.findByMentorAndSlotDateBetweenAndIsBookedFalse(mentor, startDate, endDate);
+        List<ConsultationSlotDTO> result = new ArrayList<>();
+
+        for (ConsultationSlot slot : slots) {
+            result.add(slotMapper.toDto(slot));
+        }
+
+        return result;
     }
 
     public List<ConsultationSlotDTO> getSlotsByMentorId(Integer mentorId) {
@@ -140,9 +150,14 @@ public class ConsultationSlotService {
         if (!"mentor".equals(mentor.getRole().name())) {
             throw new RuntimeException("Selected user is not a mentor");
         }
-        return slotRepository.findByMentor(mentor).stream()
-                .map(slotMapper::toDto)
-                .collect(Collectors.toList());
+        List<ConsultationSlot> slots = slotRepository.findByMentor(mentor);
+        List<ConsultationSlotDTO> result = new ArrayList<>();
+
+        for (ConsultationSlot slot : slots) {
+            result.add(slotMapper.toDto(slot));
+        }
+
+        return result;
     }
 
     public User getMentorByEmail(String email) {
