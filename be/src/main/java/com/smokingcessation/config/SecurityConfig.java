@@ -1,6 +1,6 @@
 package com.smokingcessation.config;
 
-import com.smokingcessation.config.JwtAuthenticationFilter;
+
 import com.smokingcessation.util.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,8 +15,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
 
@@ -49,7 +47,6 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
                                 "/swagger-ui.html",
-                                "/login/oauth2/code/google",
                                 "/api/profile/mentors",
                                 "/api/consultations/mentor/{mentorId}/slots",
                                 "/api/consultations/mentor/{mentorId}/ratings-feedback",
@@ -57,7 +54,8 @@ public class SecurityConfig {
                                 "/api/triggers/categories",
                                 "/api/strategies/categories",
                                 "/api/reasons",
-                                "/api/subscription/payment/return"
+                                "/api/subscription/payment/return",
+                                "/api/achievements/badges/{userId}"
 
                         ).permitAll()
                         .requestMatchers("/api/profile").hasRole("ADMIN")

@@ -10,10 +10,8 @@ import java.util.Optional;
 
 public interface ConsultationSlotRepository extends JpaRepository<ConsultationSlot, Integer> {
     List<ConsultationSlot> findByMentor(User mentor);
-    List<ConsultationSlot> findBySlotDate(LocalDate slotDate);
     List<ConsultationSlot> findByMentorAndSlotDateBetweenAndIsBookedFalse(User mentor, LocalDate startDate, LocalDate endDate);
     boolean existsByMentorAndSlotNumberAndSlotDate(User mentor, Integer slotNumber, LocalDate slotDate);
     boolean existsByMentorAndSlotNumberAndSlotDateAndSlotIdNot(User mentor, Integer slotNumber, LocalDate slotDate, Integer slotId);
     Optional<ConsultationSlot> findByMentorAndSlotNumberAndSlotDate(User mentor, Integer slotNumber, LocalDate slotDate);
-    List<ConsultationSlot> findByMentorAndSlotDate(User mentor, LocalDate today);
 }

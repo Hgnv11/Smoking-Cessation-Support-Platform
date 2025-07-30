@@ -305,6 +305,33 @@ public class AdminController {
         return ResponseEntity.ok(achievementService.getAllBadges());
     }
 
+    @Operation(
+            summary = "Thêm bài viết mới for admin"
+    )
+    @PostMapping("/post")
+    public ResponseEntity<PostDTO> addNewPostForAdmin(
+            Principal principal,
+            @RequestBody PostDTO request) {
+        String email = principal.getName();
+        PostDTO createdPost = postService.addNewPostForAdmin(email, request);
+        return ResponseEntity.ok(createdPost);
+    }
+
+    @Operation(
+            summary = "update post for admin"
+    )
+    @PutMapping("post/{postId}")
+    public ResponseEntity<PostDTO> updatePost(
+            @PathVariable int postId,
+            @RequestBody PostDTO postDTO,
+            Principal principal) {
+
+        String userEmail = principal.getName();
+
+        PostDTO updatedPost = postService.updatePostForAdmin(postId, userEmail, postDTO);
+        return ResponseEntity.ok(updatedPost);
+    }
+
 
 
 }
