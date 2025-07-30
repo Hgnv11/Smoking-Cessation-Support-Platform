@@ -32,6 +32,7 @@ import Overview from "./pages/AdminPages/Dashboard/Overview.jsx";
 import ChangePassCode from "./pages/Authentication/ChangePass-code/changePass-code.jsx";
 import OthersProfile from "./pages/Profile/OthersProfile/profile/othersProfile.jsx";
 import OthersPosts from "./pages/Profile/OthersProfile/posts/othersPosts.jsx";
+import OtherBadges from "./pages/Profile/OthersProfile/badges/otherBadges.jsx";
 import UserPosts from "./pages/Profile/UserProfile/posts/userPosts.jsx";
 import UserBookings from "./pages/Profile/UserProfile/bookings/bookings.jsx";
 import PlanDetail from "./pages/QuitPlan/PlanDetail/planDetail.jsx";
@@ -47,6 +48,7 @@ import MentorClientDetails from "./pages/MentorPages/Clients/ClientDetails.jsx";
 import AboutUs from "./pages/AboutUs/aboutUs.jsx";
 import ScheduleManagement from "./pages/AdminPages/ScheduleManagenment/ScheduleManagement.jsx";
 import PaymentResult from "./pages/PaymentResult/paymentResult.jsx";
+import BadgeManagement from "./pages/AdminPages/BadgeManagement/BadgeManagement.jsx";
 
 const ProtectRouteAuth = ({ children }) => {
   const user = useSelector((store) => store.user);
@@ -334,6 +336,10 @@ function App() {
           element: <OthersPosts />,
         },
         {
+          path: "users/:profileName/badges",
+          element: <OtherBadges />,
+        },
+        {
           path: "payment-result",
           element: <PaymentResult />,
         },
@@ -412,6 +418,14 @@ function App() {
           element: (
             <ProtectAdminRoute>
               <PlanManagement />
+            </ProtectAdminRoute>
+          ),
+        },
+        {
+          path: "admin/badge-management",
+          element: (
+            <ProtectAdminRoute>
+              <BadgeManagement />
             </ProtectAdminRoute>
           ),
         },

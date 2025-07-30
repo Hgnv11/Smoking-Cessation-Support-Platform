@@ -1,3 +1,38 @@
-be/.env
-.git/
+# ========== IDE Config Files ==========
+# IntelliJ IDEA
 .idea/
+be/.idea/
+
+# VSCode
+.vscode/
+be/.vscode/
+
+# IntelliJ module files
+*.iml
+be/**/*.iml
+
+# ========== Build Output ==========
+# Maven
+be/target/
+be/.mvn/
+be/mvnw
+be/mvnw.cmd
+
+# Compiled classes
+be/**/*.class
+
+# ========== Environment & Logs ==========
+# Env file
+be/.env
+
+# Logs & generated files
+be/*.log
+be/HELP.md
+
+# ========== Test Reports ==========
+be/surefire-reports/
+be/test-output/
+
+# ========== Misc ==========
+# Local history (optional)
+be/.history/

@@ -19,6 +19,8 @@ public interface AchievementMapper {
 
     @Mapping(source = "badge.badgeId", target = "badgeId")
     @Mapping(source = "badgeType", target = "badgeType")
+    @Mapping(source = "badge.badgeName", target = "badgeName")
+    @Mapping(source = "badge.badgeDescription", target = "badgeDescription")
     @Mapping(source = "badgeImageUrl", target = "badgeImageUrl")
     @Mapping(source = "active", target = "isActive")
     @Mapping(source = "earnedDate", target = "earnedDate")

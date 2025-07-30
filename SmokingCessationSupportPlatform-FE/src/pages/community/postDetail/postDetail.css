@@ -34,6 +34,13 @@
     transition: opacity 0.3s ease, color 0.3s ease;
 }
 
+.wrapper__post-container-author-date {
+    margin-left: 20px;
+    font-size: 16px;
+    margin-top: 5px;
+    color: #6D6E76;
+}
+
 .wrapper__post-container-author-username:hover {
     opacity: 0.6;
 }
@@ -57,6 +64,8 @@
     font-size: 18px;
     line-height: 1.8;
     color: #6D6E76;
+    white-space: pre-wrap; 
+    word-wrap: break-word;
 }
 
 .empty-post {
@@ -70,3 +79,17 @@
 .wrapper__post-container-author-actions-btn {
     margin-left: 10px;
 }
+
+.wrapper__post-container-related-title {
+    color: #0A52B5;
+    margin-bottom: 10px;
+    font-size: 28px;
+}
+
+.wrapper__post-container-related-content {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+

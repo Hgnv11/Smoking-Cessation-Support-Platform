@@ -38,6 +38,20 @@ public class PostService {
         return postMapper.toDto(savedPost);
     }
 
+    public PostDTO addNewPostForAdmin(String userEmail, PostDTO request) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        CommunityPost post = postMapper.toEntity(request);
+        post.setUser(user);
+        post.setIsApproved(true);
+        post.setImageUrl(request.getImageUrl());
+        post.setCreatedAt(LocalDateTime.now());
+        post.setUpdatedAt(LocalDateTime.now());
+
+        CommunityPost savedPost = postRepository.save(post);
+        return postMapper.toDto(savedPost);
+    }
     public List<PostDTO> getMyPosts(String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));

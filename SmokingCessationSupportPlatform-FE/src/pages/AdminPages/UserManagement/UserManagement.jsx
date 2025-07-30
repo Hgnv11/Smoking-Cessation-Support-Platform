@@ -1,27 +1,22 @@
 import styles from "./UserManagement.module.css";
 import AdminLayout from "../../../components/layout/AdminLayout.jsx";
 import ReusableTable from "../../../components/admin/ReusableTable/ReusableTable.jsx";
+import { Modal, Select, Tag, Button, Input, message, Space } from "antd";
 import {
-  Modal,
-  Tabs,
-  Form,
-  Select,
-  Tag,
-  List,
-  Descriptions,
-  Button,
-  Input,
-  message,
-  Card,
-  Space,
-} from "antd";
-import { EyeOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+  EyeOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { userService } from "../../../services/userService.js";
 import ModalForDetailsButton from "./ModalForDetailsButton.jsx";
 import ModalForEditUser from "./ModalForEditUser.jsx";
 import ModalForAddUser from "./ModalForAddUser.jsx";
+
+const { confirm } = Modal;
 
 const membershipOptions = [
   { value: "", label: "Filter membership" },
@@ -37,7 +32,7 @@ const roleOptions = [
   { value: "", label: "All roles" },
   { value: "user", label: "Customer" },
   { value: "admin", label: "Admin" },
-  { value: "guest", label: "Guest" },
+  { value: "mentor", label: "Coach" },
 ];
 
 const UserManagement = () => {
@@ -76,8 +71,9 @@ const UserManagement = () => {
             name: u.fullName,
             email: u.email,
             profile: u.profileName,
+            avatarUrl: u.avatarUrl || "",
             role: u.role,
-            membership: membership, 
+            membership: membership,
             joinDate: u.createdAt,
             lastActivity: u.lastLogin,
             status: u.isBlock ? "locked" : "active",
@@ -125,46 +121,62 @@ const UserManagement = () => {
   }, [filters, users]);
 
   // Delete single user
-  const handleDeleteUser = async (userId) => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete this user? This action cannot be undone."
-      )
-    ) {
-      return;
-    }
-
-    try {
-      await userService.deleteUser(userId);
-      setUsers((prev) => prev.filter((u) => u.id !== userId));
-      message.success("User deleted successfully");
-    } catch (error) {
-      console.error("Failed to delete user:", error);
-      message.error("Failed to delete user. Please try again.");
-    }
+  const handleDeleteUser = async (userId, userName) => {
+    confirm({
+      title: "Delete User",
+      icon: <ExclamationCircleOutlined />,
+      content: `Are you sure you want to delete "${userName}"? This action cannot be undone.`,
+      okText: "Yes, Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      centered: true,
+      onOk: async () => {
+        try {
+          await userService.deleteUser(userId);
+          setUsers((prev) => prev.filter((u) => u.id !== userId));
+          message.success("User deleted successfully");
+        } catch (error) {
+          console.error("Failed to delete user:", error);
+          message.error("Failed to delete user. Please try again.");
+        }
+      },
+      onCancel() {
+        // User cancelled, do nothing
+      },
+    });
   };
 
   // Bulk delete users
   const handleBulkDelete = async () => {
-    if (
-      !window.confirm(
-        `Are you sure you want to delete ${selectedRowKeys.length} users? This action cannot be undone.`
-      )
-    ) {
-      return;
-    }
-
-    try {
-      await Promise.all(
-        selectedRowKeys.map((userId) => userService.deleteUser(userId))
-      );
-      setUsers((prev) => prev.filter((u) => !selectedRowKeys.includes(u.id)));
-      setSelectedRowKeys([]);
-      message.success(`${selectedRowKeys.length} users deleted successfully`);
-    } catch (error) {
-      console.error("Failed to delete users:", error);
-      message.error("Failed to delete some users. Please try again.");
-    }
+    confirm({
+      title: "Delete Multiple Users",
+      icon: <ExclamationCircleOutlined />,
+      content: `Are you sure you want to delete ${selectedRowKeys.length} selected users? This action cannot be undone.`,
+      okText: "Yes, Delete All",
+      okType: "danger",
+      cancelText: "Cancel",
+      centered: true,
+      onOk: async () => {
+        try {
+          await Promise.all(
+            selectedRowKeys.map((userId) => userService.deleteUser(userId))
+          );
+          setUsers((prev) =>
+            prev.filter((u) => !selectedRowKeys.includes(u.id))
+          );
+          setSelectedRowKeys([]);
+          message.success(
+            `${selectedRowKeys.length} users deleted successfully`
+          );
+        } catch (error) {
+          console.error("Failed to delete users:", error);
+          message.error("Failed to delete some users. Please try again.");
+        }
+      },
+      onCancel() {
+        // User cancelled, do nothing
+      },
+    });
   };
 
   // Đảm bảo function được định nghĩa đúng cách
@@ -317,25 +329,14 @@ const UserManagement = () => {
       ),
     },
     {
-      title: "Account Status",
-      dataIndex: "status",
-      render: (value) =>
-        value === "active" ? (
-          <Tag color="green">Active</Tag>
-        ) : (
-          <Tag color="red">Locked</Tag>
-        ),
-    },
-    {
       title: "Membership package",
       dataIndex: "membership",
-      render: (value) => (
+      render: (value) =>
         value === "Premium Plan" ? (
           <Tag color="gold">Premium Plan</Tag>
         ) : (
           <Tag color="blue">Free Plan</Tag>
-        )
-      ),
+        ),
     },
     {
       title: "Joining date",
@@ -356,35 +357,42 @@ const UserManagement = () => {
     {
       title: "Action",
       dataIndex: "action",
-      render: (value, row) => (
-        <Space size="small">
-          <Button
-            type="default"
-            icon={<EditOutlined />}
-            size="small"
-            onClick={() => handleEditUser(row)}
-          >
-            Edit
-          </Button>
-          <Button
-            type="primary"
-            icon={<EyeOutlined />}
-            size="small"
-            onClick={() => handleViewDetails(row)} // Đảm bảo function được gọi đúng
-          >
-            Details
-          </Button>
-          <Button
-            type="primary"
-            danger
-            icon={<DeleteOutlined />}
-            size="small"
-            onClick={() => handleDeleteUser(row.id)}
-          >
-            Delete
-          </Button>
-        </Space>
-      ),
+      render: (value, row) => {
+        // Không hiển thị action nếu role là admin
+        if (row.role === "admin" || row.role === "Admin") {
+          return <span style={{ color: "#999", fontStyle: "italic" }}> </span>;
+        }
+
+        return (
+          <Space size="small">
+            <Button
+              type="default"
+              icon={<EditOutlined />}
+              size="small"
+              onClick={() => handleEditUser(row)}
+            >
+              Edit
+            </Button>
+            <Button
+              type="primary"
+              icon={<EyeOutlined />}
+              size="small"
+              onClick={() => handleViewDetails(row)}
+            >
+              Details
+            </Button>
+            <Button
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              size="small"
+              onClick={() => handleDeleteUser(row.id, row.name)}
+            >
+              Delete
+            </Button>
+          </Space>
+        );
+      },
     },
   ];
 
@@ -444,10 +452,10 @@ const UserManagement = () => {
             icon={<PlusOutlined />}
             size="large"
             onClick={handleAddUser}
-            style={{ 
+            style={{
               marginLeft: 16,
-              borderRadius: '6px',
-              fontWeight: 500
+              borderRadius: "6px",
+              fontWeight: 500,
             }}
           >
             Add User

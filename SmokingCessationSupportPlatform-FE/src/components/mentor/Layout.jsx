@@ -11,6 +11,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/redux/features/userSlice";
 import { toast } from "react-toastify";
+import styles from "./Layout.module.css";
 
 const { Sider, Header, Content } = AntLayout;
 const { Text } = Typography;
@@ -40,22 +41,7 @@ export const MentorLayout = () => {
       label: "Clients",
       path: "/mentor/clients", // Use full paths
     },
-    {
-      key: "reports",
-      icon: <BarChartOutlined />,
-      label: "Reports",
-      path: "/mentor/reports", // Use full paths
-    },
   ];
-
-  const getCurrentPageTitle = () => {
-    const currentPath = location.pathname;
-    // Handle /mentor as /mentor/overview
-    const pathToMatch =
-      currentPath === "/mentor" ? "/mentor/overview" : currentPath;
-    const currentItem = sidebarItems.find((item) => item.path === pathToMatch);
-    return currentItem ? currentItem.label : "Overview";
-  };
 
   const handleLogout = () => {
     dispatch(logout());
@@ -64,48 +50,37 @@ export const MentorLayout = () => {
   };
 
   return (
-    <AntLayout style={{ minHeight: "100vh" }}>
+    <AntLayout className={styles.layout}>
       {/* Sidebar */}
-      <Sider
-        width={240}
-        style={{
-          background: "#fff",
-          borderRight: "1px solid #f0f0f0",
-          position: "fixed",
-          height: "100vh",
-          left: 0,
-          top: 0,
-          zIndex: 100,
-        }}
-      >
-        <div style={{ padding: "24px 16px" }}>
+      <Sider width={240} className={styles.sider}>
+        <div className={styles.siderContent}>
           {/* Profile Section */}
-          <div style={{ marginBottom: 32 }}>
-            <Space align="center" style={{ marginBottom: 8 }}>
+          <div className={styles.profileSection}>
+            <Space align="center" className={styles.profileSpace}>
               <Avatar
                 size={50}
                 src={
                   user?.avatarUrl ||
                   "https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=64&h=64&fit=crop"
                 }
-                style={{ backgroundColor: "#0d9488" }}
+                className={styles.avatar}
               ></Avatar>
               <div>
-                <Text strong>{user?.fullName || "Mentor Name"}</Text>
+                <Text strong>{user?.profileName || "Mentor Name"}</Text>
               </div>
             </Space>
             <br />
-            <Text type="secondary" style={{ fontSize: 12, paddingLeft: 8 }}>
+            <Text type="secondary" className={styles.coachTitle}>
               Smoking Cessation Coach
             </Text>
           </div>
 
           {/* Navigation */}
-          <div style={{ marginBottom: 24 }}>
-            <Text type="secondary" style={{ fontSize: 12, paddingLeft: 8 }}>
+          <div className={styles.navigationSection}>
+            <Text type="secondary" className={styles.navHeader}>
               DASHBOARDS
             </Text>
-            <div style={{ marginTop: 8 }}>
+            <div className={styles.navItemsContainer}>
               {sidebarItems.map((item) => {
                 // Adjust isActive logic for /mentor and /mentor/overview
                 const isActive =
@@ -116,20 +91,17 @@ export const MentorLayout = () => {
                 return (
                   <div
                     key={item.key}
-                    style={{
-                      padding: "8px 12px",
-                      borderRadius: 8,
-                      marginBottom: 4,
-                      backgroundColor: isActive ? "#f0f9ff" : "transparent",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                    }}
+                    className={`${styles.navItem} ${
+                      isActive ? styles.navItemActive : ""
+                    }`}
                     onClick={() => navigate(item.path)}
                   >
                     {item.icon}
-                    <Text style={{ color: isActive ? "#0d9488" : "#666" }}>
+                    <Text
+                      className={
+                        isActive ? styles.navItemTextActive : styles.navItemText
+                      }
+                    >
                       {item.label}
                     </Text>
                   </div>
@@ -139,15 +111,13 @@ export const MentorLayout = () => {
           </div>
 
           {/* Logout Button */}
-          <div
-            style={{ position: "absolute", bottom: 24, left: 16, right: 16 }}
-          >
+          <div className={styles.logoutContainer}>
             <Button
               danger
               type="primary"
               icon={<LogoutOutlined />}
               block
-              style={{ borderRadius: 8 }}
+              className={styles.logoutButton}
               onClick={handleLogout}
             >
               Log out
@@ -156,31 +126,9 @@ export const MentorLayout = () => {
         </div>
       </Sider>
 
-      <AntLayout style={{ marginLeft: 240 }}>
-        {/* Header */}
-        <Header
-          style={{
-            background: "#fff",
-            borderBottom: "1px solid #f0f0f0",
-            padding: "0 24px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            position: "fixed",
-            width: "calc(100% - 240px)",
-            zIndex: 99,
-          }}
-        >
-          <Space>
-            <Text type="secondary">Dashboards</Text>
-            <Text type="secondary">/</Text>
-            <Text strong>{getCurrentPageTitle()}</Text>
-          </Space>
-          <Button type="text" icon={<CalendarOutlined />} />
-        </Header>
-
+      <AntLayout className={styles.mainLayout}>
         {/* Main Content */}
-        <Content style={{ padding: 24, marginTop: 64 }}>
+        <Content className={styles.content}>
           <Outlet />
         </Content>
       </AntLayout>

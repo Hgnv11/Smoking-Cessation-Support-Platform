@@ -56,7 +56,6 @@ public class SecurityConfig {
                                 "/api/profile/mentors/{profileNameMentor}",
                                 "/api/triggers/categories",
                                 "/api/strategies/categories",
-                                "/api/subscription/payment/return",
                                 "/api/reasons"
 
                         ).permitAll()
@@ -79,6 +78,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5173",
+                "http://localhost:5174",
                 "http://localhost:3000",
                 "http://localhost:8080"
 //                "https://smokingcessationsupport.space"

@@ -34,7 +34,14 @@ function OthersAccountNav() {
       >
         Posts
       </Link>
-      <Link to="/#" className={isActivePage("/#") ? "active" : ""}>
+      <Link
+        to={`/users/${encodeURIComponent(profileName)}/badges`}
+        className={
+          isActivePage(`/users/${encodeURIComponent(profileName)}/badges`)
+            ? "active"
+            : ""
+        }
+      >
         Badges
       </Link>
     </div>

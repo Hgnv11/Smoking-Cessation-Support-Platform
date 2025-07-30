@@ -1,0 +1,284 @@
+/* Schedule Management Styles */
+.scheduleManagementPage {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.batchCreateModal :global(.ant-modal-content) {
+  border-radius: 12px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.batchCreateModal :global(.ant-modal-header) {
+  border-radius: 12px 12px 0 0;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-bottom: none;
+}
+
+.batchCreateModal :global(.ant-modal-title) {
+  color: white;
+  font-weight: 600;
+}
+
+.scheduleControlPanel {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.scheduleTableContainer {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.scheduleTableContainer :global(.ant-table-thead > tr > th) {
+  background-color: #f8fafc;
+  border-bottom: 2px solid #e5e7eb;
+  font-weight: 600;
+  color: #374151;
+}
+
+.scheduleTableContainer :global(.ant-table-tbody > tr:hover > td) {
+  background-color: #f8fafc;
+}
+
+.scheduleTableContainer :global(.ant-table-tbody > tr.bg-blue-50) {
+  background-color: #eff6ff;
+}
+
+.scheduleTableContainer :global(.ant-table-tbody > tr.bg-gray-50) {
+  background-color: #f9fafb;
+}
+
+.scheduleTableContainer :global(.ant-table-tbody > tr.bg-red-50) {
+  background-color: #fef2f2;
+}
+
+:global(.ant-tag) {
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 12px;
+  padding: 2px 8px;
+}
+
+.slotCheckboxContainer {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.slotCheckboxContainer:hover {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dateInputContainer {
+  position: relative;
+}
+
+.dateInputContainer :global(.ant-picker) {
+  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.dateInputContainer :global(.ant-picker:focus),
+.dateInputContainer :global(.ant-picker:hover) {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.actionButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.statusAvailable {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.statusBooked {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.statusCompleted {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.statusCancelled {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.mentorInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mentorAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.pageHeaderContent {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 32px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.pageHeaderContent h1 {
+  color: white;
+  margin: 0;
+}
+
+.pageHeaderContent p {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 8px 0 0 0;
+}
+
+.statsCard {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.statsNumber {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+}
+
+.statsLabel {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.loadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.emptyStateIcon {
+  font-size: 48px;
+  color: #d1d5db;
+  margin-bottom: 16px;
+}
+
+.emptyStateTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.emptyStateDescription {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .scheduleControlPanel {
+    padding: 16px;
+  }
+
+  .pageHeaderContent {
+    padding: 24px 16px;
+  }
+
+  .scheduleTableContainer {
+    overflow-x: auto;
+  }
+
+  .batchCreateModal :global(.ant-modal) {
+    margin: 16px;
+    max-width: calc(100vw - 32px);
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Custom Scrollbar */
+.scheduleTableContainer :global(.ant-table-body::-webkit-scrollbar) {
+  height: 8px;
+}
+
+.scheduleTableContainer :global(.ant-table-body::-webkit-scrollbar-track) {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.scheduleTableContainer :global(.ant-table-body::-webkit-scrollbar-thumb) {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.scheduleTableContainer :global(.ant-table-body::-webkit-scrollbar-thumb:hover) {
+  background: #94a3b8;
+} 

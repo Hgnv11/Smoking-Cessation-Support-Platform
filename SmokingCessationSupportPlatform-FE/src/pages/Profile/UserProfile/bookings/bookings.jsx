@@ -23,6 +23,7 @@ import {
   ClockCircleTwoTone,
   ExclamationCircleFilled,
   MailTwoTone,
+  LinkOutlined,
 } from "@ant-design/icons";
 import api from "../../../../config/axios";
 import { useEffect, useState, useCallback } from "react";
@@ -37,13 +38,14 @@ function UserBookings() {
   const [activeFilter, setActiveFilter] = useState("scheduled");
   const [feedbackModal, setFeedbackModal] = useState(false);
   const [viewFeedbackModal, setViewFeedbackModal] = useState(false);
+  const [editFeedbackModal, setEditFeedbackModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [feedbackForm] = Form.useForm();
+  const [editFeedbackForm] = Form.useForm();
   const [bookingFeedbackStatus, setBookingFeedbackStatus] = useState({});
   const navigate = useNavigate();
   const { confirm } = Modal;
 
-  // Function to get time range based on slot number
   const getSlotTimeRange = (slotNumber) => {
     const timeRanges = {
       1: "7:00 AM - 9:30 AM",
@@ -77,11 +79,24 @@ function UserBookings() {
     try {
       setLoading(true);
       const response = await api.get("/consultations/user");
-      setBookings(response.data);
+
+      // Fetch detailed consultation info for all bookings to get meeting links
+      const bookingsWithDetails = [];
+      for (const booking of response.data) {
+        const consultationDetails = await checkConsultationDetails(
+          booking.consultationId
+        );
+        bookingsWithDetails.push({
+          ...booking,
+          meetingLink: consultationDetails?.meetingLink || null,
+        });
+      }
+
+      setBookings(bookingsWithDetails);
 
       // Check feedback status for completed bookings
       const feedbackStatus = {};
-      for (const booking of response.data) {
+      for (const booking of bookingsWithDetails) {
         if (booking.status === "completed") {
           const consultationDetails = await checkConsultationDetails(
             booking.consultationId
@@ -96,7 +111,7 @@ function UserBookings() {
       setBookingFeedbackStatus(feedbackStatus);
 
       // Default filter to scheduled
-      const scheduledBookings = response.data.filter(
+      const scheduledBookings = bookingsWithDetails.filter(
         (booking) => booking.status === "scheduled"
       );
       setFilteredBookings(scheduledBookings);
@@ -168,6 +183,27 @@ function UserBookings() {
     }
   };
 
+  const handleEditFeedback = async (booking) => {
+    const consultationDetails = await checkConsultationDetails(
+      booking.consultationId
+    );
+    if (consultationDetails) {
+      setSelectedBooking({
+        ...booking,
+        feedback: consultationDetails.feedback,
+        rating: consultationDetails.rating,
+      });
+
+      // Pre-fill the edit form with existing feedback
+      editFeedbackForm.setFieldsValue({
+        rating: consultationDetails.rating,
+        feedback: consultationDetails.feedback,
+      });
+
+      setEditFeedbackModal(true);
+    }
+  };
+
   const handleSubmitFeedback = async (values) => {
     try {
       const rating = Math.round(values.rating);
@@ -198,6 +234,39 @@ function UserBookings() {
     } catch (error) {
       console.error("Error submitting feedback:", error);
       message.error("Failed to submit feedback. Please try again.");
+    }
+  };
+
+  const handleUpdateFeedback = async (values) => {
+    try {
+      const rating = Math.round(values.rating);
+
+      if (!rating || rating < 1 || rating > 5) {
+        message.error("Please provide a valid rating between 1 and 5");
+        return;
+      }
+
+      if (!values.feedback || values.feedback.trim() === "") {
+        message.error("Please provide feedback text");
+        return;
+      }
+
+      const params = new URLSearchParams();
+      params.append("rating", rating.toString());
+      params.append("feedback", values.feedback.trim());
+
+      await api.put(
+        `/consultations/${
+          selectedBooking.consultationId
+        }/feedback?${params.toString()}`
+      );
+      message.success("Feedback updated successfully!");
+      setEditFeedbackModal(false);
+      editFeedbackForm.resetFields();
+      fetchBookings();
+    } catch (error) {
+      console.error("Error updating feedback:", error);
+      message.error("Failed to update feedback. Please try again.");
     }
   };
 
@@ -297,6 +366,25 @@ function UserBookings() {
                           {getSlotTimeRange(booking.slot.slotNumber)}
                         </p>
                       </div>
+
+                      {/* Show meeting link for scheduled bookings only if available */}
+                      {booking.status === "scheduled" &&
+                        booking.meetingLink && (
+                          <div className="wrapper__profile-bookings-card-meeting">
+                            <p className="wrapper__profile-bookings-card-meeting-link">
+                              <LinkOutlined className="wrapper__profile-bookings-card-date-details-icon" />{" "}
+                              <a
+                                href={booking.meetingLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="wrapper__profile-bookings-card-meeting-link-text"
+                              >
+                                Join Meeting
+                              </a>
+                            </p>
+                          </div>
+                        )}
+
                       <div className="wrapper__profile-bookings-card-coach">
                         <div className="wrapper__profile-bookings-card-coach-info">
                           <div className="wrapper__profile-bookings-card-coach-info-des">
@@ -443,7 +531,24 @@ function UserBookings() {
                   title="My Feedback"
                   open={viewFeedbackModal}
                   onCancel={() => setViewFeedbackModal(false)}
-                  footer={null}
+                  footer={[
+                    <Button
+                      key="close"
+                      onClick={() => setViewFeedbackModal(false)}
+                    >
+                      Close
+                    </Button>,
+                    <Button
+                      key="edit"
+                      type="primary"
+                      onClick={() => {
+                        setViewFeedbackModal(false);
+                        handleEditFeedback(selectedBooking);
+                      }}
+                    >
+                      Edit Feedback
+                    </Button>,
+                  ]}
                 >
                   {selectedBooking && (
                     <div>
@@ -470,6 +575,76 @@ function UserBookings() {
                       </div>
                     </div>
                   )}
+                </Modal>
+
+                <Modal
+                  title="Edit Feedback"
+                  open={editFeedbackModal}
+                  onCancel={() => {
+                    setEditFeedbackModal(false);
+                    editFeedbackForm.resetFields();
+                  }}
+                  footer={null}
+                >
+                  <Form
+                    form={editFeedbackForm}
+                    onFinish={handleUpdateFeedback}
+                    layout="vertical"
+                  >
+                    <Form.Item
+                      name="rating"
+                      label="Rating"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select a rating",
+                        },
+                        {
+                          validator: (_, value) => {
+                            if (value && value > 0) {
+                              return Promise.resolve();
+                            }
+                            return Promise.reject(
+                              new Error("Rating must be greater than 0")
+                            );
+                          },
+                        },
+                      ]}
+                    >
+                      <Rate allowHalf />
+                    </Form.Item>
+                    <Form.Item
+                      name="feedback"
+                      label="Feedback"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter your feedback",
+                        },
+                      ]}
+                    >
+                      <Input.TextArea rows={4} />
+                    </Form.Item>
+                    <Form.Item>
+                      <Space>
+                        <Button
+                          type="primary"
+                          htmlType="submit"
+                          className="wrapper__profile-bookings-feedback-submit"
+                        >
+                          Update Feedback
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            setEditFeedbackModal(false);
+                            editFeedbackForm.resetFields();
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </Space>
+                    </Form.Item>
+                  </Form>
                 </Modal>
               </>
             )}

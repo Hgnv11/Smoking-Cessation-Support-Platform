@@ -29,6 +29,27 @@
     margin-right: 5px;
 }
 
+.wrapper__profile-bookings-card-meeting {
+    margin-top: 15px;
+}
+
+.wrapper__profile-bookings-card-meeting-link {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.wrapper__profile-bookings-card-meeting-link-text {
+    color: #52c41a;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.wrapper__profile-bookings-card-meeting-link-text:hover {
+    color: #389e0d;
+    text-decoration: underline;
+}
+
 .wrapper__profile-bookings-card-coach {
     margin-top: 20px;
 }

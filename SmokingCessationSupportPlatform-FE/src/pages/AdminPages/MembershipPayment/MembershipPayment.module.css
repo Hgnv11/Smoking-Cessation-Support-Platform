@@ -171,17 +171,6 @@
   background: #fee2e2;
 }
 
-@media (max-width: 900px) {
-  .summary-cards-row, .search-filter-row {
-    flex-direction: column;
-    gap: 8px;
-    align-items: stretch;
-  }
-  .membership-payment-page {
-    padding: 12px 4px 0 0;
-  }
-}
-
 .summary-center {
   display: flex;
   flex-direction: column;

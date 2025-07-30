@@ -13,9 +13,11 @@ import {
   Select,
   Upload,
   Skeleton,
+  Card,
+  Divider,
 } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Header from "../../../components/header/header";
 import Footer from "../../../components/footer/footer";
 import api from "../../../config/axios";
@@ -24,11 +26,13 @@ import { UserOutlined, UploadOutlined } from "@ant-design/icons";
 import uploadFile from "../../../store/utils/file";
 import TextArea from "antd/es/input/TextArea";
 import FormItem from "antd/es/form/FormItem";
+import dayjs from "dayjs";
 
 function PostDetail() {
   const { postId } = useParams();
   const [post, setPost] = useState(null);
   const [author, setAuthor] = useState(null);
+  const [relatedPosts, setRelatedPosts] = useState([]);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
@@ -38,7 +42,31 @@ function PostDetail() {
 
   const user = useSelector((store) => store.user);
 
-  const fetchPostDetail = async () => {
+  const fetchRelatedPosts = useCallback(
+    async (postType) => {
+      try {
+        const response = await api.get("/post/all?approved=true");
+        const allPosts = response.data;
+
+        const relatedPostsFiltered = allPosts.filter(
+          (p) => p.postType === postType && p.postId !== parseInt(postId)
+        );
+
+        // Get random 3 posts
+        const shuffled = [...relatedPostsFiltered].sort(
+          () => 0.5 - Math.random()
+        );
+        const selectedPosts = shuffled.slice(0, 3);
+
+        setRelatedPosts(selectedPosts);
+      } catch (error) {
+        console.error("Error fetching related posts:", error);
+      }
+    },
+    [postId]
+  );
+
+  const fetchPostDetail = useCallback(async () => {
     try {
       setPageLoading(true);
       const response = await api.get(`/post/detail/${postId}`);
@@ -50,19 +78,21 @@ function PostDetail() {
       }
       setPost(postData);
       setAuthor(postData.user);
+
+      await fetchRelatedPosts(postData.postType);
     } catch (error) {
       console.error("Error fetching post detail:", error);
       message.error("Failed to fetch post details. Please try again later.");
     } finally {
       setPageLoading(false);
     }
-  };
+  }, [postId, fetchRelatedPosts]);
 
   useEffect(() => {
     if (postId) {
       fetchPostDetail();
     }
-  }, [postId]);
+  }, [postId, fetchPostDetail]);
 
   const handleAuthorClick = () => {
     if (author?.profileName === user?.profileName) {
@@ -165,8 +195,8 @@ function PostDetail() {
       if (response.status === 200) {
         message.success("Updated post is sent for approval!");
         handleCloseUpdateModal();
-        // Refresh post data
-        await fetchPostDetail();
+
+        fetchPostDetail();
       }
     } catch (error) {
       console.error("Error updating post:", error);
@@ -224,12 +254,20 @@ function PostDetail() {
                   }
                 />
               )}
-              <p
-                onClick={handleAuthorClick}
-                className="wrapper__post-container-author-username"
-              >
-                {author?.profileName}
-              </p>
+              <div className="wrapper__post-container-author-details">
+                <p
+                  onClick={handleAuthorClick}
+                  className="wrapper__post-container-author-username"
+                >
+                  {author?.profileName}
+                </p>
+                <p className="wrapper__post-container-author-date">
+                  Posted on{" "}
+                  {post.updatedAt
+                    ? dayjs(post.updatedAt).format("MMMM DD, YYYY [at] HH:mm")
+                    : "Unknown date"}
+                </p>
+              </div>
             </div>
 
             {user && author?.userId === user?.userId && (
@@ -246,6 +284,7 @@ function PostDetail() {
                 <Modal
                   open={openUpdateModal}
                   onCancel={handleCloseUpdateModal}
+                  className="wrapper__community-posts-modal"
                   footer={[
                     <Button key="cancel" onClick={handleCloseUpdateModal}>
                       Cancel
@@ -401,6 +440,43 @@ function PostDetail() {
             <p className="wrapper__post-container-detail-content">
               {post.content}
             </p>
+          </div>
+
+          <Divider className="divider" />
+
+          <div className="wrapper__post-container-related">
+            <h1 className="wrapper__post-container-related-title">
+              Related Post
+            </h1>
+            <div className="wrapper__post-container-related-content">
+              {relatedPosts.length > 0 ? (
+                relatedPosts.map((relatedPost) => (
+                  <Card
+                    key={relatedPost.postId}
+                    hoverable
+                    className="wrapper__card-coumminity"
+                    onClick={() => navigate(`/community/${relatedPost.postId}`)}
+                  >
+                    {relatedPost.imageUrl && (
+                      <img
+                        alt="community post"
+                        className="wrapper__card-community-img"
+                        src={relatedPost.imageUrl}
+                      />
+                    )}
+                    <div className="wrapper__card-post-type">
+                      <p>{relatedPost.postType?.toUpperCase()}</p>
+                    </div>
+                    <h2 className="wrapper__card-title">{relatedPost.title}</h2>
+                    <p className="wrapper__card-post-des">
+                      {relatedPost.content}
+                    </p>
+                  </Card>
+                ))
+              ) : (
+                <Empty description="No related posts found" />
+              )}
+            </div>
           </div>
         </div>
       </div>
