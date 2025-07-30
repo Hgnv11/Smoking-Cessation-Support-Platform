@@ -1,21 +1,21 @@
 package com.smokingcessation.controller;
 
-import com.smokingcessation.dto.res.ConsultationDTO;
-import com.smokingcessation.dto.res.ConsultationSlotDTO;
-import com.smokingcessation.dto.res.ReasonDTO;
-import com.smokingcessation.dto.res.SmokingProgressDTO;
+import com.smokingcessation.dto.res.*;
 import com.smokingcessation.model.*;
 import com.smokingcessation.service.*;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/admin")
 @CrossOrigin(origins = "http://localhost:5173")
@@ -287,13 +287,20 @@ public class AdminController {
     }
 
     // ========== ACHIEVEMENTS ==========
-    @Operation(summary = "Cap nhat link ảnh huy hiệu")
-    @PutMapping("badges/{badgeId}/image")
-    public ResponseEntity<String> updateBadgeImage(
-            @PathVariable Long badgeId,
-            @RequestParam String imageUrl) {
-        achievementService.updateBadgeImageUrl(badgeId, imageUrl);
-        return ResponseEntity.ok("Badge image updated successfully.");
+    @Operation(summary = "update huy hiệu")
+    @PutMapping("/badges/{badgeId}")
+    public ResponseEntity<?> updateBadge(@PathVariable Long badgeId,
+                                         @Valid @RequestBody Badge badge) {
+        achievementService.updateBadge(badgeId, badge);
+        return ResponseEntity.ok().build();
     }
+
+    @Operation(summary = "get all badge")
+    @GetMapping("/badges")
+    public ResponseEntity<List<Badge>> getAllBadges() {
+        return ResponseEntity.ok(achievementService.getAllBadges());
+    }
+
+
 
 }

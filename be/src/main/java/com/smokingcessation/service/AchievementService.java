@@ -32,7 +32,6 @@ public class AchievementService {
 
     @Transactional
     public void checkAndAwardMilestones(String email) {
-        log.info("Checking milestones for email: {}", email);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -59,22 +58,56 @@ public class AchievementService {
         } else {
             daysSinceQuit = ChronoUnit.DAYS.between(quitDate, LocalDate.now());
         }
+
         log.info("Days since quit for email {}: {}", email, daysSinceQuit);
 
         if (daysSinceQuit >= 0) {
+            checkAndRestoreMissingBadges(user, daysSinceQuit);
             awardMilestoneIfEligible(user, daysSinceQuit);
         } else {
             log.warn("Days since quit is negative for email: {}", email);
         }
     }
 
-    @Transactional
-    public void updateBadgeImageUrl(Long badgeId, String imageUrl) {
-        Badge badge = badgeRepository.findById(badgeId)
-                .orElseThrow(() -> new RuntimeException("Badge not found with id: " + badgeId));
-        badge.setBadgeImageUrl(imageUrl);
-        badgeRepository.save(badge);
+    private void checkAndRestoreMissingBadges(User user, long daysSinceQuit) {
+        Map<Long, ProgressMilestone.MilestoneType> milestoneMap = Map.of(
+                1L, ProgressMilestone.MilestoneType.TWENTY_FOUR_HOURS,
+                7L, ProgressMilestone.MilestoneType.ONE_WEEK,
+                30L, ProgressMilestone.MilestoneType.ONE_MONTH,
+                90L, ProgressMilestone.MilestoneType.THREE_MONTHS,
+                180L, ProgressMilestone.MilestoneType.SIX_MONTHS,
+                365L, ProgressMilestone.MilestoneType.ONE_YEAR
+        );
+
+        milestoneMap.forEach((days, milestoneType) -> {
+            if (daysSinceQuit >= days) {
+                String expectedBadgeType = getBadgeTypeForMilestone(milestoneType);
+
+                // Kiểm tra xem milestone đã đạt chưa
+                boolean milestoneAchieved = milestoneRepository.findByUserAndMilestoneType(user, milestoneType).isPresent();
+
+                // Kiểm tra xem badge tương ứng đã được trao chưa
+                boolean badgeAwarded = userBadgeRepository.findByUserAndBadgeType(user, expectedBadgeType).isPresent();
+
+                if (milestoneAchieved && !badgeAwarded) {
+                    log.warn("Detected missing badge {} for user {}, restoring...", expectedBadgeType, user.getEmail());
+                    awardBadge(user, milestoneType);
+                }
+            }
+        });
     }
+
+    private String getBadgeTypeForMilestone(ProgressMilestone.MilestoneType milestoneType) {
+        return switch (milestoneType) {
+            case TWENTY_FOUR_HOURS -> "24H_NOSMOKE";
+            case ONE_WEEK -> "1WEEK_NOSMOKE";
+            case ONE_MONTH -> "1MONTH_NOSMOKE";
+            case THREE_MONTHS -> "3MONTHS_NOSMOKE";
+            case SIX_MONTHS -> "6MONTHS_NOSMOKE";
+            case ONE_YEAR -> "1YEAR_NOSMOKE";
+        };
+    }
+
 
     private void awardMilestoneIfEligible(User user, long daysSinceQuit) {
         Map<Long, ProgressMilestone.MilestoneType> milestoneMap = Map.of(
@@ -87,7 +120,7 @@ public class AchievementService {
         );
 
         milestoneMap.forEach((days, milestoneType) -> {
-            if (daysSinceQuit >= days && !milestoneRepository.findByUserAndMilestoneType(user, milestoneType).isPresent()) {
+            if (daysSinceQuit >= days && milestoneRepository.findByUserAndMilestoneType(user, milestoneType).isEmpty()) {
                 log.info("Awarding milestone {} for email: {}", milestoneType, user.getEmail());
                 ProgressMilestone milestone = new ProgressMilestone();
                 milestone.setUser(user);
@@ -124,11 +157,10 @@ public class AchievementService {
 
         Badge badge = badgeRepository.findByBadgeType(badgeType)
                 .orElseThrow(() -> new RuntimeException("Badge not found: " + badgeType));
-        log.info("Found badge with badge_id: {} for badge_type: {}", badge.getBadgeId(), badgeType);
 
         boolean alreadyAwarded = userBadgeRepository.findByUserAndBadgeType(user, badgeType).isPresent();
         if (alreadyAwarded) {
-            log.info("Badge {} already awarded for email: {}", badgeType, user.getEmail());
+            log.info("Badge {} already awarded for user: {}", badgeType, user.getEmail());
             return;
         }
 
@@ -156,13 +188,37 @@ public class AchievementService {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return userBadgeRepository.findByUser(user).stream()
-                .map(userBadge -> {
-                    Badge badge = userBadge.getBadge();
-                    BadgeDTO badgeDTO = achievementMapper.toBadgeDto(userBadge);
-                    badgeDTO.setBadgeName(badge.getBadgeName());
-                    badgeDTO.setBadgeDescription(badge.getBadgeDescription());
-                    return badgeDTO;
-                })
+                .map(achievementMapper::toBadgeDto)
                 .toList();
     }
+
+    public List<Badge> getAllBadges() {
+        return badgeRepository.findAll();
+    }
+
+
+    public int getTotalBadgesByProfileName(String profileName) {
+        User user = userRepository.findByProfileName(profileName)
+                .orElseThrow(() -> new RuntimeException("User not found with profileName: " + profileName));
+        return getTotalBadges(user);
+    }
+
+    public int getTotalBadges(User user) {
+        return userBadgeRepository.findByUser(user).size();
+    }
+
+    @Transactional
+    public void updateBadge(Long badgeId, Badge updatedBadge) {
+        Badge badge = badgeRepository.findById(badgeId)
+                .orElseThrow(() -> new RuntimeException("Badge not found with id: " + badgeId));
+
+        badge.setBadgeName(updatedBadge.getBadgeName());
+        badge.setBadgeDescription(updatedBadge.getBadgeDescription());
+        badge.setBadgeImageUrl(updatedBadge.getBadgeImageUrl());
+        badge.setActive(updatedBadge.isActive());
+        badge.setCreatedAt(updatedBadge.getCreatedAt());
+
+        badgeRepository.save(badge);
+    }
+
 }
