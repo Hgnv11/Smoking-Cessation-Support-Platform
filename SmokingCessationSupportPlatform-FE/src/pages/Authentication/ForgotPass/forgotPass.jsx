@@ -2,7 +2,7 @@ import { Form, Input, Button, message, notification } from "antd";
 import FormItem from "antd/es/form/FormItem";
 import AuthenTemplate from "../../../components/authen-template/authen-template";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../../../config/axios";
 import { useState } from "react";
 
@@ -78,9 +78,9 @@ function ForgotPass() {
           </Button>
 
           <div className="register-login__link">
-            <a href="/login">
+            <Link to="/login">
               <ArrowLeftOutlined /> Back to login
-            </a>
+            </Link>
           </div>
         </Form>
       </AuthenTemplate>

@@ -59,16 +59,6 @@ export const dashboardService = {
       return {};
     }
   },
-  // API: /api/dashboard/plan-stats
-  getPlanStats: async () => {
-    try {
-      const response = await api.get('/dashboard/plan-stats');
-      return response.data;
-    } catch (error) {
-      console.error('Failed to fetch plan statistics:', error);
-      return {};
-    }
-  },
   // API: /api/dashboard/total-revenue
   getTotalRevenue: async () => {
     try {

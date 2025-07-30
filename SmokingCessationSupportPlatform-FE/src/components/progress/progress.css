@@ -1,7 +1,7 @@
 .progress {
     background-color: #f0eeee;
     width: 100%;
-    padding: 50px 100px;
+    padding: 30px 100px;
 }
 
 .progress__content {
@@ -21,12 +21,12 @@
 .progress__content-inner-title {
   color: #0A52B5;
   font-size: 18px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .progress__content-inner-circle{
-  width: 12rem;
-  height: 12rem;
+  width: 11rem;
+  height: 11rem;
   background-color: #71ACFF;
   border-radius: 50%;
   display: flex;

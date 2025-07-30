@@ -79,10 +79,10 @@ function UserProgress() {
                 <div className="progress__content-card-item">
                   <DollarOutlined className="progress__content-card-item-money" />
                   <span className="progress__content-card-item-number">
-                    {savingData?.moneySaved || 0}
+                    {savingData?.actualSaving || 0}
                   </span>
                   <span className="progress__content-card-item-text">
-                    dollars saved
+                    money saved
                   </span>
                 </div>
               </div>

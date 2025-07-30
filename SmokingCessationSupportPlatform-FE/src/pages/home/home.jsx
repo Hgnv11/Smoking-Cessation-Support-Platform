@@ -84,22 +84,41 @@ function Home() {
           <p>Explore</p>
         </div>
         <div className="wrapper__card">
-          <Card
-            hoverable
-            className="wrapper__card-card"
-            onClick={() => navigate("/make-plan")}
-          >
-            <img
-              alt="example"
-              className="wrapper__card-img"
-              src="/images/card-asset1.png"
-            />
-            <h2 className="wrapper__card-title">I want to Quit</h2>
-            <p className="wrapper__card-des">
-              Quitting smoking is one of the best decisions for your health and
-              future
-            </p>
-          </Card>
+          {userProfile?.status === "active" ? (
+            <Card
+              hoverable
+              className="wrapper__card-card"
+              onClick={() => navigate("/plan-detail")}
+            >
+              <img
+                alt="example"
+                className="wrapper__card-img"
+                src="/images/card-asset1.png"
+              />
+              <h2 className="wrapper__card-title">View my Quit Plan</h2>
+              <p className="wrapper__card-des">
+                Track your progress, see upcoming goals, and stay motivated with
+                your personalized quit plan.
+              </p>
+            </Card>
+          ) : (
+            <Card
+              hoverable
+              className="wrapper__card-card"
+              onClick={() => navigate("/make-plan")}
+            >
+              <img
+                alt="example"
+                className="wrapper__card-img"
+                src="/images/card-asset1.png"
+              />
+              <h2 className="wrapper__card-title">I want to Quit</h2>
+              <p className="wrapper__card-des">
+                Quitting smoking is one of the best decisions for your health
+                and future
+              </p>
+            </Card>
+          )}
           <Card
             hoverable
             className="wrapper__card-card"
@@ -129,7 +148,7 @@ function Home() {
             <h2 className="wrapper__card-title">Consulation</h2>
             <p className="wrapper__card-des">
               Free consultation with our trusted doctors and get the best
-              recomendations
+              recomendations.
             </p>
           </Card>
         </div>

@@ -1,7 +1,7 @@
 import AuthenTemplate from "../../../components/authen-template/authen-template";
 import { Button, Divider, Form, Input, message, notification } from "antd";
 import FormItem from "antd/es/form/FormItem";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../../../config/axios";
 import { useState } from "react";
 
@@ -163,11 +163,11 @@ function Register() {
             Sign Up
           </Button>
 
-          <Divider plain style={{ borderColor: "#ccc" }} className="divider">
+          {/* <Divider plain style={{ borderColor: "#ccc" }} className="divider">
             or
-          </Divider>
+          </Divider> */}
 
-          <Button className="google-login_btn" color="default" variant="filled">
+          {/* <Button className="google-login_btn" color="default" variant="filled">
             <img
               className="google-logo"
               src="/images/google-logo.png"
@@ -176,13 +176,14 @@ function Register() {
             <p>
               Continue with <span className="gg">Google</span>
             </p>
-          </Button>
+          </Button> */}
+
           <div className="register-login__link">
             <p>
               Already have an account?
-              <a className="link" href="/login">
+              <Link to="/login" className="link">
                 Sign In
-              </a>
+              </Link>
             </p>
           </div>
         </Form>

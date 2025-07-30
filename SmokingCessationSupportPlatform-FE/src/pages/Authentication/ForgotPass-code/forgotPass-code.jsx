@@ -2,7 +2,7 @@ import { Form, Input, Button, message, notification } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import FormItem from "antd/es/form/FormItem";
 import AuthenTemplate from "../../../components/authen-template/authen-template";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import api from "../../../config/axios";
 
 function ForgotPassCode() {
@@ -77,7 +77,7 @@ function ForgotPassCode() {
           </div>
           <div className="register-login__link">
             <ArrowLeftOutlined />
-            <a href="/login"> Back to Login</a>
+            <Link to="/login"> Back to Login</Link>
           </div>
         </Form>
       </AuthenTemplate>

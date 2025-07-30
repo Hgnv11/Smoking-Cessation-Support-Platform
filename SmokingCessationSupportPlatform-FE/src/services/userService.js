@@ -13,67 +13,6 @@ const ERROR_MESSAGES = {
   GENERIC_ERROR: 'Có lỗi xảy ra, vui lòng thử lại'
 };
 
-/**
- * Helper function để validate user data
- * @param {Object} userData - Dữ liệu người dùng
- * @returns {boolean} - true nếu valid
- */
-const validateUserData = (userData) => {
-  if (!userData || typeof userData !== 'object') {
-    return false;
-  }
-  
-  // Kiểm tra các trường bắt buộc
-  const requiredFields = ['email'];
-  for (const field of requiredFields) {
-    if (!userData[field]) {
-      return false;
-    }
-  }
-  
-  // Validate email format
-  if (userData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userData.email)) {
-    return false;
-  }
-  
-  return true;
-};
-
-/**
- * Helper function để xử lý lỗi API
- * @param {Error} error - Error object
- * @param {string} operation - Tên operation đang thực hiện
- * @returns {Error} - Formatted error
- */
-const handleApiError = (error, operation) => {
-  console.error(`${operation} error:`, error);
-  
-  if (error.message && Object.values(ERROR_MESSAGES).includes(error.message)) {
-    return error;
-  }
-  
-  const status = error.response?.status;
-  
-  switch (status) {
-    case 400:
-      return new Error(ERROR_MESSAGES.INVALID_USER_DATA);
-    case 403:
-      return new Error(ERROR_MESSAGES.NO_PERMISSION);
-    case 404:
-      return new Error(ERROR_MESSAGES.USER_NOT_FOUND);
-    case 409:
-      return new Error(ERROR_MESSAGES.EMAIL_EXISTS);
-    default:
-      if (status >= 500) {
-        return new Error(ERROR_MESSAGES.SERVER_ERROR);
-      }
-      return new Error(ERROR_MESSAGES.GENERIC_ERROR);
-  }
-};
-
-/**
- * User Service để quản lý các API liên quan đến người dùng
- */
 export const userService = {
   // Lấy danh sách tất cả users cho admin
   fetchAdminUsers: async () => {
@@ -109,18 +48,15 @@ export const userService = {
   },
 
   // Cập nhật thông tin user
-  updateUser: async (userId, userData) => {
+  updateUser: async (id, userData) => {
     try {
-      console.log('UserService - Sending data to update user:', userData); // Debug input
-      const response = await api.put(`/admin/users/${userId}`, userData);
-      console.log('UserService - Update user response:', response.data); // Debug output
+      const response = await api.put(`admin/users/${id}`, userData);
       return response.data;
     } catch (error) {
-      console.error(`Error updating user ${userId}:`, error);
+      console.error('Error updating user:', error);
       throw error;
     }
   },
-
   // Tạo user mới bằng admin
   createUserByAdmin: async (userData) => {
     try {
