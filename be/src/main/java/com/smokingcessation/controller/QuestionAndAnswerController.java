@@ -4,7 +4,10 @@ import com.smokingcessation.dto.res.DependencyQuestionDTO;
 import com.smokingcessation.dto.res.UserDependencyResponseDTO;
 import com.smokingcessation.dto.res.UserDependencyScoreDTO;
 import com.smokingcessation.service.DependencyService;
-import lombok.Data;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,39 +22,64 @@ public class QuestionAndAnswerController {
     @Autowired
     private DependencyService dependencyService;
 
-    // Lấy danh sách câu hỏi và đáp án
+    @Operation(summary = "Lấy danh sách câu hỏi và câu trả lời của người dùng isSelected = true là đáp án user chọn, isSelected = false là đáp án user không chọn")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lấy danh sách thành công"),
+            @ApiResponse(responseCode = "400", description = "Tham số không hợp lệ")
+    })
     @GetMapping("/questions")
-    public ResponseEntity<List<DependencyQuestionDTO>> getQuestionsWithAnswers(@RequestParam Integer userId) {
+    public ResponseEntity<List<DependencyQuestionDTO>> getQuestionsWithAnswers(
+            @Parameter(description = "ID người dùng") @RequestParam Integer userId) {
         List<DependencyQuestionDTO> questions = dependencyService.getQuestionsWithUserAnswers(userId);
         return ResponseEntity.ok(questions);
     }
 
-    // Lưu câu trả lời
+    @Operation(summary = "user trả lời câu hỏi bằng cách chọn đáp án và lưu bằng cách id đáp án + id của người dùng")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lưu thành công"),
+            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ")
+    })
     @PostMapping("/answer")
-    public ResponseEntity<UserDependencyResponseDTO> saveResponse(Principal principal, @RequestParam int questionId, @RequestParam int answerId) {
+    public ResponseEntity<UserDependencyResponseDTO> saveResponse(
+            @Parameter(hidden = true) Principal principal,
+            @Parameter(description = "ID câu hỏi") @RequestParam int questionId,
+            @Parameter(description = "ID câu trả lời") @RequestParam int answerId) {
         UserDependencyResponseDTO response = dependencyService.saveResponse(principal.getName(), questionId, answerId);
         return ResponseEntity.ok(response);
     }
 
-    // Cập nhật câu trả lời
+    @Operation(summary = "Cập nhật câu trả lời của người dùng")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
+            @ApiResponse(responseCode = "404", description = "Không tìm thấy câu trả lời")
+    })
     @PutMapping("/update/{userQuestionAndAnswer_Id}")
     public ResponseEntity<UserDependencyResponseDTO> updateResponse(
-            @PathVariable Integer userQuestionAndAnswer_Id,
-            @RequestParam Integer answerId) {
+            @Parameter(description = "ID câu trả lời người dùng") @PathVariable Integer userQuestionAndAnswer_Id,
+            @Parameter(description = "ID câu trả lời mới") @RequestParam Integer answerId) {
         UserDependencyResponseDTO response = dependencyService.updateResponse(userQuestionAndAnswer_Id, answerId);
         return ResponseEntity.ok(response);
     }
 
-
-    // Xóa câu trả lời
+    @Operation(summary = "Xóa câu trả lời của người dùng")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Xóa thành công"),
+            @ApiResponse(responseCode = "404", description = "Không tìm thấy câu trả lời")
+    })
     @DeleteMapping("/responses/{userQuestionAndAnswer_Id}")
-    public void deleteResponse(@PathVariable Integer responseId) {
+    public void deleteResponse(
+            @Parameter(description = "ID câu trả lời người dùng") @PathVariable Integer responseId) {
         dependencyService.deleteResponse(responseId);
     }
 
-    // Lấy điểm số và mức độ phụ thuộc
+    @Operation(summary = "Lấy điểm và đánh giá mức độ nghiện")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lấy điểm thành công"),
+            @ApiResponse(responseCode = "404", description = "Không tìm thấy người dùng")
+    })
     @GetMapping("/scores/{userId}")
-    public ResponseEntity<UserDependencyScoreDTO> getUserScore(@PathVariable Integer userId) {
+    public ResponseEntity<UserDependencyScoreDTO> getUserScore(
+            @Parameter(description = "ID người dùng") @PathVariable Integer userId) {
         UserDependencyScoreDTO score = dependencyService.getUserScore(userId);
         return ResponseEntity.ok(score);
     }
