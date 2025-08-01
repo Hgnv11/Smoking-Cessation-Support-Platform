@@ -33,7 +33,7 @@ public class AdminController {
     private final ConsultationSlotService slotService;
     private final ConsultationService consultationService;
     private final TriggerService triggerService;
-    private final StrategyService strategyService;
+
     private final SmokingEventService smokingEventService;
     private final AchievementService achievementService;
 
@@ -238,55 +238,6 @@ public class AdminController {
     @DeleteMapping("/trigger-categories/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Integer id) {
         triggerService.deleteCategory(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    // ========== STRATEGY ==========
-
-    @Operation(summary = "Tạo strategy mới (cần categoryId)")
-    @PostMapping("/strategies")
-    public ResponseEntity<Strategy> createStrategy(
-            @RequestParam String name,
-            @RequestParam Integer categoryId) {
-        return ResponseEntity.ok(strategyService.createStrategy(name, categoryId));
-    }
-
-    @Operation(summary = "Cập nhật strategy (cần categoryId)")
-    @PutMapping("/strategies/{id}")
-    public ResponseEntity<Strategy> updateStrategy(
-            @PathVariable Integer id,
-            @RequestParam String name,
-            @RequestParam Integer categoryId) {
-        return ResponseEntity.ok(strategyService.updateStrategy(id, name, categoryId));
-    }
-
-    @Operation(summary = "Xóa strategy")
-    @DeleteMapping("/strategies/{id}")
-    public ResponseEntity<Void> deleteStrategy(@PathVariable Integer id) {
-        strategyService.deleteStrategy(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    // ========== STRATEGY CATEGORY ==========
-
-    @Operation(summary = "Tạo mới danh mục strategy")
-    @PostMapping("/strategy-categories")
-    public ResponseEntity<StrategyCategory> createStrategyCategory(@RequestParam String name) {
-        return ResponseEntity.ok(strategyService.createCategory(name));
-    }
-
-    @Operation(summary = "Cập nhật danh mục strategy")
-    @PutMapping("/strategy-categories/{categoryId}")
-    public ResponseEntity<StrategyCategory> updateStrategyCategory(
-            @PathVariable Integer categoryId,
-            @RequestParam String name) {
-        return ResponseEntity.ok(strategyService.updateCategory(categoryId, name));
-    }
-
-    @Operation(summary = "Xóa danh mục strategy")
-    @DeleteMapping("/strategy-categories/{id}")
-    public ResponseEntity<Void> deleteStrategyCategory(@PathVariable Integer id) {
-        strategyService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }
 

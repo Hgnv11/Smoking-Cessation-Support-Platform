@@ -2,7 +2,6 @@ package com.smokingcessation.service;
 
 import com.smokingcessation.dto.UserSmokingProfileRequest;
 import com.smokingcessation.dto.res.SavingDTO;
-import com.smokingcessation.dto.res.SmokingEventDTO;
 import com.smokingcessation.mapper.UserSmokingProfileMapper;
 import com.smokingcessation.model.SmokingEvent;
 import com.smokingcessation.model.User;
@@ -10,7 +9,6 @@ import com.smokingcessation.model.UserSmokingProfile;
 import com.smokingcessation.repository.SmokingEventRepository;
 import com.smokingcessation.repository.UserRepository;
 import com.smokingcessation.repository.UserSmokingProfileRepository;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -185,7 +183,7 @@ public class UserSmokingProfileService {
         int expectedCigarettes = cigarettesPerDay * (int) daysSinceQuit;
 
         // Số điếu thuốc đã tránh được
-        int cigarettesAvoided = Math.max(expectedCigarettes - cigarettesSmokedSinceQuit, 0);
+        int cigarettesAvoided = expectedCigarettes - cigarettesSmokedSinceQuit;
 
         // Tổng chi phí lý thuyết nếu vẫn hút
         BigDecimal totalExpectedCost = dailyCost.multiply(BigDecimal.valueOf(daysSinceQuit));
@@ -194,7 +192,7 @@ public class UserSmokingProfileService {
         BigDecimal actualSpent = costPerCigarette.multiply(BigDecimal.valueOf(cigarettesSmokedSinceQuit));
 
         // Số tiền tiết kiệm thực tế
-        BigDecimal actualSaving = totalExpectedCost.subtract(actualSpent).max(BigDecimal.ZERO);
+        BigDecimal actualSaving = totalExpectedCost.subtract(actualSpent);
 
         // Tính tiết kiệm theo tuần/tháng/năm
         BigDecimal perWeek = dailyCost.multiply(BigDecimal.valueOf(7));
@@ -289,7 +287,8 @@ public class UserSmokingProfileService {
         int expected = profile.getCigarettesPerDay() * (int) days;
         int smoked = smokingEventRepository.sumCigarettesSmokedBetween(user.getUserId(), from, to);
 
-        int avoided = Math.max(expected - smoked, 0);
+        int avoided = expected - smoked;
         return expected > 0 ? (avoided * 1.0 / expected) : 0;
     }
+
 }

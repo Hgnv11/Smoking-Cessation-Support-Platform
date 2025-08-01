@@ -21,7 +21,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByUserId(Integer userId);
 
-    Optional<User> findByUserId(int userId);
+    Optional<User> findByUserId(Integer userId);
 
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
