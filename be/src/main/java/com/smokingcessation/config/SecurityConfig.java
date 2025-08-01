@@ -55,7 +55,8 @@ public class SecurityConfig {
                                 "/api/strategies/categories",
                                 "/api/reasons",
                                 "/api/subscription/payment/return",
-                                "/api/achievements/badges/{userId}"
+                                "/api/achievements/badges/{userId}",
+                                "/api/question-answer/public"
 
                         ).permitAll()
                         .requestMatchers("/api/profile").hasRole("ADMIN")

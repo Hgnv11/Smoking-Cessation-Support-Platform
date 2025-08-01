@@ -61,7 +61,7 @@ public class AuthService {
         if (user.getIsBlock()) {
             throw new RuntimeException("Your account has been locked");
         }
-        if (user.getIsDelete()) {
+        if (Boolean.TRUE.equals(user.getIsDelete())) {
             throw new RuntimeException("Your account has been delete");
         }
 

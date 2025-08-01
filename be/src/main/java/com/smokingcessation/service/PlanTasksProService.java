@@ -176,9 +176,7 @@ public class PlanTasksProService {
                 .build();
 
         // Fetch triggers
-        List<Trigger> triggers = triggerService.getAllCategories().stream()
-                .flatMap(category -> triggerService.getTriggersByCategoryId(category.getCategoryId()).stream())
-                .collect(Collectors.toList());
+        List<Trigger> triggers = triggerService.getTriggersByUserId(user.getUserId());
         List<String> triggerNames = triggers.stream()
                 .map(Trigger::getName)
                 .collect(Collectors.toList());

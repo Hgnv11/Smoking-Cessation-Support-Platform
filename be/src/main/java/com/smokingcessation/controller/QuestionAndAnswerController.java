@@ -53,11 +53,11 @@ public class QuestionAndAnswerController {
             @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
             @ApiResponse(responseCode = "404", description = "Không tìm thấy câu trả lời")
     })
-    @PutMapping("/update/{userQuestionAndAnswer_Id}")
+    @PutMapping("/update/{userQuestionId}")
     public ResponseEntity<UserDependencyResponseDTO> updateResponse(
-            @Parameter(description = "ID câu trả lời người dùng") @PathVariable Integer userQuestionAndAnswer_Id,
+            @Parameter(description = "ID câu trả lời người dùng") @PathVariable Integer userQuestionId,
             @Parameter(description = "ID câu trả lời mới") @RequestParam Integer answerId) {
-        UserDependencyResponseDTO response = dependencyService.updateResponse(userQuestionAndAnswer_Id, answerId);
+        UserDependencyResponseDTO response = dependencyService.updateResponse(userQuestionId, answerId);
         return ResponseEntity.ok(response);
     }
 
@@ -83,4 +83,23 @@ public class QuestionAndAnswerController {
         UserDependencyScoreDTO score = dependencyService.getUserScore(userId);
         return ResponseEntity.ok(score);
     }
+
+    @Operation(summary = "Lấy danh sách câu hỏi công khai (chưa đăng nhập)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lấy danh sách thành công")
+    })
+    @GetMapping("/public")
+    public ResponseEntity<List<DependencyQuestionDTO>> getPublicQuestions() {
+        List<DependencyQuestionDTO> questions = dependencyService.getPublicQuestions();
+        return ResponseEntity.ok(questions);
+    }
+
+    @DeleteMapping("/responses/all")
+    @Operation(summary = "Xóa toàn bộ câu trả lời của một user")
+    public ResponseEntity<?> deleteAllResponsesByUserId(@RequestParam Integer userId, Principal principal) {
+        dependencyService.deleteAllByUserId(userId, principal.getName());
+        return ResponseEntity.ok("Deleted all responses for userId = " + userId);
+    }
+
+
 }

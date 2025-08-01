@@ -9,8 +9,10 @@ import com.smokingcessation.mapper.DependencyQuestionMapper;
 import com.smokingcessation.model.*;
 import com.smokingcessation.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -174,5 +176,37 @@ public class DependencyService {
         if (totalScore == 5) return UserDependencyScore.DependencyLevel.medium;
         if (totalScore <= 7) return UserDependencyScore.DependencyLevel.high;
         return UserDependencyScore.DependencyLevel.very_high;
+    }
+
+    public List<DependencyQuestionDTO> getPublicQuestions() {
+        List<DependencyQuestion> questions = questionRepository.findAll();
+
+        return questions.stream()
+                .map(question -> {
+                    DependencyQuestionDTO dto = questionMapper.toDto(question);
+                    // Đảm bảo tất cả đáp án isSelected = false, responseId = null
+                    dto.getAnswers().forEach(answer -> {
+                        answer.setIsSelected(false);
+                        answer.setResponseId(null);
+                    });
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteAllByUserId(Integer userId, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+        if (!user.getUserId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only delete your own responses");
+        }
+
+        // 1. Xoá toàn bộ câu trả lời
+        responseRepository.deleteByUser_UserId(userId);
+
+        // 2. Xoá điểm nếu tồn tại
+        scoreRepository.findByUserUserId(userId).ifPresent(scoreRepository::delete);
     }
 }

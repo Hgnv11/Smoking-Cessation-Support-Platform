@@ -10,4 +10,7 @@ public interface UserDependencyResponseRepository extends JpaRepository<UserDepe
     List<UserDependencyResponse> findByUserUserId(Integer userId);
 
     Optional<UserDependencyResponse> findByUserUserIdAndQuestionQuestionId(Integer userId, Integer questionId);
+
+    void deleteByUser_UserId(Integer userId);
+
 }
