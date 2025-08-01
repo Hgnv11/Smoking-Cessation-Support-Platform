@@ -10,7 +10,9 @@ import com.smokingcessation.model.Trigger;
 import com.smokingcessation.model.User;
 import com.smokingcessation.repository.PlanTasksProRepository;
 import com.smokingcessation.repository.UserRepository;
+import com.smokingcessation.service.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,36 +33,32 @@ public class PlanTasksProService {
     private final DependencyService dependencyService;
     private final TriggerService triggerService;
     private final ReasonService reasonService;
+    private final NotificationService notificationService;
 
     @Transactional
     public PlanTasksProDTO assignTask(String mentorEmail, PlanTasksProDTO request) {
-        // Validate mentor
         User mentor = userRepository.findByEmail(mentorEmail)
                 .orElseThrow(() -> new RuntimeException("Mentor not found"));
         if (!"mentor".equals(mentor.getRole().name())) {
             throw new RuntimeException("Only mentors can assign tasks");
         }
 
-        // Validate user
         User user = userRepository.findByUserId(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Check if there is a completed consultation between mentor and user
         boolean hasCompletedConsultation = consultationService.getConsultationsForMentor(mentorEmail)
                 .stream()
-                .anyMatch(c -> c.getUser().getUserId()==(user.getUserId()) &&
+                .anyMatch(c -> c.getUser().getUserId() == user.getUserId() &&
                         c.getStatus().equals(Consultation.Status.completed.name()));
         if (!hasCompletedConsultation) {
             throw new RuntimeException("No completed consultation found between mentor and user");
         }
 
-        // Validate task details
         if (request.getTaskDay() == null || request.getTaskDay().isBefore(LocalDate.now())) {
             throw new RuntimeException("Task day must be provided and cannot be in the past");
         }
 
-        boolean taskExists = planTasksProRepository
-                .existsByUserAndTaskDay(user, request.getTaskDay());
+        boolean taskExists = planTasksProRepository.existsByUserAndTaskDay(user, request.getTaskDay());
         if (taskExists) {
             throw new RuntimeException("User already has a task assigned for this day");
         }
@@ -75,7 +73,6 @@ public class PlanTasksProService {
             request.setStatus("pending");
         }
 
-        // Create and save task
         PlanTasksPro task = PlanTasksPro.builder()
                 .user(user)
                 .mentor(mentor)
@@ -88,6 +85,8 @@ public class PlanTasksProService {
                 .build();
 
         PlanTasksPro savedTask = planTasksProRepository.save(task);
+        notificationService.createTaskAssignmentNotification(user, mentor, request.getTaskDay(), request.getTargetCigarettes());
+
         return planTasksProMapper.toDto(savedTask);
     }
 
@@ -143,16 +142,14 @@ public class PlanTasksProService {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Check if mentor has a completed consultation with the user
         boolean hasCompletedConsultation = consultationService.getConsultationsForMentor(mentorEmail)
                 .stream()
-                .anyMatch(c -> c.getUser().getUserId() == (user.getUserId()) &&
+                .anyMatch(c -> c.getUser().getUserId() == user.getUserId() &&
                         c.getStatus().equals(Consultation.Status.completed.name()));
         if (!hasCompletedConsultation) {
             throw new RuntimeException("No completed consultation found between mentor and user");
         }
 
-        // Fetch smoking profile
         UserSmokingHistoryDTO.SmokingProfileDTO smokingProfile = null;
         var profiles = userSmokingProfileService.getAllProfilesByEmail(user.getEmail());
         var activeProfile = profiles.stream()
@@ -168,25 +165,21 @@ public class PlanTasksProService {
                     .build();
         }
 
-        // Fetch dependency score
         var dependencyScoreDTO = dependencyService.getUserScore(user.getUserId());
         UserSmokingHistoryDTO.DependencyScoreDTO dependencyScore = UserSmokingHistoryDTO.DependencyScoreDTO.builder()
                 .totalScore(dependencyScoreDTO.getTotalScore())
                 .dependencyLevel(dependencyScoreDTO.getDependencyLevel())
                 .build();
 
-        // Fetch triggers
         List<Trigger> triggers = triggerService.getTriggersByUserId(user.getUserId());
         List<String> triggerNames = triggers.stream()
                 .map(Trigger::getName)
                 .collect(Collectors.toList());
 
-        // Fetch reasons for quitting
         List<String> reasons = reasonService.getMyReasons(user.getEmail()).stream()
                 .map(ReasonDTO::getReasonText)
                 .collect(Collectors.toList());
 
-        // Fetch days since last smoke
         Long daysSinceLastSmoke = userSmokingProfileService.getDaysSinceLastSmoke(user.getEmail());
 
         return UserSmokingHistoryDTO.builder()
@@ -210,7 +203,6 @@ public class PlanTasksProService {
             throw new RuntimeException("Only the assigned mentor can update this task");
         }
 
-        // Validate and apply changes
         if (request.getTargetCigarettes() != null && request.getTargetCigarettes() >= 0) {
             task.setTargetCigarettes(request.getTargetCigarettes());
         }
@@ -227,4 +219,16 @@ public class PlanTasksProService {
         return planTasksProMapper.toDto(planTasksProRepository.save(task));
     }
 
+    @Scheduled(cron = "0 0 8 * * ?", zone = "Asia/Ho_Chi_Minh")
+    @Transactional
+    public void sendMorningTaskRemindersForProUsers() {
+        LocalDate today = LocalDate.now();
+        List<User> proUsers = userRepository.findByHasActiveTrue();
+        for (User user : proUsers) {
+            List<PlanTasksPro> tasks = planTasksProRepository.findByUserAndTaskDay(user, today);
+            for (PlanTasksPro task : tasks) {
+                notificationService.createProTaskReminderNotification(user, task.getMentor(), task.getTargetCigarettes());
+            }
+        }
+    }
 }

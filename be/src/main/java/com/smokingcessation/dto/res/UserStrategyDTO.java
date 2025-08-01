@@ -1,8 +1,7 @@
 package com.smokingcessation.dto.res;
 
-import com.smokingcessation.model.StrategyCategory;
 import lombok.*;
-import java.time.LocalDateTime;
+
 import java.util.List;
 
 @Data

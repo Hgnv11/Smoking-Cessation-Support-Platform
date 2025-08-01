@@ -27,4 +27,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT COUNT(*) FROM users WHERE DATE(created_at) = :date", nativeQuery = true)
     long countByCreatedAtDate(@Param("date") LocalDate date);
+
+    List<User> findByHasActiveFalse();
+
+    List<User> findByHasActiveTrue();
 }

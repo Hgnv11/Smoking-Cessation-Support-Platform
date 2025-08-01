@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,7 @@ public class ConsultationService {
     private final UserSmokingProfileRepository userSmokingProfileRepository;
     private final SmokingEventService smokingEventService;
     private final UserSmokingProfileService userSmokingProfileService;
+    private final NotificationService notificationService;
 
 
     public ConsultationDTO bookConsultation(String userEmail, Integer mentorId, LocalDate slotDate, Integer slotNumber) {
@@ -88,7 +90,18 @@ public class ConsultationService {
 
         slot.setIsBooked(true);
         slotRepository.save(slot);
-        return consultationMapper.toDto(consultationRepository.save(consultation));
+        Consultation savedConsultation = consultationRepository.save(consultation);
+
+        // Send booking success notification
+        notificationService.sendCustomNotification(
+                null,
+                user,
+                "Consultation Booked!",
+                String.format("Your consultation with Mentor %s on %s, slot %d has been successfully booked.",
+                        mentor.getFullName(), slotDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), slotNumber)
+        );
+
+        return consultationMapper.toDto(savedConsultation);
     }
 
     public List<ConsultationDTO> getUserConsultations(String userEmail) {
@@ -272,6 +285,17 @@ public class ConsultationService {
         slotRepository.save(slot);
 
         consultationRepository.save(consultation);
+
+        // Send cancellation notification
+        notificationService.sendCustomNotification(
+                null,
+                user,
+                "Consultation Cancelled",
+                String.format("Your consultation with Mentor %s on %s, slot %d has been cancelled.",
+                        consultation.getMentor().getFullName(),
+                        slot.getSlotDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                        slot.getSlotNumber())
+        );
     }
 
     public ConsultationDTO getUserConsultationDetail(Integer consultationId, String userEmail) {

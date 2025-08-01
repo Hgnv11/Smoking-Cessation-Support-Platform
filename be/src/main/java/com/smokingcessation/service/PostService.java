@@ -6,14 +6,12 @@ import com.smokingcessation.model.CommunityPost;
 import com.smokingcessation.model.User;
 import com.smokingcessation.repository.PostRepository;
 import com.smokingcessation.repository.UserRepository;
+import com.smokingcessation.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +20,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostMapper postMapper;
+    private final NotificationService notificationService;
 
     public PostDTO addNewPost(String userEmail, PostDTO request) {
         User user = userRepository.findByEmail(userEmail)
@@ -75,6 +74,10 @@ public class PostService {
         post.setIsApproved(true);
         post.setUpdatedAt(LocalDateTime.now());
         CommunityPost savedPost = postRepository.save(post);
+
+        // Create notification for post approval
+        notificationService.createPostApprovalNotification(post.getUser(), post.getTitle());
+
         return postMapper.toDto(savedPost);
     }
 
@@ -148,11 +151,4 @@ public class PostService {
                 .orElseThrow(() -> new RuntimeException("Post not found"));
         postRepository.delete(post);
     }
-
-
-
-
-
-
-
 }

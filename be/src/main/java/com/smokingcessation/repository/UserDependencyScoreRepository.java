@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface UserDependencyScoreRepository extends JpaRepository<UserDependencyScore, Integer> {
     Optional<UserDependencyScore> findByUserUserId(Integer userId);
-    Optional<UserDependencyScore> findTopByUserOrderByCreatedAtDesc(User user);
+    Optional<UserDependencyScore> findTopByUserUserIdOrderByAssessmentDateDesc(Integer userId);
 }

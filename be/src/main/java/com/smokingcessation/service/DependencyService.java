@@ -129,7 +129,7 @@ public class DependencyService {
     }
 
     public UserDependencyScoreDTO getUserScore(Integer userId) {
-        UserDependencyScore score = scoreRepository.findByUserUserId(userId)
+        UserDependencyScore score = scoreRepository.findTopByUserUserIdOrderByAssessmentDateDesc(userId)
                 .orElse(new UserDependencyScore());
         return new UserDependencyScoreDTO(
                 score.getScoreId(),
@@ -154,7 +154,7 @@ public class DependencyService {
 
         UserDependencyScore.DependencyLevel level = determineDependencyLevel(totalScore);
 
-        UserDependencyScore score = scoreRepository.findByUserUserId(userId)
+        UserDependencyScore score = scoreRepository.findTopByUserUserIdOrderByAssessmentDateDesc(userId)
                 .orElse(new UserDependencyScore());
 
         score.setUser(User.builder().userId(userId).build());
@@ -207,6 +207,7 @@ public class DependencyService {
         responseRepository.deleteByUser_UserId(userId);
 
         // 2. Xoá điểm nếu tồn tại
-        scoreRepository.findByUserUserId(userId).ifPresent(scoreRepository::delete);
+        scoreRepository.findTopByUserUserIdOrderByAssessmentDateDesc(userId)
+                .ifPresent(scoreRepository::delete);
     }
 }

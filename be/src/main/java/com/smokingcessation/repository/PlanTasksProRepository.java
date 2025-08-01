@@ -13,5 +13,8 @@ public interface PlanTasksProRepository extends JpaRepository<PlanTasksPro, Inte
     List<PlanTasksPro> findByUser(User user);
     List<PlanTasksPro> findByMentorAndUser(User mentor, User user);
     boolean existsByUserAndTaskDay(User user, LocalDate taskDay);
+    List<PlanTasksPro> findByUserAndTaskDay(User user, LocalDate taskDay);
+
+
 
 }

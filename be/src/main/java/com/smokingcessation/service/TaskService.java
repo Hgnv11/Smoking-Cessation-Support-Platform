@@ -1,22 +1,25 @@
 package com.smokingcessation.service;
 
-import com.smokingcessation.dto.UserSmokingProfileRequest;
-import com.smokingcessation.dto.res.CreateTaskFreeDTO;
 import com.smokingcessation.dto.res.TaskFreeResponseDTO;
-
 import com.smokingcessation.model.*;
 import com.smokingcessation.repository.*;
-import lombok.extern.slf4j.Slf4j;
+import com.smokingcessation.service.NotificationService;
+import com.smokingcessation.service.UserSmokingProfileService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
+@RequiredArgsConstructor
 public class TaskService {
 
     private final UserRepository userRepository;
@@ -26,25 +29,10 @@ public class TaskService {
     private final SupportMeasureRepository supportMeasureRepository;
     private final TaskSupportMeasureRepository taskSupportMeasureRepository;
     private final UserSmokingProfileRepository userSmokingProfileRepository;
+    private final NotificationService notificationService;
 
-    public TaskService(
-            UserRepository userRepository,
-            UserSmokingProfileService profileService,
-            UserDependencyScoreRepository scoreRepository,
-            PlanTasksFreeRepository taskRepository,
-            SupportMeasureRepository supportMeasureRepository,
-            TaskSupportMeasureRepository taskSupportMeasureRepository, UserSmokingProfileRepository userSmokingProfileRepository) {
-        this.userRepository = userRepository;
-        this.profileService = profileService;
-        this.scoreRepository = scoreRepository;
-        this.taskRepository = taskRepository;
-        this.supportMeasureRepository = supportMeasureRepository;
-        this.taskSupportMeasureRepository = taskSupportMeasureRepository;
-        this.userSmokingProfileRepository = userSmokingProfileRepository;
-    }
     @Transactional
     public TaskFreeResponseDTO createTaskForFreeUser(String email, LocalDate date) {
-        // Kiểm tra người dùng
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
         if (user.getHasActive()) {
@@ -56,16 +44,13 @@ public class TaskService {
             throw new RuntimeException("Bạn đã tạo nhiệm vụ cho ngày này rồi.");
         }
 
-        // Lấy hồ sơ hút thuốc active
         UserSmokingProfile profile = userSmokingProfileRepository
                 .findByUserAndStatus(user, "active")
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy kế hoạch bỏ thuốc đang hoạt động"));
 
-        // Lấy dependency_level
-        UserDependencyScore score = scoreRepository.findByUserUserId(user.getUserId())
+        UserDependencyScore score = scoreRepository.findTopByUserUserIdOrderByAssessmentDateDesc(user.getUserId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy điểm phụ thuộc cho user ID: " + user.getUserId()));
 
-        // Tính target_cigarettes dựa trên dependency_level
         int cigarettesPerDay = profile.getCigarettesPerDay();
         int targetCigarettes;
         switch (score.getDependencyLevel()) {
@@ -88,24 +73,21 @@ public class TaskService {
                 throw new RuntimeException("Mức độ phụ thuộc không hợp lệ");
         }
 
-        // Tạo nhiệm vụ
         PlanTasksFree task = new PlanTasksFree();
         task.setUser(user);
         task.setTaskDay(date);
         task.setTargetCigarettes(targetCigarettes);
         PlanTasksFree savedTask = taskRepository.save(task);
 
-        // Chọn ngẫu nhiên 1-3 support measures
         List<SupportMeasure> allSupportMeasures = supportMeasureRepository.findAll();
         if (allSupportMeasures.isEmpty()) {
             throw new RuntimeException("Không có biện pháp hỗ trợ nào trong hệ thống");
         }
         Random random = new Random();
-        int numberOfMeasures = random.nextInt(3) + 1; // Chọn ngẫu nhiên 1-3 biện pháp
+        int numberOfMeasures = random.nextInt(3) + 1;
         Collections.shuffle(allSupportMeasures);
         List<SupportMeasure> selectedMeasures = allSupportMeasures.subList(0, Math.min(numberOfMeasures, allSupportMeasures.size()));
 
-        // Lưu vào task_support_measures và chuẩn bị DTO
         List<TaskFreeResponseDTO.SupportMeasureDTO> supportMeasureDTOs = new ArrayList<>();
         for (SupportMeasure supportMeasure : selectedMeasures) {
             TaskSupportMeasure taskSupportMeasure = new TaskSupportMeasure();
@@ -119,7 +101,6 @@ public class TaskService {
             supportMeasureDTOs.add(dto);
         }
 
-        // Trả về response
         TaskFreeResponseDTO response = new TaskFreeResponseDTO();
         response.setTaskId(savedTask.getTaskId());
         response.setUserId(savedTask.getUser().getUserId());
@@ -133,14 +114,11 @@ public class TaskService {
     }
 
     public List<TaskFreeResponseDTO> getTasksByEmail(String email) {
-        // Kiểm tra người dùng
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
 
-        // Lấy danh sách nhiệm vụ
         List<PlanTasksFree> tasks = taskRepository.findByUser_UserId(user.getUserId());
 
-        // Chuyển đổi sang DTO
         return tasks.stream().map(task -> {
             TaskFreeResponseDTO response = new TaskFreeResponseDTO();
             response.setTaskId(task.getTaskId());
@@ -150,7 +128,6 @@ public class TaskService {
             response.setCreatedAt(LocalDateTime.now());
             response.setUpdatedAt(LocalDateTime.now());
 
-            // Lấy danh sách support measures
             List<TaskSupportMeasure> taskSupportMeasures = taskSupportMeasureRepository.findByPlanTaskFree_TaskId(task.getTaskId());
             List<TaskFreeResponseDTO.SupportMeasureDTO> supportMeasureDTOs = taskSupportMeasures.stream()
                     .map(tsm -> {
@@ -164,5 +141,31 @@ public class TaskService {
 
             return response;
         }).collect(Collectors.toList());
+    }
+
+    @Scheduled(cron = "0 0 19 * * ?", zone = "Asia/Ho_Chi_Minh")
+    @Transactional
+    public void sendNoTaskNotificationsForFreeUsers() {
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        List<User> freeUsers = userRepository.findByHasActiveFalse();
+        for (User user : freeUsers) {
+            boolean hasTask = taskRepository.existsByUserAndTaskDay(user, tomorrow);
+            if (!hasTask) {
+                notificationService.createNoTaskNotification(user, tomorrow);
+            }
+        }
+    }
+
+    @Scheduled(cron = "0 0 8 * * ?", zone = "Asia/Ho_Chi_Minh")
+    @Transactional
+    public void sendMorningTaskRemindersForFreeUsers() {
+        LocalDate today = LocalDate.now();
+        List<User> freeUsers = userRepository.findByHasActiveFalse();
+        for (User user : freeUsers) {
+            List<PlanTasksFree> tasks = taskRepository.findByUserAndTaskDay(user, today);
+            for (PlanTasksFree task : tasks) {
+                notificationService.createFreeTaskReminderNotification(user, task.getTargetCigarettes());
+            }
+        }
     }
 }
