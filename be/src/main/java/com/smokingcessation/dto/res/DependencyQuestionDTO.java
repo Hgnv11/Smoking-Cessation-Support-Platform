@@ -12,6 +12,5 @@ import java.util.List;
 public class DependencyQuestionDTO {
     private Integer questionId;
     private String questionText;
-    private Integer questionOrder;
     private List<DependencyAnswerDTO> answers;
 }

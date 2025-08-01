@@ -14,4 +14,5 @@ public class DependencyAnswerDTO {
     private String answerText;
     private Integer points;
     private Boolean isSelected = false;
+    private Integer responseId;
 }

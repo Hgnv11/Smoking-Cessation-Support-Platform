@@ -21,9 +21,6 @@ public class DependencyQuestion {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String questionText;
 
-    @Column(nullable = false)
-    private Integer questionOrder;
-
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
     private List<DependencyAnswer> answers;
 

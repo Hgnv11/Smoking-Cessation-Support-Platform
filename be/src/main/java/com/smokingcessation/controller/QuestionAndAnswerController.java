@@ -66,9 +66,9 @@ public class QuestionAndAnswerController {
             @ApiResponse(responseCode = "200", description = "Xóa thành công"),
             @ApiResponse(responseCode = "404", description = "Không tìm thấy câu trả lời")
     })
-    @DeleteMapping("/responses/{userQuestionAndAnswer_Id}")
+    @DeleteMapping("/responses")
     public void deleteResponse(
-            @Parameter(description = "ID câu trả lời người dùng") @PathVariable Integer responseId) {
+            @Parameter(description = "ID câu trả lời người dùng") @RequestParam Integer responseId) {
         dependencyService.deleteResponse(responseId);
     }
 

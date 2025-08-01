@@ -30,7 +30,6 @@ public class DependencyService {
     private final DependencyQuestionMapper questionMapper;
     private final DependencyAnswerMapper answerMapper;
 
-
     public List<DependencyQuestionDTO> getQuestionsWithUserAnswers(Integer userId) {
         List<DependencyQuestion> questions = questionRepository.findAll();
         List<UserDependencyResponse> userResponses = responseRepository.findByUserUserId(userId);
@@ -39,38 +38,28 @@ public class DependencyService {
             DependencyQuestionDTO dto = questionMapper.toDto(question);
             List<DependencyAnswerDTO> answerDTOs = dto.getAnswers();
 
-            // Đánh dấu câu trả lời đã chọn
-            userResponses.stream()
+            Optional<UserDependencyResponse> userResponse = userResponses.stream()
                     .filter(response -> response.getQuestion().getQuestionId().equals(question.getQuestionId()))
-                    .findFirst()
-                    .ifPresent(response -> {
-                        answerDTOs.forEach(answer -> {
-                            if (answer.getAnswerId().equals(response.getAnswer().getAnswerId())) {
-                                answer.setIsSelected(true);
-                            }
-                        });
-                    });
+                    .findFirst();
 
-            // Xử lý câu hỏi số 3 (số điếu thuốc mỗi ngày)
-            if (question.getQuestionOrder() == 3) {
-                smokingProfileRepository.findByUser_UserId(userId).ifPresent(profile -> {
-                    int cigarettesPerDay = profile.getCigarettesPerDay();
-                    int points = calculateCigarettesPerDayPoints(cigarettesPerDay);
-                    answerDTOs.forEach(answer -> {
-                        if (answer.getPoints() == points) {
-                            answer.setIsSelected(true);
-                        }
-                    });
-                });
-            }
+            answerDTOs.forEach(answer -> {
+                if (userResponse.isPresent() &&
+                        answer.getAnswerId().equals(userResponse.get().getAnswer().getAnswerId())) {
+                    answer.setIsSelected(true);
+                    answer.setResponseId(userResponse.get().getResponseId());
+                } else {
+                    answer.setIsSelected(false);
+                    answer.setResponseId(null);
+                }
+            });
 
             return dto;
         }).collect(Collectors.toList());
     }
 
+
     @Transactional
     public UserDependencyResponseDTO saveResponse(String email, int questionId, int answerId) {
-        // Lấy user từ DB
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Can't find user"));
 
@@ -82,17 +71,15 @@ public class DependencyService {
             throw new RuntimeException("Answer does not belong to the given question");
         }
 
-        // Kiểm tra xem đã có câu trả lời chưa
         UserDependencyResponse response = responseRepository
                 .findByUserUserIdAndQuestionQuestionId(user.getUserId(), questionId)
                 .orElse(new UserDependencyResponse());
 
-        response.setUser(user); // Đặt user đúng từ DB
+        response.setUser(user);
         response.setQuestion(question);
         response.setAnswer(answer);
         response = responseRepository.save(response);
 
-        // Cập nhật điểm số
         updateUserScore(user.getUserId());
 
         return new UserDependencyResponseDTO(
@@ -117,7 +104,6 @@ public class DependencyService {
         response.setResponseDate(LocalDateTime.now());
         response = responseRepository.save(response);
 
-        // ✅ Cập nhật điểm số
         updateUserScore(response.getUser().getUserId());
 
         return new UserDependencyResponseDTO(
@@ -130,7 +116,6 @@ public class DependencyService {
         );
     }
 
-
     @Transactional
     public void deleteResponse(Integer responseId) {
         UserDependencyResponse response = responseRepository.findById(responseId)
@@ -138,7 +123,6 @@ public class DependencyService {
         Integer userId = response.getUser().getUserId();
         responseRepository.delete(response);
 
-        // Cập nhật điểm số
         updateUserScore(userId);
     }
 
@@ -159,18 +143,18 @@ public class DependencyService {
                 .mapToInt(response -> response.getAnswer().getPoints())
                 .sum();
 
-        // Thêm điểm từ số điếu thuốc mỗi ngày
-        Optional<UserSmokingProfile> profileOpt = smokingProfileRepository.findByUser_UserId(userId);
-        if (profileOpt.isPresent()) {
-            totalScore += calculateCigarettesPerDayPoints(profileOpt.get().getCigarettesPerDay());
-        }
+        // Tính thêm điểm từ số điếu thuốc mỗi ngày (không cần tạo câu hỏi riêng)
+        int smokingPoints = smokingProfileRepository.findByUser_UserId(userId)
+                .map(profile -> calculateCigarettesPerDayPoints(profile.getCigarettesPerDay()))
+                .orElse(0);
 
-        // Xác định mức độ phụ thuộc
+        totalScore += smokingPoints;
+
         UserDependencyScore.DependencyLevel level = determineDependencyLevel(totalScore);
 
-        // Lưu hoặc cập nhật điểm số
         UserDependencyScore score = scoreRepository.findByUserUserId(userId)
                 .orElse(new UserDependencyScore());
+
         score.setUser(User.builder().userId(userId).build());
         score.setTotalScore(totalScore);
         score.setDependencyLevel(level);

@@ -31,7 +31,7 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepo;
     private final PaymentRepository paymentRepo;
     private final JwtUtil jwtUtil;
-
+    
     @Value("${vnpay.tmnCode}")
     private String vnp_TmnCode;
 

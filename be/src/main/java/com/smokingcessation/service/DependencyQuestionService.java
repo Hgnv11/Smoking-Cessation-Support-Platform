@@ -66,7 +66,6 @@ public class DependencyQuestionService {
         return new DependencyQuestionDTO(
                 question.getQuestionId(),
                 question.getQuestionText(),
-                question.getQuestionOrder(),
                 answerDTOs
         );
     }
