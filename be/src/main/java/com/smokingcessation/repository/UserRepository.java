@@ -21,10 +21,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByUserId(Integer userId);
 
-    Optional<User> findByUserId(int userId);
+    Optional<User> findByUserId(Integer userId);
 
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
     @Query(value = "SELECT COUNT(*) FROM users WHERE DATE(created_at) = :date", nativeQuery = true)
     long countByCreatedAtDate(@Param("date") LocalDate date);
+
+    List<User> findByHasActiveFalse();
+
+    List<User> findByHasActiveTrue();
 }

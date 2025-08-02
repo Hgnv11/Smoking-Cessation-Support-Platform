@@ -1,6 +1,6 @@
 package com.smokingcessation.config;
 
-import com.smokingcessation.config.JwtAuthenticationFilter;
+
 import com.smokingcessation.util.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,8 +15,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
 
@@ -49,14 +47,16 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
                                 "/swagger-ui.html",
-                                "/login/oauth2/code/google",
                                 "/api/profile/mentors",
                                 "/api/consultations/mentor/{mentorId}/slots",
                                 "/api/consultations/mentor/{mentorId}/ratings-feedback",
                                 "/api/profile/mentors/{profileNameMentor}",
                                 "/api/triggers/categories",
                                 "/api/strategies/categories",
-                                "/api/reasons"
+                                "/api/reasons",
+                                "/api/subscription/payment/return",
+                                "/api/achievements/badges/{userId}",
+                                "/api/question-answer/public"
 
                         ).permitAll()
                         .requestMatchers("/api/profile").hasRole("ADMIN")
@@ -78,10 +78,11 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5173",
-                "http://localhost:5174",
                 "http://localhost:3000",
-                "http://localhost:8080"
-//                "https://smokingcessationsupport.space"
+                "http://localhost:8080",
+                "https://smoking-cessation-deploy-e2pi.vercel.app",
+                "https://smokingcessationsupport.space"
+
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT","PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));

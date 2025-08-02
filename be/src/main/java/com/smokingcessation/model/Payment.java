@@ -2,47 +2,39 @@ package com.smokingcessation.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
 
-    @Entity
-    @Table(name = "payments")
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    public class Payment {
+@Entity
+@Table(name = "payments")
+@Getter
+@Setter
+public class Payment {
 
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Integer paymentId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer paymentId;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "subscription_id", nullable = false)
-        private Subscription subscription;
+    @ManyToOne
+    @JoinColumn(name = "subscription_id", nullable = false)
+    private Subscription subscription;
 
-        @Column(nullable = false)
-        private Double amount;
+    private Double amount;
 
-        @Column(nullable = false)
-        private String paymentMethod; // "vnpay"
+    private String paymentMethod; // ví dụ: "vnpay"
 
-        @Column(nullable = false, unique = true, length = 64)
-        private String transactionId; // VNPay's transaction id
+    private String transactionId;
 
-        @Enumerated(EnumType.STRING)
-        @Column(nullable = false)
-        private PaymentStatus status = PaymentStatus.pending;
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus status = PaymentStatus.pending;
 
-        @Column
-        private Timestamp paymentDate;
+    private Timestamp paymentDate = new Timestamp(System.currentTimeMillis());
 
-        public enum PaymentStatus {
-            pending,
-            completed,
-            failed,
-            refunded
-        }
+    public enum PaymentStatus {
+        pending,
+        completed,
+        failed,
+        refunded
     }
-
+}

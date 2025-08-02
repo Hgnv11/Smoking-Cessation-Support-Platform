@@ -4,6 +4,7 @@ import com.smokingcessation.model.Trigger;
 import com.smokingcessation.model.TriggerCategory;
 import com.smokingcessation.repository.TriggerRepository;
 import com.smokingcessation.repository.TriggerCategoryRepository;
+import com.smokingcessation.repository.UserTriggerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +17,13 @@ public class TriggerService {
 
     private final TriggerRepository triggerRepository;
     private final TriggerCategoryRepository categoryRepository;
+    private final UserTriggerRepository userTriggerRepository;
 
     // ====== TRIGGER CATEGORY CRUD ======
+
+    public List<Trigger> getTriggersByUserId(Integer userId) {
+        return userTriggerRepository.findTriggersByUserId(userId);
+    }
 
     public List<TriggerCategory> getAllCategories() {
         return categoryRepository.findAll();

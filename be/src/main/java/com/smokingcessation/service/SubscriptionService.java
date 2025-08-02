@@ -7,6 +7,7 @@ import com.smokingcessation.model.User;
 import com.smokingcessation.repository.PaymentRepository;
 import com.smokingcessation.repository.SubscriptionRepository;
 import com.smokingcessation.repository.UserRepository;
+import com.smokingcessation.service.NotificationService;
 import com.smokingcessation.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +31,7 @@ public class SubscriptionService {
     private final UserRepository userRepo;
     private final SubscriptionRepository subscriptionRepo;
     private final PaymentRepository paymentRepo;
+    private final NotificationService notificationService;
     private final JwtUtil jwtUtil;
 
     @Value("${vnpay.tmnCode}")
@@ -48,7 +50,7 @@ public class SubscriptionService {
         User user = userRepo.findByEmail(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Tạo subscription mới
+        // Create new subscription
         Subscription sub = new Subscription();
         sub.setUser(user);
         sub.setStartDate(LocalDate.now());
@@ -56,7 +58,7 @@ public class SubscriptionService {
         sub.setPaymentStatus(Subscription.PaymentStatus.pending);
         subscriptionRepo.save(sub);
 
-        // Tạo payment mới
+        // Create new payment
         String txnId = UUID.randomUUID().toString().replace("-", "").substring(0, 10);
         Payment payment = new Payment();
         payment.setSubscription(sub);
@@ -74,6 +76,7 @@ public class SubscriptionService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy giao dịch"));
 
         Subscription sub = payment.getSubscription();
+        User user = sub.getUser();
 
         // Convert String -> Enum safely
         Payment.PaymentStatus status;
@@ -91,9 +94,9 @@ public class SubscriptionService {
         );
 
         if (status == Payment.PaymentStatus.completed) {
-            User user = sub.getUser();
             user.setHasActive(true);
             userRepo.save(user);
+            notificationService.createPaymentSuccessNotification(user); // Create notification
         }
 
         paymentRepo.save(payment);
@@ -126,6 +129,7 @@ public class SubscriptionService {
         if (status == Payment.PaymentStatus.completed) {
             user.setHasActive(true);
             userRepo.save(user);
+            notificationService.createPaymentSuccessNotification(user); // Create notification
         }
 
         paymentRepo.save(payment);
@@ -158,6 +162,7 @@ public class SubscriptionService {
         if (status == Payment.PaymentStatus.completed) {
             user.setHasActive(true);
             userRepo.save(user);
+            notificationService.createPaymentSuccessNotification(user); // Create notification
         }
 
         paymentRepo.save(payment);

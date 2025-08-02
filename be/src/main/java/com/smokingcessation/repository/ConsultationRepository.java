@@ -12,7 +12,6 @@ import java.util.Optional;
 public interface ConsultationRepository extends JpaRepository<Consultation, Integer> {
     List<Consultation> findByUser(User user);
     List<Consultation> findByMentor(User mentor);
-    Optional<Consultation> findBySlot(ConsultationSlot slot);
     List<Consultation> findByMentorAndUser(User mentor, User user);
     List<Consultation> findByMentorAndSlot_SlotDate(User mentor, LocalDate slotDate);
     List<Consultation> findByMentor_Email(String email);

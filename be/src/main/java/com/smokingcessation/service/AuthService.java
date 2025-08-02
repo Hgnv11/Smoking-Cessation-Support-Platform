@@ -21,14 +21,16 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final JwtUtil jwtUtil;
+    private final NotificationService notificationService;
 
     public AuthService(UserRepository userRepository, OtpTokenRepository otpTokenRepository,
-                       PasswordEncoder passwordEncoder, EmailService emailService, JwtUtil jwtUtil) {
+                       PasswordEncoder passwordEncoder, EmailService emailService, JwtUtil jwtUtil, NotificationService notificationService) {
         this.userRepository = userRepository;
         this.otpTokenRepository = otpTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
         this.jwtUtil = jwtUtil;
+        this.notificationService = notificationService;
     }
 
     public void register(String email, String password, String fullName, String nameProfile) throws Exception {
@@ -61,7 +63,7 @@ public class AuthService {
         if (user.getIsBlock()) {
             throw new RuntimeException("Your account has been locked");
         }
-        if (user.getIsDelete()) {
+        if (Boolean.TRUE.equals(user.getIsDelete())) {
             throw new RuntimeException("Your account has been delete");
         }
 
@@ -117,6 +119,7 @@ public class AuthService {
         if (purpose == OtpToken.Purpose.register) {
             user.setIsVerified(true);
             userRepository.save(user);
+            notificationService.createWelcomeNotification(user);
         }
         otpToken.setIsUsed(true);
         otpTokenRepository.save(otpToken);

@@ -28,9 +28,6 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(unique = true)
-    private String phone;
-
     private String profileName;
 
     @Column(nullable = false)
@@ -52,6 +49,9 @@ public class User {
     private String note;
 
     private Boolean hasActive = false;
+
+    @Builder.Default
+    @Column(name = "is_delete")
     private Boolean isDelete=false;
     private String typeLogin;
 

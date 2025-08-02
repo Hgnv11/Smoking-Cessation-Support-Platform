@@ -3,44 +3,39 @@ package com.smokingcessation.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
 
-    @Entity
-    @Table(name = "user_subscriptions")
-    @Getter
-    @Setter
-    public class Subscription {
+@Entity
+@Table(name = "user_subscriptions")
+@Getter
+@Setter
+public class Subscription {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer subscriptionId;
 
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Integer subscriptionId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "user_id", nullable = false)
-        private User user;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
-        private LocalDate startDate;
-        private LocalDate endDate;
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus = PaymentStatus.pending;
 
-        @Enumerated(EnumType.STRING)
-        @Column(nullable = false)
-        private PaymentStatus paymentStatus = PaymentStatus.pending;
+    private Integer maxMonthlySlots = 16;
 
-        private Integer maxMonthlySlots = 16;
+    private Timestamp createdAt;
 
-        @CreationTimestamp // <-- chỉ cần thêm dòng này!
-        @Column(updatable = false)
-        private Timestamp createdAt;
-
-        public enum PaymentStatus {
-            pending,
-            paid,
-            failed,
-            refunded
-        }
+    public enum PaymentStatus {
+        pending,
+        paid,
+        failed,
+        refunded,
+        completed
     }
-
+}
