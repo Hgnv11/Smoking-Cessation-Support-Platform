@@ -66,8 +66,10 @@ public class DependencyService {
 
         DependencyQuestion question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found"));
+
         DependencyAnswer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Answer not found"));
+
         if (!answer.getQuestion().getQuestionId().equals(question.getQuestionId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Answer does not belong to the given question");
         }
@@ -82,8 +84,6 @@ public class DependencyService {
         response.setResponseDate(LocalDateTime.now());
         response = responseRepository.save(response);
 
-        updateUserScore(user.getUserId());
-
         return new UserDependencyResponseDTO(
                 response.getResponseId(),
                 response.getUser().getUserId(),
@@ -93,6 +93,7 @@ public class DependencyService {
                 response.getAnswer().getPoints()
         );
     }
+
 
     @Transactional
     public UserDependencyResponseDTO updateResponse(Integer responseId, Integer newAnswerId) {
@@ -133,8 +134,11 @@ public class DependencyService {
     }
 
     public UserDependencyScoreDTO getUserScore(Integer userId) {
+        updateUserScore(userId);
+
         UserDependencyScore score = scoreRepository.findTopByUserUserIdOrderByAssessmentDateDesc(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No score found for user"));
+
         return new UserDependencyScoreDTO(
                 score.getScoreId(),
                 userId,
@@ -143,14 +147,14 @@ public class DependencyService {
         );
     }
 
+
     @Transactional
     private void updateUserScore(Integer userId) {
-        long totalQuestions = questionRepository.count();
         List<UserDependencyResponse> responses = responseRepository.findByUser_UserId(userId);
 
-        if (responses.size() < totalQuestions) {
+        if (responses.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Please answer all required questions before calculating score");
+                    "User has not answered any question yet");
         }
 
         int totalScore = responses.stream()
@@ -176,7 +180,6 @@ public class DependencyService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Active smoking profile is required to calculate score"));
 
-
         totalScore += smokingPoints;
 
         int maxPossibleScore = calculateMaxPossibleScore();
@@ -196,6 +199,7 @@ public class DependencyService {
         score.setAssessmentDate(LocalDateTime.now());
         scoreRepository.save(score);
     }
+
 
     private int calculateCigarettesPerDayPoints(int cigarettesPerDay) {
         if (cigarettesPerDay <= 10) return 0;
