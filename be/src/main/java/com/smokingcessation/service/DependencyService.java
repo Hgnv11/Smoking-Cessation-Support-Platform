@@ -34,7 +34,7 @@ public class DependencyService {
 
     public List<DependencyQuestionDTO> getQuestionsWithUserAnswers(Integer userId) {
         List<DependencyQuestion> questions = questionRepository.findAll();
-        List<UserDependencyResponse> userResponses = responseRepository.findByUserUserId(userId);
+        List<UserDependencyResponse> userResponses = responseRepository.findByUser_UserId(userId);
 
         return questions.stream().map(question -> {
             DependencyQuestionDTO dto = questionMapper.toDto(question);
@@ -59,27 +59,27 @@ public class DependencyService {
         }).collect(Collectors.toList());
     }
 
-
     @Transactional
     public UserDependencyResponseDTO saveResponse(String email, int questionId, int answerId) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Can't find user"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
         DependencyQuestion question = questionRepository.findById(questionId)
-                .orElseThrow(() -> new RuntimeException("Question not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found"));
         DependencyAnswer answer = answerRepository.findById(answerId)
-                .orElseThrow(() -> new RuntimeException("Answer not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Answer not found"));
         if (!answer.getQuestion().getQuestionId().equals(question.getQuestionId())) {
-            throw new RuntimeException("Answer does not belong to the given question");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Answer does not belong to the given question");
         }
 
         UserDependencyResponse response = responseRepository
-                .findByUserUserIdAndQuestionQuestionId(user.getUserId(), questionId)
+                .findByUser_UserIdAndQuestion_QuestionId(user.getUserId(), questionId)
                 .orElse(new UserDependencyResponse());
 
         response.setUser(user);
         response.setQuestion(question);
         response.setAnswer(answer);
+        response.setResponseDate(LocalDateTime.now());
         response = responseRepository.save(response);
 
         updateUserScore(user.getUserId());
@@ -97,10 +97,14 @@ public class DependencyService {
     @Transactional
     public UserDependencyResponseDTO updateResponse(Integer responseId, Integer newAnswerId) {
         UserDependencyResponse response = responseRepository.findById(responseId)
-                .orElseThrow(() -> new RuntimeException("Response not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Response not found"));
 
         DependencyAnswer newAnswer = answerRepository.findById(newAnswerId)
-                .orElseThrow(() -> new RuntimeException("Answer not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Answer not found"));
+
+        if (!newAnswer.getQuestion().getQuestionId().equals(response.getQuestion().getQuestionId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New answer does not belong to the same question");
+        }
 
         response.setAnswer(newAnswer);
         response.setResponseDate(LocalDateTime.now());
@@ -121,7 +125,7 @@ public class DependencyService {
     @Transactional
     public void deleteResponse(Integer responseId) {
         UserDependencyResponse response = responseRepository.findById(responseId)
-                .orElseThrow(() -> new RuntimeException("Response not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Response not found"));
         Integer userId = response.getUser().getUserId();
         responseRepository.delete(response);
 
@@ -130,27 +134,56 @@ public class DependencyService {
 
     public UserDependencyScoreDTO getUserScore(Integer userId) {
         UserDependencyScore score = scoreRepository.findTopByUserUserIdOrderByAssessmentDateDesc(userId)
-                .orElse(new UserDependencyScore());
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No score found for user"));
         return new UserDependencyScoreDTO(
                 score.getScoreId(),
                 userId,
                 score.getTotalScore(),
-                score.getDependencyLevel() != null ? score.getDependencyLevel().name() : null
+                score.getDependencyLevel() != null ? score.getDependencyLevel().name() : "very_low"
         );
     }
 
+    @Transactional
     private void updateUserScore(Integer userId) {
-        List<UserDependencyResponse> responses = responseRepository.findByUserUserId(userId);
+        long totalQuestions = questionRepository.count();
+        List<UserDependencyResponse> responses = responseRepository.findByUser_UserId(userId);
+
+        if (responses.size() < totalQuestions) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Please answer all required questions before calculating score");
+        }
+
         int totalScore = responses.stream()
-                .mapToInt(response -> response.getAnswer().getPoints())
+                .mapToInt(response -> {
+                    Integer points = response.getAnswer().getPoints();
+                    if (points == null) {
+                        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                                "Invalid answer points");
+                    }
+                    return points;
+                })
                 .sum();
 
-        // Tính thêm điểm từ số điếu thuốc mỗi ngày (không cần tạo câu hỏi riêng)
         int smokingPoints = smokingProfileRepository.findByUser_UserId(userId)
-                .map(profile -> calculateCigarettesPerDayPoints(profile.getCigarettesPerDay()))
-                .orElse(0);
+                .filter(profile -> profile.getStatus().equals("active"))
+                .map(profile -> {
+                    Integer cigarettesPerDay = profile.getCigarettesPerDay();
+                    if (cigarettesPerDay == null || cigarettesPerDay < 0) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid cigarettes per day value");
+                    }
+                    return calculateCigarettesPerDayPoints(cigarettesPerDay);
+                })
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Active smoking profile is required to calculate score"));
+
 
         totalScore += smokingPoints;
+
+        int maxPossibleScore = calculateMaxPossibleScore();
+        if (totalScore < 0 || totalScore > maxPossibleScore) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Calculated score is out of valid range");
+        }
 
         UserDependencyScore.DependencyLevel level = determineDependencyLevel(totalScore);
 
@@ -160,6 +193,7 @@ public class DependencyService {
         score.setUser(User.builder().userId(userId).build());
         score.setTotalScore(totalScore);
         score.setDependencyLevel(level);
+        score.setAssessmentDate(LocalDateTime.now());
         scoreRepository.save(score);
     }
 
@@ -178,13 +212,24 @@ public class DependencyService {
         return UserDependencyScore.DependencyLevel.very_high;
     }
 
+    private int calculateMaxPossibleScore() {
+        List<DependencyQuestion> questions = questionRepository.findAll();
+        int maxScore = questions.stream()
+                .mapToInt(question -> question.getAnswers().stream()
+                        .mapToInt(DependencyAnswer::getPoints)
+                        .max()
+                        .orElse(0))
+                .sum();
+        maxScore += 3;
+        return maxScore;
+    }
+
     public List<DependencyQuestionDTO> getPublicQuestions() {
         List<DependencyQuestion> questions = questionRepository.findAll();
 
         return questions.stream()
                 .map(question -> {
                     DependencyQuestionDTO dto = questionMapper.toDto(question);
-                    // Đảm bảo tất cả đáp án isSelected = false, responseId = null
                     dto.getAnswers().forEach(answer -> {
                         answer.setIsSelected(false);
                         answer.setResponseId(null);
@@ -203,10 +248,7 @@ public class DependencyService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only delete your own responses");
         }
 
-        // 1. Xoá toàn bộ câu trả lời
         responseRepository.deleteByUser_UserId(userId);
-
-        // 2. Xoá điểm nếu tồn tại
         scoreRepository.findTopByUserUserIdOrderByAssessmentDateDesc(userId)
                 .ifPresent(scoreRepository::delete);
     }

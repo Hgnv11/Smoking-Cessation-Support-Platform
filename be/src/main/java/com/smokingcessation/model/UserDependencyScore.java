@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "user_dependency_scores")
+@Builder
 public class UserDependencyScore {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -53,7 +53,7 @@ public class QuestionAndAnswerController {
             @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
             @ApiResponse(responseCode = "404", description = "Không tìm thấy câu trả lời")
     })
-    @PutMapping("/update/{userQuestionId}")
+    @PutMapping("/update/")
     public ResponseEntity<UserDependencyResponseDTO> updateResponse(
             @Parameter(description = "ID câu trả lời người dùng") @PathVariable Integer userQuestionId,
             @Parameter(description = "ID câu trả lời mới") @RequestParam Integer answerId) {

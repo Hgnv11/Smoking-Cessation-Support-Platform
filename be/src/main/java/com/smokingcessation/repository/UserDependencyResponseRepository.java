@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserDependencyResponseRepository extends JpaRepository<UserDependencyResponse, Integer> {
-    List<UserDependencyResponse> findByUserUserId(Integer userId);
+    List<UserDependencyResponse> findByUser_UserId(Integer userId);
 
-    Optional<UserDependencyResponse> findByUserUserIdAndQuestionQuestionId(Integer userId, Integer questionId);
+    Optional<UserDependencyResponse> findByUser_UserIdAndQuestion_QuestionId(Integer userId, Integer questionId);
 
     void deleteByUser_UserId(Integer userId);
 
