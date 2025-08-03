@@ -8,6 +8,7 @@ import com.smokingcessation.model.UserReasons;
 import com.smokingcessation.repository.ReasonsQuitRepository;
 import com.smokingcessation.repository.UserReasonsRepository;
 import com.smokingcessation.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -65,6 +66,14 @@ public class ReasonService {
         return reasonMapper.toUserReasonDTOList(userReasons);
     }
 
+    public List<ReasonDTO> getMyReasonsbyUserId(Integer UserId) {
+        User user = userRepository.findByUserId(UserId)
+                .orElseThrow(() -> new RuntimeException("User not found with userId: " +UserId ));
+
+        List<UserReasons> userReasons = userReasonsRepository.findByUser(user);
+        return reasonMapper.toUserReasonDTOList(userReasons);
+    }
+
     public ReasonDTO createReason(ReasonDTO reasonDTO) {
         if (reasonDTO.getReasonText() == null || reasonDTO.getReasonText().trim().isEmpty()) {
             throw new RuntimeException("Reason text cannot be empty");
@@ -113,4 +122,45 @@ public class ReasonService {
         reason.setIsActive(false);
         reasonsQuitRepository.save(reason);
     }
+
+    @Transactional
+    public void deleteAllReasonsByUserId(Integer userId) {
+        if (!userRepository.existsByUserId(userId)) {
+            throw new RuntimeException("User không tồn tại với ID: " + userId);
+        }
+        userReasonsRepository.deleteAllByUser_UserId(userId);
+    }
+
+    @Transactional
+    public void updateReasonsForUser(String email, List<Integer> reasonIds) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        // Xoá tất cả lý do hiện tại của user
+        userReasonsRepository.deleteAllByUser_UserId(user.getUserId());
+
+        // Thêm lại các lý do mới
+        for (Integer reasonId : reasonIds) {
+            ReasonsQuit reason = reasonsQuitRepository.findById(reasonId)
+                    .orElseThrow(() -> new RuntimeException("Reason not found with ID: " + reasonId));
+
+            if (!reason.getIsActive()) {
+                continue; // Bỏ qua nếu lý do không active
+            }
+
+            UserReasons userReason = new UserReasons();
+            UserReasons.UserReasonsId id = new UserReasons.UserReasonsId();
+            id.setUserId(user.getUserId());
+            id.setReasonId(reasonId);
+
+            userReason.setId(id);
+            userReason.setUser(user);
+            userReason.setReason(reason);
+
+            userReasonsRepository.save(userReason);
+        }
+    }
+
+
+
 }

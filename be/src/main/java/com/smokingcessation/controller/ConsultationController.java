@@ -4,18 +4,21 @@ import com.smokingcessation.dto.res.ConsultationDTO;
 import com.smokingcessation.dto.res.ConsultationSlotDTO;
 import com.smokingcessation.model.Consultation;
 import com.smokingcessation.model.ConsultationSlot;
+import com.smokingcessation.model.User;
 import com.smokingcessation.service.ConsultationService;
 import com.smokingcessation.service.ConsultationSlotService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/consultations")
 @RequiredArgsConstructor
@@ -82,6 +85,18 @@ public class ConsultationController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Cập nhật đánh giá và feedback")
+    @PutMapping("/{consultationId}/feedback")
+    public ResponseEntity<Void> updateFeedback(
+            Principal principal,
+            @PathVariable Integer consultationId,
+            @RequestParam Integer rating,
+            @RequestParam String feedback) {
+        String userEmail = principal.getName();
+        consultationService.updateFeedback(userEmail, consultationId, rating, feedback);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "Mentor cập nhật trạng thái và ghi chú")
     @PreAuthorize("hasRole('MENTOR')")
     @PatchMapping("/{consultationId}/status-note")
@@ -106,4 +121,26 @@ public class ConsultationController {
         consultationService.cancelConsultation(userEmail, consultationId);
         return ResponseEntity.ok("Consultation cancelled successfully");
     }
+
+    @Operation(summary = "Mentor xem tất cả slot của mình")
+    @PreAuthorize("hasRole('MENTOR')")
+    @GetMapping("/mentor/slots/all")
+    public ResponseEntity<List<ConsultationSlotDTO>> getAllSlotsForMentor(Principal principal) {
+        String mentorEmail = principal.getName();
+        User mentor = consultationSlotService.getMentorByEmail(mentorEmail);
+        List<ConsultationSlotDTO> slots = consultationSlotService.getSlotsByMentorId(mentor.getUserId());
+        return ResponseEntity.ok(slots);
+    }
+
+    @Operation(summary = "User xem chi tiết một lịch tư vấn của mình")
+    @GetMapping("/user/{consultationId}")
+    public ResponseEntity<ConsultationDTO> getUserConsultationDetail(@PathVariable Integer consultationId, Principal principal) {
+        String userEmail = principal.getName();
+        ConsultationDTO dto = consultationService.getUserConsultationDetail(consultationId, userEmail);
+        return ResponseEntity.ok(dto);
+    }
+
+
+
+
 }

@@ -10,4 +10,5 @@ import java.util.List;
 public interface ReasonsQuitRepository extends JpaRepository<ReasonsQuit, Integer> {
     ReasonsQuit findByReasonText(String reasonText);
     List<ReasonsQuit> findAllByIsActiveTrue();
+
 }

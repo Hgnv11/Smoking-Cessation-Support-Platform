@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/user-smoking-profile")
@@ -25,15 +26,15 @@ public class UserSmokingProfileController {
             summary = "Lấy profile smoker của user đang đăng nhập"
     )
     @GetMapping("/my")
-    public ResponseEntity<UserSmokingProfileRequest> getMyProfile(Principal principal) {
+    public ResponseEntity<List<UserSmokingProfileRequest>> getMyProfile(Principal principal) {
         String email = principal.getName();
-        UserSmokingProfileRequest profile = userSmokingProfileService.getProfileByEmail(email);
-        return ResponseEntity.ok(profile);
+        List<UserSmokingProfileRequest> profiles = userSmokingProfileService.getAllProfilesByEmail(email);
+        return ResponseEntity.ok(profiles);
     }
 
     // Cập nhật profile của user đang đăng nhập
     @Operation(
-            summary = "Thêm profile của user đang đăng nhập"
+            summary = "Thêm profile của user (1 lúc chỉ dc 1 user smoking profile)"
     )
     @PostMapping("/my")
     public ResponseEntity<UserSmokingProfileRequest> updateMyProfile(
@@ -42,6 +43,17 @@ public class UserSmokingProfileController {
         String email = principal.getName();
         UserSmokingProfileRequest updatedProfile = userSmokingProfileService.AddProfileByEmail(email, request);
         return ResponseEntity.ok(updatedProfile);
+    }
+
+    @Operation(
+            summary = "update user smoking profile "
+    )
+    @PutMapping
+    public ResponseEntity<UserSmokingProfileRequest> updateProfile(
+            Principal principal,
+            @RequestBody UserSmokingProfileRequest request) {
+        UserSmokingProfileRequest updated = userSmokingProfileService.UpdateProfileByEmail(principal.getName(), request);
+        return ResponseEntity.ok(updated);
     }
 
     @Operation(
@@ -71,5 +83,24 @@ public class UserSmokingProfileController {
     public SavingDTO calculateSavings(Principal principal){
         return userSmokingProfileService.calculateSavings(principal.getName());
     }
+
+    @DeleteMapping("/{profileId}")
+    public ResponseEntity<Void> deleteProfileById(
+            @PathVariable Integer profileId,
+            Principal principal) {
+        String email = principal.getName();
+        userSmokingProfileService.deleteProfileByEmailAndProfileId(email, profileId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Đánh giá kết quả kế hoạch theo profileId")
+    @GetMapping("/{profileId}/result")
+    public ResponseEntity<String> getQuitPlanResult(@PathVariable Integer profileId, Principal principal) {
+        String email = principal.getName();
+        String result = userSmokingProfileService.evaluatePlanResult(email, profileId);
+        return ResponseEntity.ok(result); // "success", "failed" hoặc "incomplete"
+    }
+
+
 
 }

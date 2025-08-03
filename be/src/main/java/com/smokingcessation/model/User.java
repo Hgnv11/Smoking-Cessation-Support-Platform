@@ -1,6 +1,9 @@
 
 package com.smokingcessation.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,12 +28,10 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(unique = true)
-    private String phone;
-
     private String profileName;
 
     @Column(nullable = false)
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String passwordHash;
 
     private String fullName;
@@ -48,6 +49,9 @@ public class User {
     private String note;
 
     private Boolean hasActive = false;
+
+    @Builder.Default
+    @Column(name = "is_delete")
     private Boolean isDelete=false;
     private String typeLogin;
 

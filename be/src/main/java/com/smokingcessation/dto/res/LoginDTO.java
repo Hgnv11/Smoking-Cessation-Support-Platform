@@ -12,5 +12,6 @@ public class LoginDTO {
     private String role;
     private Boolean is_verified;
     private String profileName;
+    private Boolean hasActive;
     private String avatarUrl;
 }

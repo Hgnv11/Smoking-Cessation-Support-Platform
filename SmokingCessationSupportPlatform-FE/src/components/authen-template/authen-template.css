@@ -5,16 +5,17 @@
 }
 
 .authen-template {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: grid;
+    place-items: center;
+    margin: auto;
     min-height: 90vh;
+    min-width: 900px;
 }
 
 .authen-template__form h1 {
     text-align: center;
     font-size: 36px;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     color: #0A52B5;
 }
 
@@ -25,12 +26,15 @@
 
 .authen-template__form .input-box input {
     height: 40px;
-    width: 100%;
     border-radius: 5px;
+    width: 100%;
     outline: none;
     font-size: 16px;
-    padding-right: 150px;
     margin-top: -5px
+}
+
+.input {
+    min-width: 350px;
 }
 
 .authen-template__form .input-box-otp input {
@@ -50,7 +54,7 @@
 }
 
 .register-login__btn {
-    display: block;
+    display: flex;
     margin: auto;
     width: 30%;
     height: 35px;
@@ -101,4 +105,23 @@
     color: #666;
     font-size: 14px;
     width: 100%;
+}
+
+.resend-otp {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.resend-otp p {
+    color: #458FF6;
+    font-size: 18px;
+}
+
+.resend-otp-link {
+    color: #458FF6;
+    font-weight: 600;
+    margin-left: 5px;
+    font-size: 18px;
 }

@@ -1,24 +1,28 @@
 package com.smokingcessation.controller;
 
-import com.smokingcessation.dto.res.ConsultationDTO;
-import com.smokingcessation.dto.res.ConsultationSlotDTO;
-import com.smokingcessation.dto.res.ReasonDTO;
-import com.smokingcessation.model.Consultation;
-import com.smokingcessation.model.ConsultationSlot;
-import com.smokingcessation.model.User;
+import com.smokingcessation.dto.res.*;
+import com.smokingcessation.model.*;
 import com.smokingcessation.service.*;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {
+        "http://localhost:5173",
+        "https://smoking-cessation-deploy-e2pi.vercel.app",
+        "https://smokingcessationsupport.space"
+})
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
@@ -28,6 +32,10 @@ public class AdminController {
     private final ReasonService reasonService;
     private final ConsultationSlotService slotService;
     private final ConsultationService consultationService;
+    private final TriggerService triggerService;
+
+    private final SmokingEventService smokingEventService;
+    private final AchievementService achievementService;
 
     // ========== USER CRUD ==========
 
@@ -76,6 +84,13 @@ public class AdminController {
     @GetMapping("/mentors")
     public ResponseEntity<List<User>> getAllMentors() {
         return ResponseEntity.ok(userService.getAllMentors());
+    }
+
+    @Operation(summary = "Chi tiết các kết hoạch cai thuốc của user")
+    @GetMapping("/smoking-progress/user/{UserId}")
+    public ResponseEntity<List<SmokingProgressDTO>> getProgressByEmail(@PathVariable Integer UserId) {
+        List<SmokingProgressDTO> progressList = smokingEventService.getAllSmokingProgressByUser(UserId);
+        return ResponseEntity.ok(progressList);
     }
 
     // ========== POST ==========
@@ -168,4 +183,106 @@ public class AdminController {
             @RequestParam Consultation.Status status) {
         return ResponseEntity.ok(consultationService.updateConsultationStatus(updaterEmail, consultationId, status));
     }
+
+    @Operation(summary = "Xem tất cả slot của một mentor (dùng mentorId)")
+    @GetMapping("/mentor/{mentorId}/slots/all")
+    public ResponseEntity<List<ConsultationSlotDTO>> getAllSlotsByMentorId(@PathVariable Integer mentorId) {
+        List<ConsultationSlotDTO> slots = slotService.getSlotsByMentorId(mentorId);
+        return ResponseEntity.ok(slots);
+    }
+
+
+    // ========== TRIGGER ==========
+
+    @Operation(summary = "Tạo trigger mới (cần categoryId)")
+    @PostMapping("/triggers")
+    public ResponseEntity<Trigger> createTrigger(
+            @RequestParam String name,
+            @RequestParam Integer categoryId) {
+        return ResponseEntity.ok(triggerService.createTrigger(name, categoryId));
+    }
+
+    @Operation(summary = "Cập nhật trigger (cần categoryId)")
+    @PutMapping("/triggers/{id}")
+    public ResponseEntity<Trigger> updateTrigger(
+            @PathVariable Integer id,
+            @RequestParam String name,
+            @RequestParam Integer categoryId) {
+        return ResponseEntity.ok(triggerService.updateTrigger(id, name, categoryId));
+    }
+
+    @Operation(summary = "Xóa trigger")
+    @DeleteMapping("/triggers/{id}")
+    public ResponseEntity<Void> deleteTrigger(@PathVariable Integer id) {
+        triggerService.deleteTrigger(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ========== TRIGGER CATEGORY ==========
+
+    @Operation(summary = "Tạo mới danh mục trigger")
+    @PostMapping("/trigger-categories")
+    public ResponseEntity<TriggerCategory> createCategory(@RequestParam String name) {
+        return ResponseEntity.ok(triggerService.createCategory(name));
+    }
+
+    @Operation(summary = "Cập nhật danh mục trigger")
+    @PutMapping("/trigger-categories/{categoryId}")
+    public ResponseEntity<TriggerCategory> updateCategory(
+            @PathVariable Integer categoryId,
+            @RequestParam String name) {
+        return ResponseEntity.ok(triggerService.updateCategory(categoryId, name));
+    }
+
+    @Operation(summary = "Xóa danh mục trigger")
+    @DeleteMapping("/trigger-categories/{id}")
+    public ResponseEntity<Void> deleteCategory(@PathVariable Integer id) {
+        triggerService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ========== ACHIEVEMENTS ==========
+    @Operation(summary = "update huy hiệu")
+    @PutMapping("/badges/{badgeId}")
+    public ResponseEntity<?> updateBadge(@PathVariable Long badgeId,
+                                         @Valid @RequestBody Badge badge) {
+        achievementService.updateBadge(badgeId, badge);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "get all badge")
+    @GetMapping("/badges")
+    public ResponseEntity<List<Badge>> getAllBadges() {
+        return ResponseEntity.ok(achievementService.getAllBadges());
+    }
+
+    @Operation(
+            summary = "Thêm bài viết mới for admin"
+    )
+    @PostMapping("/post")
+    public ResponseEntity<PostDTO> addNewPostForAdmin(
+            Principal principal,
+            @RequestBody PostDTO request) {
+        String email = principal.getName();
+        PostDTO createdPost = postService.addNewPostForAdmin(email, request);
+        return ResponseEntity.ok(createdPost);
+    }
+
+    @Operation(
+            summary = "update post for admin"
+    )
+    @PutMapping("post/{postId}")
+    public ResponseEntity<PostDTO> updatePost(
+            @PathVariable int postId,
+            @RequestBody PostDTO postDTO,
+            Principal principal) {
+
+        String userEmail = principal.getName();
+
+        PostDTO updatedPost = postService.updatePostForAdmin(postId, userEmail, postDTO);
+        return ResponseEntity.ok(updatedPost);
+    }
+
+
+
 }

@@ -7,8 +7,7 @@
 
 .wrapper {
     margin: auto;
-    margin-top: 20px;
     max-width: 960px;
+    margin-top: 20px;
+    min-height: calc(100vh - 80px - 290px);
 }
-
-

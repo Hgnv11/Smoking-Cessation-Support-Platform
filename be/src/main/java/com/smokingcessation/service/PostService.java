@@ -6,14 +6,12 @@ import com.smokingcessation.model.CommunityPost;
 import com.smokingcessation.model.User;
 import com.smokingcessation.repository.PostRepository;
 import com.smokingcessation.repository.UserRepository;
+import com.smokingcessation.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +20,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostMapper postMapper;
+    private final NotificationService notificationService;
 
     public PostDTO addNewPost(String userEmail, PostDTO request) {
         User user = userRepository.findByEmail(userEmail)
@@ -30,6 +29,21 @@ public class PostService {
         CommunityPost post = postMapper.toEntity(request);
         post.setUser(user);
         post.setIsApproved(false);
+        post.setImageUrl(request.getImageUrl());
+        post.setCreatedAt(LocalDateTime.now());
+        post.setUpdatedAt(LocalDateTime.now());
+
+        CommunityPost savedPost = postRepository.save(post);
+        return postMapper.toDto(savedPost);
+    }
+
+    public PostDTO addNewPostForAdmin(String userEmail, PostDTO request) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        CommunityPost post = postMapper.toEntity(request);
+        post.setUser(user);
+        post.setIsApproved(true);
         post.setImageUrl(request.getImageUrl());
         post.setCreatedAt(LocalDateTime.now());
         post.setUpdatedAt(LocalDateTime.now());
@@ -60,6 +74,10 @@ public class PostService {
         post.setIsApproved(true);
         post.setUpdatedAt(LocalDateTime.now());
         CommunityPost savedPost = postRepository.save(post);
+
+        // Create notification for post approval
+        notificationService.createPostApprovalNotification(post.getUser(), post.getTitle());
+
         return postMapper.toDto(savedPost);
     }
 
@@ -103,6 +121,25 @@ public class PostService {
         return postMapper.toDto(updatedPost);
     }
 
+    public PostDTO updatePostForAdmin(int postId, String userEmail, PostDTO request) {
+        CommunityPost post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        if (!post.getUser().getEmail().equals(userEmail)) {
+            throw new RuntimeException("You do not have permission to update this post");
+        }
+
+        post.setTitle(request.getTitle());
+        post.setContent(request.getContent());
+        post.setPostType(request.getPostType());
+        post.setImageUrl(request.getImageUrl());
+        post.setIsApproved(true);
+        post.setUpdatedAt(LocalDateTime.now());
+
+        CommunityPost updatedPost = postRepository.save(post);
+        return postMapper.toDto(updatedPost);
+    }
+
     public PostDTO getPostById(int postId) {
         CommunityPost post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
@@ -114,11 +151,4 @@ public class PostService {
                 .orElseThrow(() -> new RuntimeException("Post not found"));
         postRepository.delete(post);
     }
-
-
-
-
-
-
-
 }

@@ -2,6 +2,7 @@ package com.smokingcessation.service;
 
 import com.smokingcessation.dto.res.SavingDTO;
 import com.smokingcessation.dto.res.SmokingEventDTO;
+import com.smokingcessation.dto.res.SmokingProgressDTO;
 import com.smokingcessation.mapper.SmokingEventMapper;
 import com.smokingcessation.model.SmokingEvent;
 import com.smokingcessation.model.User;
@@ -18,7 +19,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +31,8 @@ public class SmokingEventService {
     private final SmokingEventRepository smokingEventRepository;
     private final SmokingEventMapper smokingEventMapper;
     private final UserSmokingProfileRepository userSmokingProfileRepository;
+    private final AchievementService achievementService;
+    private final UserSmokingProfileService userSmokingProfileService;
 
 
     public SmokingEventDTO addNewSmokingEvent(String userEmail, SmokingEventDTO request) {
@@ -47,6 +52,7 @@ public class SmokingEventService {
         smokingEvent.setEventTime(LocalDateTime.now());
 
         SmokingEvent savedEvent = smokingEventRepository.save(smokingEvent);
+        achievementService.checkAndAwardMilestones(userEmail);
         return smokingEventMapper.toDto(savedEvent);
     }
 
@@ -79,6 +85,7 @@ public class SmokingEventService {
         smokingEvent.setEventTime(request.getEventTime() != null ? request.getEventTime() : LocalDateTime.now());
 
         SmokingEvent updatedEvent = smokingEventRepository.save(smokingEvent);
+        achievementService.checkAndAwardMilestones(userEmail);
         return smokingEventMapper.toDto(updatedEvent);
     }
 
@@ -89,5 +96,88 @@ public class SmokingEventService {
             throw new RuntimeException("You do not have permission to delete this smoking event");
         }
         smokingEventRepository.delete(smokingEvent);
+        achievementService.checkAndAwardMilestones(userEmail);
     }
+
+    public List<SmokingProgressDTO> getAllSmokingProgressByUser(Integer userId) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<UserSmokingProfile> profiles = userSmokingProfileRepository.findByUser(user);
+
+        return profiles.stream().map(profile -> {
+            LocalDate startDate = profile.getQuitDate();
+            LocalDate endDate = profile.getEndDate();
+            LocalDate today = LocalDate.now();
+
+            // Ngày kết thúc hợp lệ (hôm nay nếu chưa kết thúc)
+            LocalDate effectiveEnd = (endDate != null && endDate.isBefore(today)) ? endDate : today;
+
+            // Tính số ngày thực hiện, nhưng không tính nếu hôm nay là ngày bắt đầu
+            long daysSinceStart = 0;
+            if (startDate != null && !effectiveEnd.isBefore(startDate) && startDate.isBefore(today)) {
+                daysSinceStart = ChronoUnit.DAYS.between(startDate, effectiveEnd) + 1;
+            }
+
+            Integer targetDays = (startDate != null && endDate != null)
+                    ? (int) ChronoUnit.DAYS.between(startDate, endDate)
+                    : null;
+
+            // Lấy khoảng thời gian sự kiện
+            LocalDateTime from = (startDate != null) ? startDate.atStartOfDay() : LocalDateTime.MIN;
+            LocalDateTime to = (endDate != null) ? endDate.atTime(23, 59, 59) : LocalDateTime.now();
+            List<SmokingEvent> profileEvents = smokingEventRepository.findByUserAndEventTimeBetween(user, from, to);
+
+            // Gom nhóm theo ngày
+            Map<LocalDate, List<SmokingEventDTO>> grouped = profileEvents.stream()
+                    .map(smokingEventMapper::toDto)
+                    .collect(Collectors.groupingBy(dto -> dto.getEventTime().toLocalDate()));
+
+            int cigarettesPerDay = Optional.ofNullable(profile.getCigarettesPerDay()).orElse(0);
+            int cigarettesPerPack = Optional.ofNullable(profile.getCigarettesPerPack()).orElse(20);
+            BigDecimal packCost = Optional.ofNullable(profile.getCigarettePackCost()).orElse(BigDecimal.ZERO);
+
+            BigDecimal pricePerCigarette = BigDecimal.ZERO;
+            if (cigarettesPerPack > 0) {
+                pricePerCigarette = packCost.divide(BigDecimal.valueOf(cigarettesPerPack), 2, RoundingMode.HALF_UP);
+            }
+
+            int totalSmoked = profileEvents.stream()
+                    .mapToInt(SmokingEvent::getCigarettesSmoked)
+                    .sum();
+
+            int expected = cigarettesPerDay * (int) daysSinceStart;
+            int avoided = Math.max(expected - totalSmoked, 0);
+
+            BigDecimal expectedCost = pricePerCigarette.multiply(BigDecimal.valueOf(expected));
+            BigDecimal spentCost = pricePerCigarette.multiply(BigDecimal.valueOf(totalSmoked));
+            BigDecimal moneySaved = expectedCost.subtract(spentCost).max(BigDecimal.ZERO);
+
+            String planResult = userSmokingProfileService.evaluatePlanResult(user.getEmail(), profile.getProfileId());
+
+            double averageCravingLevel = profileEvents.stream()
+                    .filter(e -> e.getCravingLevel() != null)
+                    .mapToInt(SmokingEvent::getCravingLevel)
+                    .average()
+                    .orElse(0.0);
+
+            return SmokingProgressDTO.builder()
+                    .profileId(profile.getProfileId())
+                    .startDate(startDate)
+                    .endDate(endDate)
+                    .daysSinceStart(daysSinceStart)
+                    .targetDays(targetDays)
+                    .status(profile.getStatus())
+                    .planResult(planResult)
+                    .cigarettesPerDay(cigarettesPerDay)
+                    .cigarettesPerPack(cigarettesPerPack)
+                    .cigarettePackCost(packCost)
+                    .moneySaved(moneySaved.setScale(0, RoundingMode.HALF_UP))
+                    .cigarettesAvoided(avoided)
+                    .averageCravingLevel(BigDecimal.valueOf(averageCravingLevel).setScale(2, RoundingMode.HALF_UP))
+                    .smokingHistoryByDate(grouped)
+                    .build();
+        }).toList();
+    }
+
 }
