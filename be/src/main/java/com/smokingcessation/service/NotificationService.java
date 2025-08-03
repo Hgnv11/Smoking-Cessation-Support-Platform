@@ -248,6 +248,7 @@ public class NotificationService {
     public List<UserNotificationDTO> getUserNotificationsSorted(User user) {
         return userNotificationRepository.findByUserOrderByReceivedAtDesc(user)
                 .stream()
+                .filter(n -> !n.getIsHidden())
                 .map(userNotificationMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -259,4 +260,47 @@ public class NotificationService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void markNotificationAsRead(User user, Integer userNotificationId) {
+        UserNotification userNotification = userNotificationRepository.findById(userNotificationId)
+                .orElseThrow(() -> new RuntimeException("Notification not found with ID: " + userNotificationId));
+
+        if (!userNotification.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("Unauthorized to mark this notification as read.");
+        }
+
+        userNotification.setIsRead(true);
+        userNotificationRepository.save(userNotification);
+    }
+
+    @Transactional
+    public void markAllNotificationsAsRead(User user) {
+        List<UserNotification> notifications = userNotificationRepository.findByUserAndIsReadFalse(user);
+        notifications.forEach(notification -> notification.setIsRead(true));
+        userNotificationRepository.saveAll(notifications);
+    }
+
+    public long countUnreadNotifications(User user) {
+        return userNotificationRepository.countByUserAndIsReadFalse(user);
+    }
+
+    @Transactional
+    public void deleteNotification(User user, Integer userNotificationId) {
+        UserNotification userNotification = userNotificationRepository.findById(userNotificationId)
+                .orElseThrow(() -> new RuntimeException("Notification not found with ID: " + userNotificationId));
+
+        if (!userNotification.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("Unauthorized to delete this notification.");
+        }
+
+        userNotification.setIsHidden(true);
+        userNotificationRepository.save(userNotification);
+    }
+
+    @Transactional
+    public void deleteAllNotifications(User user) {
+        List<UserNotification> notifications = userNotificationRepository.findByUserAndIsHiddenFalse(user);
+        notifications.forEach(notification -> notification.setIsHidden(true));
+        userNotificationRepository.saveAll(notifications);
+    }
 }

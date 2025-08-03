@@ -56,7 +56,6 @@ public class PostController {
         return ResponseEntity.ok(createdPost);
     }
 
-
     @Operation(
             summary = "xóa post"
     )

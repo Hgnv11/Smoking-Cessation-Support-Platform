@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface TaskSupportMeasureRepository extends JpaRepository<TaskSupportMeasure, Long> {
     List<TaskSupportMeasure> findByPlanTaskFree_TaskId(Integer taskId);
-
+    void deleteByPlanTaskFree_TaskId(Integer taskId);
 }

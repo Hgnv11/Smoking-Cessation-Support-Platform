@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +35,7 @@ public class PlanTasksProService {
     private final TriggerService triggerService;
     private final ReasonService reasonService;
     private final NotificationService notificationService;
+    private final SmokingEventService smokingEventService;
 
     @Transactional
     public PlanTasksProDTO assignTask(String mentorEmail, PlanTasksProDTO request) {
@@ -182,6 +184,19 @@ public class PlanTasksProService {
 
         Long daysSinceLastSmoke = userSmokingProfileService.getDaysSinceLastSmoke(user.getEmail());
 
+        // Aggregate smoking events by date and sum cigarettes smoked
+        List<UserSmokingHistoryDTO.SmokingEventDTO> smokingEvents = smokingEventService.getSmokingEventsByUserId(user.getUserId())
+                .stream()
+                .collect(Collectors.groupingBy(
+                        event -> event.getEventTime().toLocalDate(),
+                        Collectors.summingInt(event -> event.getCigarettesSmoked())))
+                .entrySet().stream()
+                .map(entry -> UserSmokingHistoryDTO.SmokingEventDTO.builder()
+                        .eventDate(entry.getKey().atStartOfDay())
+                        .cigarettesSmoked(entry.getValue())
+                        .build())
+                .collect(Collectors.toList());
+
         return UserSmokingHistoryDTO.builder()
                 .userId(user.getUserId())
                 .email(user.getEmail())
@@ -191,6 +206,7 @@ public class PlanTasksProService {
                 .triggers(triggerNames)
                 .reasonsForQuitting(reasons)
                 .daysSinceLastSmoke(daysSinceLastSmoke)
+                .smokingEvents(smokingEvents)
                 .build();
     }
 

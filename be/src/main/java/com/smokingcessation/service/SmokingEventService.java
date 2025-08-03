@@ -180,4 +180,8 @@ public class SmokingEventService {
         }).toList();
     }
 
+    public List<SmokingEvent> getSmokingEventsByUserId(Integer userId) {
+        return smokingEventRepository.findByUser_UserId(userId);
+    }
+
 }

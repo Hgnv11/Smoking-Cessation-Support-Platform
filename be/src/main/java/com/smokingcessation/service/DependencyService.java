@@ -147,7 +147,6 @@ public class DependencyService {
         );
     }
 
-
     @Transactional
     private void updateUserScore(Integer userId) {
         List<UserDependencyResponse> responses = responseRepository.findByUser_UserId(userId);
@@ -199,7 +198,6 @@ public class DependencyService {
         score.setAssessmentDate(LocalDateTime.now());
         scoreRepository.save(score);
     }
-
 
     private int calculateCigarettesPerDayPoints(int cigarettesPerDay) {
         if (cigarettesPerDay <= 10) return 0;
